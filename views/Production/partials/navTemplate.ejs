@@ -1,0 +1,73 @@
+
+<style>
+    .mdl-layout__drawer {
+        width: 350px;
+        left: -250px;
+    }
+    .mdl-layout__drawer.is-visible {
+        left: 0;
+    }
+    .abc {
+        color:black;
+    }
+    
+</style>
+<div class="mdl-layout__drawer" style="border: none;">
+    <div class="sidebar-header">
+        <span class="mdl-layout-title" style="color: white; font-size: 30px; margin: 50px 20px;">Sản Xuất</span>
+        <div class="mdl-layout-spacer"></div>
+    </div>
+    
+    <nav class="mdl-navigation">
+        <style>
+            .abc:hover{
+                color:indigo;
+            }
+        </style>
+        <div style="margin-left: 40px;"><b>Vận Hành</b></div>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/Production/PayrollCheck">
+            <i class="material-icons" style="margin-right: 20px;">attach_money</i>
+            Kiểm Tra Tem Lương
+        </a>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/Production/LineBalancing">
+            <i class="material-icons" style="margin-right: 20px;">explore</i>
+            Cân Bằng Chuyền
+        </a>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/Production/OffStandard">
+            <i class="material-icons" style="margin-right: 20px;">work_off</i>
+            Off Standard
+        </a>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/Production/AutoKanban">
+            <i class="material-icons" style="margin-right: 20px;">question_answer</i>
+            Phát Tem & Auto Kanban
+        </a>
+        <hr>
+        <!-- <h5>Thông tin</h5> -->
+        <div style="margin-left: 40px;"><b>Thông Tin</b></div>
+        <a class="mdl-navigation__link abc" style="color: black; font-size: 14px;" href="/Production/Production">
+            <i class="material-icons" style="margin-right: 20px;">settings</i>
+            Sản Lượng Theo Chuyền
+        </a>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/Production/MixSolve">
+            <i class="material-icons" style="margin-right: 20px;">offline_bolt</i>
+            Kiểm Tra Tem Trùng
+        </a>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/Production/Reports">
+            <i class="material-icons" style="margin-right: 20px;">description</i>
+            Kiểm tra CutLot
+        </a>
+        <hr>
+        <div style="margin-left: 40px;"><b>Nghiệp vụ</b></div>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/Production/Zone">
+            <i class="material-icons" style="margin-right: 20px;">table_rows</i>
+             Quản lý zone, line
+        </a>
+        <hr>
+        <div style="margin-left: 40px;"><b>Trở Về</b></div>
+        <a class="mdl-navigation__link" style="color: black; font-size: 14px;" href="/">
+            <i class="material-icons" style="margin-right: 20px;">keyboard_backspace</i>
+            Trang Chủ
+        </a>
+        <div class="text-right developer">Contact dev: <a href="mailto:Tuyen.Nguyen@hanes.com">Tuyen.Nguyen@hanes.com</a></div>
+    </nav>
+</div>

@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+    
+        <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+        <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+        <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
+        <link rel="stylesheet" href="/Contents/css/main.css">
+        <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css"/>
+
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+        <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
+        <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+        <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+        <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+        <script src="/Contents/libs/select2/select2.min.js"></script>
+        <script defer src="/JS/mdl/material.min.js"></script>
+        <script defer type="text/javascript" src="/JS/chart/Chart.js"></script>
+        <title>Cutting Payroll Check</title>
+
+        <style>
+            .mdl-badge[data-badge]:after {
+                background-color: indigo;
+                color: white;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+            <header class="mdl-layout__header">
+                <div class="mdl-layout__header-row">
+                    <span class="mdl-layout-title">KIỂM TRA TEM LƯƠNG</span>
+                    <%- include ("partials/headerTemplate.ejs"); -%>
+                </div>
+                <div class="mdl-layout__tab-bar mdl-js-ripple-effect">
+                    <a href="#scroll-tab-1" class="mdl-layout__tab is-active">Thông tin File Scan</a>
+                    <a href="#scroll-tab-2" class="mdl-layout__tab">Tìm kiếm theo Nhân Viên</a>
+                    <a href="#scroll-tab-6" class="mdl-layout__tab">Tìm kiếm Bundle</a>
+                    <a href="#scroll-tab-3" class="mdl-layout__tab">Tìm kiếm theo Worklot</a>
+                    <a href="#scroll-tab-4" class="mdl-layout__tab" style="display: none;">Kiểm tra tem</a>
+                    <a href="#scroll-tab-5" class="mdl-layout__tab" style="display: none;">Xử lý thiếu tem</a>
+                </div>
+            </header>
+            <%- include ("partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <section class="mdl-layout__tab-panel is-active" id="scroll-tab-1">
+                    <div class="page-content">
+                        <div style="width: 95%; margin: 10px auto; border-radius: 10px;">
+                            <div class="mdl-grid mdl-shadow--6dp" style="background: white; border-radius: 10px;">
+                                <div style="margin: 10px auto;">
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 50px;">
+                                        <input class="mdl-textfield__input" type="date" id="date_group_search">
+                                        <label class="mdl-textfield__label" for="date_group_search">Chọn ngày</label>
+                                    </div>
+                                    <div id="cbb_group" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" 
+                                            style="width: 100px; margin-right: 50px;">
+                                        <input type="text" value="" class="mdl-textfield__input" id="txt_group" readonly>
+                                        <input type="hidden" value="" name="groupScan">
+                                        <label for="groupScan" class="mdl-textfield__label">Cụm</label>
+                                        <ul for="groupScan" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="groupScanList">
+                                            <li class="mdl-menu__item" data-selected="true">BRM-1</li>
+                                            <li class="mdl-menu__item">BRM-2</li>
+                                        </ul>
+                                    </div>
+                                    <div id="cbb_shift" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" 
+                                            style="width: 100px; margin-right: 50px;">
+                                        <input type="text" value="" class="mdl-textfield__input" id="txt_shift" readonly>
+                                        <input type="hidden" value="" name="shiftScan">
+                                        <label for="shiftScan" class="mdl-textfield__label">Ca</label>
+                                        <ul for="shiftScan" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="shiftScanList">
+                                            <li class="mdl-menu__item" data-val="CALE" data-selected="true">CALE</li>
+                                            <li class="mdl-menu__item" data-val="CACHAN">CACHAN</li>
+                                        </ul>
+                                    </div>
+                                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" id="btn_group_search">
+                                        <i class="material-icons">search</i>
+                                    </button>
+                                    <!-- <button class="mdl-button mdl-js-button mdl-button--raised 
+                                        mdl-js-ripple-effect mdl-button--accent" style="position: fixed; bottom: 20px; right:20px; z-index: 1000; background-color: green;" id="btn_group_report">
+                                        <i class="material-icons" style="margin-right: 5px;">assignment</i>XEM BẢNG LƯƠNG
+                                    </button> -->
+                                    <button class="mdl-button mdl-js-button mdl-button--fab 
+                                        mdl-js-ripple-effect mdl-button--colored" style="position: fixed; bottom: 50px; right:40px; z-index: 10; background-color: green;" id="btn_group_report">
+                                        <i class="material-icons">assignment</i>
+                                    </button>
+                                    <div class="mdl-tooltip" for="btn_group_report" style="z-index: 11;">
+                                        <p style="font-size:12px">XEM BẢNG LƯƠNG</p>
+                                    </div>
+                                    <button class="mdl-button mdl-js-button mdl-button--fab 
+                                        mdl-js-ripple-effect mdl-button--colored" style="position: fixed; bottom: 120px; right:40px; z-index: 10; background-color: orangered;" id="btn_group_wip">
+                                        <i class="material-icons">insert_chart</i>
+                                    </button>
+                                    <div class="mdl-tooltip" for="btn_group_wip" style="z-index: 11;">
+                                        <p style="font-size:12px">XEM BÁO CÁO</p>
+                                    </div>
+                                    <button class="mdl-button mdl-js-button mdl-button--fab 
+                                        mdl-js-ripple-effect mdl-button--colored" style="position: fixed; bottom: 190px; right:40px; z-index: 10; background-color: blue;" id="btn_group_output">
+                                        <i class="material-icons">description</i>
+                                    </button>
+                                    <div class="mdl-tooltip" for="btn_group_output" style="z-index: 11;">
+                                        <p style="font-size:12px;">THÔNG TIN SẢN LƯỢNG</p>
+                                    </div>
+                                </div>
+                                <div style="width: 100%;">
+                                    <div id="table_group_spinner" style="margin-left: 50%;"></div>
+                                </div>
+                                <div style="width: 90%; margin: 0px auto;">
+                                    <ul style="margin:0px 0px;">
+                                        <li class="mdl-list__item" style="margin-top: 0px;">
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: green;">scanner</i>
+                                                    <div  id="txt_image_scanned" onclick="show_group_detail()">
+                                                        Số tem Hệ thống ghi nhận: 0
+                                                    </div>
+                                                    <div class="mdl-tooltip" for="txt_image_scanned" style="font-size: 15px;">
+                                                        Chọn để xem chi tiết
+                                                    </div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: red;">warning</i>
+                                                    <div id="txt_image_error_scan">Số ảnh thiếu Tem QC hoặc ID NV: 0</div>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                    <!-- <div style="color: red; width: 90%;">
+                                        <i class="material-icons" style="margin-right: 20px;">policy</i>Chú ý: <b>VỆ SINH MÁY NẾU THẤY 1 VẠCH DỌC TRÊN ẢNH SCAN VÀ SCAN LẠI!</b>
+                                    </div> -->
+                                </div>
+                                <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                                    <div class="mdl-tabs__tab-bar"  style='border: none;'>
+                                        <a href="#scan-check" class="mdl-tabs__tab is-active">Thiếu tem Scan</span></a>
+                                        <!-- <a href="#double-check" class="mdl-tabs__tab"><span class="mdl-badge" id="txt_badge_double" style="display: none;">NV có trên 1 CĐ/1 tờ tem</span></a> -->
+                                        <a href="#wip-check" class="mdl-tabs__tab"><span class="mdl-badge" id="txt_badge_wip">WIP Scan</span></a>
+                                        <a href="#notprocess-check" class="mdl-tabs__tab"><span class="mdl-badge" id="txt_badge_err">không xử lý được</span></a>
+                                    </div>
+                                    <div class="mdl-tabs__panel is-active" id="scan-check">
+                                        <div id="table_group_search" class="mdl-card" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display:none;">
+                                            <ul style="margin:0px 0px;">
+                                                <li class="mdl-list__item" style="margin-top: 0px;">
+                                                    <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                        <i class="material-icons mdl-list__item-icon" style="color: orange;">credit_card</i>
+                                                            <div id="txt_image_error_bundle">Thiếu tem NV: 0</div>
+                                                    </span>
+                                                    <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                        <i class="material-icons mdl-list__item-icon" style="color: blue;">toys</i>
+                                                            <div id="txt_image_error_qc">Thiếu tem QC: 0</div>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                            <div class="mdl-card mdl-shadow--8dp" style="width: 100% ; margin: 10px auto; overflow-x:auto; border-radius: 10px;">
+                                                <table class="mdl-data-table mdl-js-data-table" style="border: none; width: 100%;">
+                                                    <thead style="background-color: green;">
+                                                        <tr>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">STT</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">BUNDLE</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">QC</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">TÌNH TRẠNG</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">FILE SCAN</th>
+                                                            <!-- <th class="mdl-data-table__cell--non-numeric" style="color: white;">FILE HT</th> -->
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="table_group_search_body">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mdl-tabs__panel" id="double-check">
+                                        <div id="table_double_search" class="mdl-card" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display:none;">
+                                            <table class="mdl-data-table mdl-js-data-table" style="border: none;">
+                                                <thead style="background-color: indigo;">
+                                                    <tr>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">STT</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">MÃ NHÂN VIÊN</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">QC</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">SỐ TEM</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">FILE</th>
+                                                        <!-- <th class="mdl-data-table__cell--non-numeric">FILE HT</th> -->
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table_double_search_body">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="mdl-tabs__panel" id="wip-check">
+                                        <div id="table_wip_search" class="mdl-card" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display:none;">
+                                            <ul style="margin:0px 0px;">
+                                                <li class="mdl-list__item" style="margin-top: 0px;">
+                                                    <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                        <i class="material-icons mdl-list__item-icon" style="color: indigo;">assignment</i>
+                                                            <div id="txt_wip">WIP Sewing: 0</div>
+                                                    </span>
+                                                    <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:right;">
+                                                        <i class="material-icons mdl-list__item-icon" style="color: orangered;">lock</i>
+                                                            <div id="txt_wip_ns">WIP Non-Sewing: 0</div>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                            <table class="mdl-data-table mdl-js-data-table" style="border: none;">
+                                                <thead style="background-color: orange;">
+                                                    <tr>
+                                                        <th class="mdl-data-table__cell--non-numeric">STT</th>
+                                                        <th class="mdl-data-table__cell--non-numeric">BUNDLE</th>
+                                                        <th class="mdl-data-table__cell--non-numeric">QC</th>
+                                                        <th class="mdl-data-table__cell--non-numeric">IS FULL</th>
+                                                        <th class="mdl-data-table__cell--non-numeric">FILE SCAN</th>
+                                                        <!-- <th class="mdl-data-table__cell--non-numeric">FILE HT</th> -->
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table_wip_search_body">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                    <div class="mdl-tabs__panel" id="notprocess-check" >
+                                        <div id="table_error_search" class="mdl-card" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display:none;">
+                                            <ul style="margin:0px 0px;">
+                                                <li class="mdl-list__item" style="margin-top: 0px;">
+                                                    <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                        <i class="material-icons mdl-list__item-icon" style="color: rgb(0, 255, 0);">info</i>
+                                                            <div id="txt_error_scan">Hệ thống không xử lý được: 0</div>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                            <table class="mdl-data-table mdl-js-data-table" style="border: none;">
+                                                <thead style="background-color: rgb(116, 116, 116);">
+                                                    <tr>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">STT</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">FILE</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table_error_search_body">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="mdl-layout__tab-panel" id="scroll-tab-2">
+                    <div class="page-content">
+                        <div style="width: 95%; margin: 10px auto; border-radius: 10px;">
+                            <div class="mdl-grid mdl-shadow--6dp" style="background: white; border-radius: 10px;">
+                                <div style="margin: 10px auto;">
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 50px;">
+                                        <input class="mdl-textfield__input" type="date" id="date_ID_search_from">
+                                        <label class="mdl-textfield__label" for="date_ID_search_from">Từ ngày</label>
+                                    </div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 50px;">
+                                        <input class="mdl-textfield__input" type="date" id="date_ID_search">
+                                        <label class="mdl-textfield__label" for="date_ID_search">Đến ngày</label>
+                                    </div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 200px; margin-right: 50px;">
+                                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="txt_ID">
+                                        <label class="mdl-textfield__label" for="txt_ID">Nhập mã ID Công Nhân</label>
+                                        <span class="mdl-textfield__error">ID là 1 con số!</span>
+                                    </div>
+                                    <button class="mdl-button mdl-js-button mdl-button--fab 
+                                            mdl-js-ripple-effect mdl-button--colored" id="btn_ID_search">
+                                        <i class="material-icons">search</i>
+                                    </button>
+                                </div>
+                                <div style="width: 100%;">
+                                    <div id="table_ID_spinner" style="margin-left: 50%; margin-top: 5px;"></div>
+                                </div>
+                                <div style="width: 90%; margin: 0px auto;">
+                                    <ul style="margin:0px 0px;">
+                                        <li class="mdl-list__item">
+                                            <span class="mdl-list__item-primary-content" style="width: 70%; text-align: left; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: indigo;">face</i>
+                                                    <div id="txt_ID_name" style="color: indigo;">Họ và Tên:</div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: red;">fingerprint</i>
+                                                    <div id="txt_ID_ID" style="color: red;">ID:</div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: green;">brightness_1</i>
+                                                    <div id="txt_ID_shift" style="color: green;">Ca:</div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: orange;">location_on</i>
+                                                    <div id="txt_ID_line" style="color: orange;">Line:</div>
+                                            </span>
+                                        </li>
+                                        <hr>
+                                        <li class="mdl-list__item">
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: green;">art_track</i>
+                                                    <div id="txt_sum_ticket">Tổng tem: 0</div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: orange;">person</i>
+                                                    <div id="txt_sum_sah">Earn Hours: 0</div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: blue;">timer</i>
+                                                    <div id="txt_reg_hrs">Giờ quẹt thẻ: 0</div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: red;">eco</i>
+                                                    <div id="txt_ot">Giờ tăng ca: 0</div>
+                                            </span>
+                                        </li>
+                                        <li class="mdl-list__item">
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: indigo;">filter_3</i>
+                                                    <div id="txt_cd03">Giờ 03: 0</div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: gray;">filter_8</i>
+                                                    <div id="txt_cd08">Giờ 08: 0</div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: violet;">filter_9</i>
+                                                    <div id="txt_cd09">Giờ 09: 0</div>  
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: yellow;">menu_book</i>
+                                                    <div id="txt_efficiency">Hiệu suất: 0</div>
+                                            </span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div id="table_ID_search" class="mdl-card mdl-shadow--6dp" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display:none;">
+                                    <table class="mdl-data-table mdl-js-data-table" style="border: none;">
+                                        <thead style="background-color: gray;">
+                                            <tr>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">BUNDLE</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">CODE</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">SAH</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">SAH_ADJ</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">UNITS</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">WORKLOT</th>
+                                                <!-- <th class="mdl-data-table__cell--non-numeric" style="color: white;">SAH_ADJ</th> -->
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">FILE</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table_ID_search_body">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="mdl-layout__tab-panel" id="scroll-tab-6">
+                    <div class="page-content">
+                        <div style="width: 95%; margin: 10px auto; border-radius: 10px;">
+                            <div class="mdl-grid mdl-shadow--6dp" style="background: white; border-radius: 10px;">
+                                <div style="margin: 10px auto;">
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" id="div_bundle_search" style="width: 200px; margin-right: 50px;">
+                                        <input class="mdl-textfield__input" type="text" id="txt_bundle_search" value="a">
+                                        <label class="mdl-textfield__label" for="txt_bundle_search">Nhập mã Bundle</label>
+                                    </div>
+                                    <button class="mdl-button mdl-js-button mdl-button--fab 
+                                            mdl-js-ripple-effect mdl-button--colored" id="btn_bundle_search">
+                                        <i class="material-icons">search</i>
+                                    </button>
+                                </div>
+                                <div style="width: 100%;">
+                                    <div id="table_bundle_spinner" style="margin-left: 50%; margin-top: 20px;"></div>
+                                </div>
+                                <div id="table_bundle_search" class="mdl-card mdl-shadow--6dp" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display:none;">
+                                    <table class="mdl-data-table mdl-js-data-table" style="border: none;">
+                                        <!-- <col width="15px">  -->
+                                        <!-- <col width="50px">  -->
+                                        <thead style="background-color: orange;">
+                                            <tr>
+                                                <th class="mdl-data-table__cell--non-numeric">STT</th>
+                                                <th class="mdl-data-table__cell--non-numeric">TICKET</th>
+                                                <th class="mdl-data-table__cell--non-numeric">NHÂN VIÊN</th>
+                                                <th class="mdl-data-table__cell--non-numeric">NGÀY EARN</th>
+                                                <th class="mdl-data-table__cell--non-numeric">SAM</th>
+                                                <th class="mdl-data-table__cell--non-numeric">WORKLOT</th>
+                                                <th class="mdl-data-table__cell--non-numeric">FILE SCAN</th>
+                                                <th class="mdl-data-table__cell--non-numeric">CHỈNH SỬA</th>
+                                                <th class="mdl-data-table__cell--non-numeric">QC</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table_bundle_search_body">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="mdl-layout__tab-panel" id="scroll-tab-3">
+                    <div class="page-content">
+                        <div style="width: 95%; margin: 10px auto; border-radius: 10px;">
+                            <div class="mdl-grid mdl-shadow--6dp" style="background: white; border-radius: 10px;">
+                                <div style="margin: 10px auto;">
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 200px; margin-right: 50px;">
+                                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="txt_worklot">
+                                        <label class="mdl-textfield__label" for="txt_worklot">Nhập mã Worklot</label>
+                                        <span class="mdl-textfield__error">Worklot là 1 con số!</span>
+                                    </div>
+                                    <button class="mdl-button mdl-js-button mdl-button--fab 
+                                            mdl-js-ripple-effect mdl-button--colored" id="btn_worklot_summary">
+                                        <i class="material-icons">search</i>
+                                    </button>
+                                </div>
+                                <div style="width: 100%;">
+                                    <div id="table_worklot_spinner" style="margin-left: 50%; margin-top: 20px;"></div>
+                                </div>
+                                <div style="width: 90%; margin: 0px auto;">
+                                    <!-- <div style="width:90%; margin: 10px auto; background-color: white; display: none;" id="worklot_chart_div">
+                                        <canvas id="worklot_chart"></canvas>
+                                    </div> -->
+                                    <ul style="margin:0px 0px;">
+                                        <li class="mdl-list__item">
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: green;">art_track</i>
+                                                    <div id="txt_issue">Số tờ đã in: 0</div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: orange;">scanner</i>
+                                                    <div id="txt_scan">Số tờ đã scan: 0</div>
+                                            </span>
+                                        </li>
+                                        <li class="mdl-list__item">
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: red;">close</i>
+                                                    <div id="txt_notscan">Số tờ chưa scan: 0</div>
+                                            </span>
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: blue;">keyboard_return</i>
+                                                    <div id="txt_ia">Số tờ trả IA: 0</div>
+                                            </span>
+                                        </li>
+                                        <li class="mdl-list__item">
+                                            <span class="mdl-list__item-primary-content" style="width: 50%; text-align: left; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: indigo;">send</i>
+                                                    <div id="txt_sup_release" onclick="func_supervisor_release_bundle()" 
+                                                    style="cursor: pointer;">Phát tem: 0</div>
+                                                    <div class="mdl-tooltip" style="font-size: 12px;" data-mdl-for="txt_sup_release">
+                                                        Chọn để hiển thị chi tiết
+                                                    </div>
+                                            </span>
+                                            <!-- <span class="mdl-list__item-primary-content" style="width: 50%; text-align: right; float:left;">
+                                                <i class="material-icons mdl-list__item-icon" style="color: blue;">keyboard_return</i>
+                                                    <div id="txt_ia">Số tờ trả IA: 0</div>
+                                            </span> -->
+                                        </li>
+                                    </ul>
+                                </div>
+                                <h5 style="margin-left: 90px">Các tờ bị thiếu tem lẻ:</h5>
+                                <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                                    <div class="mdl-tabs__tab-bar">
+                                        <a href="#err-panel" class="mdl-tabs__tab is-active">THIẾU TEM</a>
+                                        <!-- <a href="#full-panel" class="mdl-tabs__tab">CHI TIẾT</a>
+                                        <a href="#aql-panel" class="mdl-tabs__tab">AQL</a> -->
+                                    </div>
+                                  
+                                    <div class="mdl-tabs__panel is-active" id="err-panel">
+                                        <ul>
+                                            <div id="table_worklot_summary" class="mdl-card mdl-shadow--6dp" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display:none;">
+                                                <table class="mdl-data-table mdl-js-data-table">
+                                                    <thead style="background-color: indigo;">
+                                                        <tr>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">Bundle</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">Tem</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">Kho in</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">Đã scan</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">Trả IA</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">Còn lại</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">Tình trạng</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="table_worklot_summary_body">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </ul>
+                                    </div>
+                                    <div class="mdl-tabs__panel" id="full-panel">
+                                        <ul>
+                                            <div id="table_worklot_search" class="mdl-card mdl-shadow--2dp" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display:none;">
+                                                <table class="mdl-data-table mdl-js-data-table">
+                                                    <col width="21px">
+                                                    <thead style="background-color: red;">
+                                                        <tr>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">TICKET</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">CĐ</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">ID NV</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">TÊN NV</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">CĐ ĐK</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">CỤM</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">SAH</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">SAH_ADJ</th>
+                                                            <th class="mdl-data-table__cell--non-numeric" style="color: white">UNIT</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="table_worklot_search_body">
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </ul>
+                                    </div>
+                                    <!-- <div class="mdl-tabs__panel is-active" id="aql-panel">
+                                        <div id="table_aql" class="mdl-card mdl-shadow--2dp" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display: none;">
+                                            <table class="mdl-data-table mdl-js-data-table">
+                                                <col width="21px">
+                                                <thead style="background-color: green;">
+                                                    <tr>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white">BÀN</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white">WORKLOT</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white">QC KIỂM</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white">LỖI</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white">NV TẠO LỖI</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white">CA</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white">CỤM</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white">SỐ LỖI</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white">MẪU KIỂM</th>
+                                                        <th class="mdl-data-table__cell--non-numeric" style="color: white">FILE</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="table_aql_body">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div> -->
+                                </div>
+                                <!-- <div id="table_worklot_summary" class="mdl-card mdl-shadow--6dp" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display:none;">
+                                    <table class="mdl-data-table mdl-js-data-table">
+                                        <thead style="background-color: indigo;">
+                                            <tr>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white">Bundle</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white">Tem</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white">Kho in</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white">Đã scan</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white">Trả IA</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white">Còn lại</th>
+                                                <th class="mdl-data-table__cell--non-numeric" style="color: white">Tình trạng</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table_worklot_summary_body">
+                                        </tbody>
+                                    </table>
+                                </div> -->
+                                
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="mdl-layout__tab-panel" id="scroll-tab-4">
+                    <div class="page-content">
+                        <div style="width: 95%; margin: 10px auto; border-radius: 10px;">
+                            <div class="mdl-grid mdl-shadow--6dp" style="background: white; border-radius: 10px;">
+                                <div style="margin: 10px auto;">
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 200px; margin-right: 50px;">
+                                        <input class="mdl-textfield__input" type="text" id="txt_ticket_search" maxlength="10">
+                                        <label class="mdl-textfield__label" for="txt_ticket_search">Scan Ticket</label>
+                                    </div>
+                                    <p id="txt_ticket_status"></p>
+                                    <button class="mdl-button mdl-js-button mdl-button--fab 
+                                            mdl-js-ripple-effect mdl-button--colored" id="btn_ticket_delete">
+                                        <i class="material-icons">delete</i>
+                                    </button>
+                                </div>
+                                <div style="width: 100%;">
+                                    <div id="table_ticket_spinner" style="margin-left: 50%; margin-top: 20px;"></div>
+                                </div>
+                                <div id="table_ticket_search" class="mdl-card" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px;">
+                                    <table class="mdl-data-table mdl-js-data-table" style="border: none;">
+                                        <thead>
+                                            <tr>
+                                                <th class="mdl-data-table__cell--non-numeric">STT</th>
+                                                <th class="mdl-data-table__cell--non-numeric">TICKET</th>
+                                                <th class="mdl-data-table__cell--non-numeric">TRẠNG THÁI</th>                                          
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table_ticket_search_body">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section class="mdl-layout__tab-panel" id="scroll-tab-5">
+                    <div class="page-content"  style="margin:10px auto; width:95vw; height: 85vh; ">
+                        <!-- <div>
+                            <embed src="../Assets/HuongDanQlyTem.pdf" style="width: 95vw; height: 85vh; margin: 10px auto;"/>
+                        </div> -->
+                        <div style="width: 95%; margin: 10px auto; border-radius: 10px;">
+                            <div class="mdl-grid mdl-shadow--6dp" style="background: white; border-radius: 10px;">
+                                <div style="margin: 10px auto;">
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 50px;">
+                                        <input class="mdl-textfield__input" type="date" id="date_change_scan">
+                                        <label class="mdl-textfield__label" for="date_change_scan">Chọn ngày</label>
+                                    </div>
+                                    <form id='upload_change_scan' method='POST' action='/Payroll_Search/Update_Date_Scan' style="display: none;" submit='return false;'>
+                                        <input type='file' name='file' id='file' style="display: none;" onchange="upload_file_event(this)"   multiple>
+                                        <input type='submit' id='submit' style='display: none;'>
+                                    </form>
+                                    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" id="btn_change_scan">
+                                        <i class="material-icons">search</i>
+                                    </button>
+                                </div>
+                            </div>  
+                        </div>  
+                    </div>
+                </section>
+            </main>
+        </div>
+    </body>
+    <dialog id='data' style="border: none; border-radius: 10px; transition: width 2s; width: 1100px;" >
+        <div class='mdl-grid'>
+            <div class="mdl-cell mdl-cell--10-col">
+                <img id="show_image" alt="Scan Anh">
+            </div>
+            <div class="mdl-cell mdl-cell--2-col">
+                <div style="position: fixed; top:20px;">
+                    <h4 style="color: indigo; margin: 0px auto;">ĐIỀU CHỈNH TEM</h4>
+                    <div>
+                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1" style="margin-top: 15px; width: 200px; display: none">
+                            <input type="radio" id="option-1" class="mdl-radio__button" name="cb_option" value="1" checked>
+                            <span class="mdl-radio__label">Danh sách</span>
+                        </label>
+                    </div>
+                    <div>
+                        <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2" style="margin-top: 10px; width: 200px; display: none;">
+                            <input type="radio" id="option-2" class="mdl-radio__button" name="cb_option" value="2" disabled>
+                            <span class="mdl-radio__label">Nhập tay</span>
+                        </label>
+                    </div>
+                    <!-- <div style="margin-right: 50px; color: red; width: 150px;"><b>K'0' (số không)</b>, không phải KO (chữ O)</div> -->
+                    <div id="cbb_bundle" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" 
+                            style="width: 150px; ">
+                        <input type="text" value="" class="mdl-textfield__input" id="bundleScan" readonly>
+                        <input type="hidden" value="" name="bundleScan">
+                        <label for="bundleScan" class="mdl-textfield__label">Mã Bundle</label>
+                        <ul for="bundleScan" class="mdl-menu mdl-menu--bottom-left mdl-js-menu" id="bundleScanList">
+                        </ul>
+                    </div>
+                    <div id='txt_bundle' class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 150px; display: none;">
+                        <input class="mdl-textfield__input" type="text" id="bundleScan_txt" maxlength="10">
+                        <label class="mdl-textfield__label" for="bundleScan_txt">Bundle</label>
+                        <span class="mdl-textfield__error">Mã Bundle có 10 chữ số!</span>
+                    </div>
+                    <!-- <div> -->
+                    <div></div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 150px;">
+                        <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="txt_ID_add" maxlength="5">
+                        <label class="mdl-textfield__label" for="txt_ID_add">ID Nhân viên</label>
+                        <span class="mdl-textfield__error">Mã NV có 5 chữ số!</span>
+                    </div>
+                    <div id='txt_name' style="color: indigo"></div>
+                    <div>
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" 
+                            style="margin-top:10px; width: 150px; color: white; background-color: green;" 
+                            id="btn_bundle_submit" >
+                                Xác nhận
+                            <i class="material-icons">done</i>
+                        </button>
+                        <div></div>
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" 
+                            style="width: 150px; color: white; background-color: red; margin-top: 5px;" 
+                            id="btn_bundle_cancel">
+                                Quay lại
+                            <i class="material-icons">clear</i>
+                        </button>
+                        <div></div>
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" 
+                            style="width: 150px; color: white; background-color: purple; margin-top: 30px; display: none;" 
+                            id="btn_bundle_skip">
+                                Bỏ qua ảnh
+                            <i class="material-icons">clear_all</i>
+                        </button>
+                        <div></div>
+                        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" 
+                            style="width: 150px; color: white; background-color: purple; margin-top: 30px; display: none;" 
+                            id="btn_bundle_confirm">
+                                Đã scan lại
+                            <i class="material-icons">low_priority</i>
+                        </button>
+                        <div style=' margin-top: 5px; color: orangered;'>Ticket - Mã nhân viên</div>
+                        <div id="txt_note" style="color: indigo; font-size: 13px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </dialog>
+    <dialog id='dialog_group_report' style="border: none; border-radius: 10px; transition: width 2s; width: 1100px;">
+        <div style="width: 100%;">
+            <div id="dialog_group_report_spinner" style="margin-left: 50%;"></div>
+        </div>
+        <div id="table_group_report" style="margin: 0px auto; overflow-x:auto; display: none;">
+            <table class="mdl-data-table mdl-js-data-table" style="width: 100%;">
+                <col width="21px">
+                <thead style="background-color: green;">
+                    <tr>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">STT</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">ID</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">TÊN</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">SAH</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">CÔNG ĐOẠN</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">SỐ TEM</th>
+                        <!-- <th class="mdl-data-table__cell--non-numeric">QUẸT THẺ</th>
+                        <th class="mdl-data-table__cell--non-numeric">NGHỈ SX</th>
+                        <th class="mdl-data-table__cell--non-numeric">HIỆU SUẤT</th> -->
+                    </tr>
+                </thead>
+                <tbody id="table_group_report_body">
+                </tbody>
+            </table>
+        </div>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" 
+            style="width: 100px; color: white; background-color: purple; margin-top: 20px;" 
+            id="btn_group_report_close">
+                Đóng
+            <i class="material-icons">close</i>
+        </button>
+    </dialog>
+    <dialog id='dialog_group_detail' style="border: none; border-radius: 10px; transition: width 2s; width: 1100px;">
+        <div style="width: 100%;">
+            <div id="dialog_group_detail_spinner" style="margin-left: 50%;"></div>
+        </div>
+        <div id="table_group_detail" style="margin: 0px auto; overflow-x:auto; display: none;">
+            <table class="mdl-data-table mdl-js-data-table" style="width: 100%;">
+                <col width="21px">
+                <thead style="background-color: indigo;">
+                    <tr>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white">STT</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white">TÊN ẢNH</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white">KHUNG GIỜ</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white">TEM ĂN/TỔNG TEM</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white">LẦN ĐẦU SCAN</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white">SCAN LẠI</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white">TÊN SERIES</th>
+                    </tr>
+                </thead>
+                <tbody id="table_group_detail_body">
+                </tbody>
+            </table>
+        </div>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" 
+            style="width: 100px; color: white; background-color: purple; position: fixed; bottom: 10px; left: 20px;" 
+            id="btn_group_detail_close">
+                Đóng
+            <i class="material-icons">close</i>
+        </button>
+    </dialog>
+    <dialog id='dialog_wip_detail' style="border: none; border-radius: 10px; transition: width 2s; width: 90%;">
+        <!-- <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+            <div class="mdl-tabs__tab-bar" style="border: none;">
+                <a href="#wip_tab" class="mdl-tabs__tab is-active">Báo cáo WIP</a>
+                <a href="#colorbalancing_tab" class="mdl-tabs__tab">Báo cáo Cân Bằng Màu</a>
+                <a href="#kickout_tab" class="mdl-tabs__tab">Báo cáo KickOut</a>
+            </div>
+            <div class="mdl-tabs__panel is-active" id="wip_tab">
+                <img id="wip_img" alt="WIP" style="width: 100%;">
+            </div>
+            <div class="mdl-tabs__panel is-active" id="colorbalancing_tab">
+                <img id="color_img" alt="ColorBalancing" style="width: 100%;">
+            </div>
+            <div class="mdl-tabs__panel is-active" id="kickout_tab">
+                <img id="kickout_img" alt="KickOutput" style="width: 100%;">
+            </div>
+        </div> -->
+        <!-- <style>
+            table, th, td {
+                border: 1px solid black;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding: 5px;
+                text-align: center;    
+            }
+        </style> -->
+        <table style="width:100%">
+            <thead>
+                <tr>
+                    <th rowspan="2" style="background-color: blue; color: white;">MACHINE</th>
+                    <th rowspan="2" style="background-color: blue; color: white;">CUTLOT</th>
+                    <th rowspan="2" style="background-color: blue; color: white;">ASSORTLOT</th>
+                    <td colspan="5" style="background-color: yellow; color: black;">BODY</td>
+                    <td colspan="5" style="background-color: yellow; color: black;">BELT</td>
+                    <td colspan="2" style="background-color: yellow; color: black;">BINDING</td>
+                    <td colspan="2" style="background-color: yellow; color: black;">CTEX</td>
+                    <td colspan="2" style="background-color: yellow; color: black;">BRB</td>
+                </tr>
+                <tr>
+                    <td style="background-color: lightskyblue;">MHL</td>
+                    <td style="background-color: lightskyblue;">SPR</td>
+                    <td style="background-color: lightskyblue;">CUT</td>
+                    <td style="background-color: lightskyblue;">BDL</td>
+                    <td style="background-color: lightskyblue;">CAS</td>
+                    <td style="background-color: lightskyblue;">MH2</td>
+                    <td style="background-color: lightskyblue;">SP2</td>
+                    <td style="background-color: lightskyblue;">CU2</td>
+                    <td style="background-color: lightskyblue;">BD2</td>
+                    <td style="background-color: lightskyblue;">CA2</td>
+                    <td style="background-color: lightskyblue;">BIS</td>
+                    <td style="background-color: lightskyblue;">STS</td>
+                    <td style="background-color: lightskyblue;">CTE</td>
+                    <td style="background-color: lightskyblue;">CT2</td>
+                    <td style="background-color: lightskyblue;">PRE</td>
+                    <td style="background-color: lightskyblue;">BRB</td>
+                </tr>
+            </thead>
+            <tbody id="table_wip_body">
+            </tbody>
+        </table>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" 
+            style="width: 100px; color: white; background-color: purple; position: fixed; bottom: 10px; left: 20px;" 
+            id="btn_wip_detail_close">
+                Đóng
+            <i class="material-icons">close</i>
+        </button>
+    </dialog>
+    <dialog id='dialog_output_detail' style="border: none; border-radius: 10px; transition: width 2s; width: 90%;">
+        <div style="width: 100%;">
+            <div id="dialog_output_detail_spinner" style="margin-left: 50%;"></div>
+        </div>
+        <!-- <div id="table_output_detail" style="margin: 0px auto; overflow-x:auto; ">
+            <table class="mdl-data-table mdl-js-data-table" style="width: 100%;">
+                <thead style="background-color: green;">
+                    <tr>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">CÔNG ĐOẠN</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">HEADCOUNT</th>
+                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">OUTPUT</th>
+                    </tr>
+                </thead>
+                <tbody id="table_output_detail_body">
+                </tbody>
+            </table>
+        </div> -->
+        <div style="width:90%; margin: 10px auto; background-color: white; display: grid;" id="group_chart_div">
+            <canvas id="group_chart"></canvas>
+        </div>
+        <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" 
+            style="width: 100px; color: white; background-color: purple; position: fixed; bottom: 10px; left: 20px;" 
+            id="btn_output_detail_close">
+                Đóng
+            <i class="material-icons">close</i>
+        </button>
+    </dialog>
+    <dialog id="dialog_worklot_infor" style="border-radius: 10px; border: none; padding: 0; width: 500px;">
+        <div class="mdl-card mdl-shadow--2dp" style="width: 100%; border-radius: 10px;">
+            <div class="mdl-card__title" style="background-color:indigo; ">
+                <h2 class="mdl-card__title-text" style="color: white; font-weight: bold;" id="txt_sup_release_worklot">
+                    WORKLOT
+                </h2>
+            </div>
+            <div class="mdl-card__supporting-text">
+                <div id="txt_sum_sup_release" style="font-size: 15px; margin-top: 10px; color: black">Đã phát: 0</div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="number" id="txt_sup_release_quantity" style="color:black;">
+                    <label class="mdl-textfield__label" for="txt_sup_release_quantity">Nhập số tờ phát</label>
+                </div>
+                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                    <input class="mdl-textfield__input" type="text" id="txt_sup_note" style="color:black;">
+                    <label class="mdl-textfield__label" for="txt_sup_note">Nhập ghi chú</label>
+                </div>
+                <div style="overflow-x: scroll;">
+                    <table class="mdl-data-table mdl-js-data-table table-hover mdl-shadow--2dp" style="width: 100%; border: none; margin:0 auto; margin-top: 20px;">
+                        <thead  STYLE="background-color: indigo;">
+                            <tr style="border-radius: 10px;">
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">STT</th>
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">SỐ LƯỢNG</th>
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">USER</th>
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">GHI CHÚ</th>
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">THỜI GIAN</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_worklot_infor_body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- <div class="mdl-card__actions mdl-card--border">
+                <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_asslot_infor_prepare" style="float: right;">
+                    ĐỒNG Ý
+                </button>
+            </div> -->
+            <div class="mdl-card__menu">
+                <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect" id="btn_worklot_infor_close">
+                    <i class="material-icons" style="color: white;">close</i>
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/Cutting/payrollcheck.js"></script>
+</html>

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabric Receive Scan Barcode</title>
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        .datepicker {
+            z-index: 9999 !important;
+        }
+
+        #lbCounted {
+            font-size: 350px;
+            text-align: center;
+            align-items: center;
+            vertical-align: middle;
+            padding: 295px 0;
+        }
+
+        .sticky-thead {
+            position: sticky;
+            background: whitesmoke;
+            top: 0;
+        }
+
+        .scanned-table {
+            height: 540px;
+            overflow: auto;
+            border: 1px solid #dddddd;
+        }
+
+        .scanned-table::-webkit-scrollbar {
+            width: 3px;
+            height: 3px;
+            background-color: whitesmoke;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: white; 
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+        }
+
+    </style>
+
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">Cutting Fabric Receive</span>
+                <%- include ("../../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("../partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <nav class="navbar navbar-default navbar-static-top mb-0">
+                                    <div class="">
+                                        <div class="navbar-header">
+                                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                                                <span class="sr-only">Toggle navigation</span>
+                                                <span class="icon-bar"></span>
+                                                <span class="icon-bar"></span>
+                                                <span class="icon-bar"></span>
+                                            </button>
+                                            <!-- <a class="navbar-brand" href="#">Quét nhận vải</a> -->
+                                        </div>
+                                        <div id="navbar" class="navbar-collapse collapse">
+                                            <ul class="nav navbar-nav">
+                                                <li class="active"><a href="/cutting/fabric-receive">Giao nhận vải Kanban</a></li>
+                                                <li class=""><a href="/cutting/fabric-receive/inventory-data">Dữ liệu vải tồn kho</a></li>
+                                                <li class=""><a href="#">Lịch sử giao nhận</a></li>
+                                            </ul>
+                                            <ul class="nav navbar-nav navbar-right">
+
+                                            </ul>
+                                        </div>
+                                        <!--/.nav-collapse -->
+                                    </div>
+                                </nav>
+                            </div>
+                        </div>
+                        <div class="bg-white fabric-receive mt-3">
+                            <div class="col-md-12 col-sm-12">
+                                <div class="d-flex pr-4 mt-1">
+                                    <div class="p-0">
+                                        <div class="input-group">
+                                            <button class="btn btn-success" data-target="#modalUploadData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu xuất vải</button>
+                                        </div>
+                                    </div>
+                                    <div class="p-0 pl-2 mb-3">
+                                        <div class="btn-group btn-filter">
+                                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                <span class="fa fa-search"></span> Filter
+                                            </button>
+                                            <div class="dropdown-menu p-3" style="width: 300px;">
+                                                <form class="form-inline" id="formTRReport">
+                                                    <div class="mt-2 d-flex">
+                                                        <div class="w-100">
+                                                            <p class="mb-1"><strong>Zone</strong></p>
+                                                            <select class="form-control w-100 list-zone" name="" id="txtFilterSMZone" onchange="">
+                                                                <option value="">All</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2 d-flex">
+                                                        <div class="w-100">
+                                                            <p class="mb-1"><strong>Line</strong></p>
+                                                            <select class="form-control w-100 list-zone" name="" id="txtFilterSMLine" onchange="">
+                                                                <option value="">All</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2 d-flex">
+                                                        <div class="w-100">
+                                                            <label for="" class="col-form-label">Status:</label>
+                                                            <div class="input-group w-100">
+                                                                <select class="form-control w-100" name="" id="txtFilterSMStatus" onchange="">
+                                                                    <option value=""> All </option>
+                                                                    <option value="1"> Good </option>
+                                                                    <option value="2"> Error </option>
+                                                                    <option value="3"> Repairing </option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="justify-content-between align-items-center mt-3 text-right">
+                                                        <button type="button" class="btn btn-light btn-sm" onclick="downloadSewingMachine()">Download</button>
+                                                        <button type="button" class="btn btn-success btn-sm" onclick="getAllSewingMachine()">Search</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>                                               
+                                    </div>
+                                </div>
+                                <label class="">Danh sách phiếu xuất vải</label>
+                                <div class="col-sm-12 col-md-12 pl-0 pr-0 scanned-table">
+                                    <table class="table table-hover table-bordered table-scrollable mb-0">
+                                        <thead class="sticky-thead">
+                                            <th>#</th>
+                                            <th>Group</th>
+                                            <th>Receive Date Time</th>
+                                            <th>Group</th>
+                                            <th>Wo</th>
+                                            <th>Ass</th>
+                                            <th>Fabric</th>
+                                            <th>Yards</th>
+                                            <th>Cut Date</th>
+                                            <th>Note</th>
+                                            <th></th>
+                                        </thead>
+                                        <tbody id="scanned-table-body">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+    </main>
+    </div>
+
+    <!-- Modal receive history -->
+    <div class="modal fade" id="modalUploadData" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Upload dữ liệu xuất vải</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <table class="w-100">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td>File: </td>
+                                                <td>
+                                                    <div class="ml-3 upload-btn-wrapper">
+                                                        <button class="btn btn-light" style="width: 116px;">Click here</button>
+                                                        <input type="file" name="UploadedFile" id="fileFabricReceiveUpload" onchange="uploadExcel()" accept=".xlsx, .xls">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Sheet: </td>
+                                                <td>
+                                                    <div class="ml-3 upload-btn-wrapper">
+                                                        <select class="form-control selected-sheet" id="selected-sheet" style="width: 116px;"></select>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Header row: </td>
+                                                <td>
+                                                    <div class="ml-3 upload-btn-wrapper">
+                                                        <input type="text" name="name" class="form-control" id="selected-header" value="1" style="width: 116px">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td>Your selected file: </td>
+                                                <td><span class="label label-warning ml-3 fileUploadName" id="fileUploadName"></span></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="saveUploadData()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/Cutting/fabricreceive.js"></script>
+</body>
+
+</html>

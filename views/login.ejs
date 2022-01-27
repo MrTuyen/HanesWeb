@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" integrity="sha512-vKMx8UnXk60zUwyUnUPM3HbQo8QfmNx7+ltw8Pm5zLusl1XIfwcxo8DbWCqMGKaWeNxWA8yrx5v3SaVpMvR3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/Contents/fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
+    <link rel="stylesheet" href="/Contents/libs/login/util.css">
+    <link rel="stylesheet" href="/Contents/libs/login/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <style>
+        .wrap-input100{
+            padding: 29px 0 0 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="limiter">
+		<div class="container-login100" style="background-image: url('/Image/9.jpg');">
+			<div class="wrap-login100 p-t-30 p-b-50">
+				<span class="login100-form-title p-b-41">
+					Đăng nhập
+				</span>
+				<form class="login100-form validate-form p-b-33 p-t-5" action="/login" method="POST">
+                    <input type="hidden" value='<%- msg %>' id="txt-alert">
+					<div class="wrap-input100 validate-input" data-validate = "Nhập tài khoản">
+						<input type="text" class="input100" placeholder="Tài khoản" id="username" name="username"
+                            required oninvalid="this.setCustomValidity('Nhập tài khoản')"
+                            oninput="this.setCustomValidity('')" />
+						<span class="focus-input100" data-placeholder="&#xe82a;"></span>
+					</div>
+
+					<div class="wrap-input100 validate-input" data-validate="Enter password">
+						<input id="password" type="password" name="password" class="input100" placeholder="Mật khẩu"
+                            required oninvalid="this.setCustomValidity('Nhập mật khẩu')"
+                            oninput="this.setCustomValidity('')" />
+						<span class="focus-input100" data-placeholder="&#xe80f;"></span>
+					</div>
+
+					<div class="container-login100-form-btn m-t-32">
+						<button class="login100-form-btn" onclick="setUsername()">
+							Đăng nhập
+						</button>
+					</div>
+
+				</form>
+			</div>
+		</div>
+	</div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+
+        function setUsername(){
+            localStorage.setItem("username", $("#username").val());
+        }
+
+        setTimeout(function () {
+            toastr.options = {
+                "positionClass": "toast-top-center",
+            }
+            var txtError = $("#txt-alert").val();
+            if (txtError.length > 0) {
+                toastr.error(txtError);
+            }
+        }, 500)
+    </script>
+</body>
+
+</html>

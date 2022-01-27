@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mix Solve</title>
+
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+</head>
+
+<body style="background-image: url('../image/1.jpg');">
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">GIẢI MIX</span>
+                <%- include ("../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div style="width: 95%; margin: 10px auto; border-radius: 10px;">
+                        <div class="mdl-grid mdl-shadow--6dp" style="background: white; border-radius: 10px;">
+                            <div class="d-flex" style="margin: 10px auto;">
+                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 50px;">
+                                    <input class="mdl-textfield__input" type="date" id="date_from">
+                                    <label class="mdl-textfield__label" for="date_from">Từ ngày</label>
+                                </div>
+                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 50px;">
+                                    <input class="mdl-textfield__input" type="date" id="date_to">
+                                    <label class="mdl-textfield__label" for="date_to">Đến ngày</label>
+                                </div>
+
+                                <div class="" style="width: 100px; margin-right: 50px;">
+                                    <p class="mb-3"><strong>Zone</strong></p>
+                                    <select class="form-control w-100" name="" id="txtZone" onchange="getLineByZone()">
+                                        
+                                    </select>
+                                </div>
+
+                                <div class="" style="width: 100px; margin-right: 50px;">
+                                    <p class="mb-3"><strong>Line</strong></p>
+                                    <select class="form-control w-100" name="" id="txt_group">
+                                        
+                                    </select>
+                                </div>
+                                
+                                <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" id="btn_search">
+                                    <i class="material-icons">search</i>
+                                </button>
+                            </div>
+                            <div style="width: 100%;">
+                                <div id="spinner" style="margin-left: 50%; margin-top: 5px;"></div>
+                            </div>
+                            <div id="table_search" class="mdl-card mdl-shadow--6dp" style="width: 90% ; margin: 10px auto; overflow-x:auto; border-radius: 10px; display:none;">
+                                <table class="mdl-data-table mdl-js-data-table" style="border: none;">
+                                    <thead style="background-color: RED;">
+                                        <tr>
+                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">TICKET
+                                            </th>
+                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">OLD EMP
+                                            </th>
+                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">OLD FILE
+                                            </th>
+                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">NEW EMP
+                                            </th>
+                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">NEW FILE
+                                            </th>
+                                            <th class="mdl-data-table__cell--non-numeric" style="color: white;">STATUS
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table_body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+    </div>
+</body>
+<dialog id='dialog_image_show' style='width: 90%; border-radius: 10px; border: none;'>
+    <div class="mdl-grid">
+        <div class="mdl-cell mdl-cell--6-col">
+            <div style="margin: 0px auto;">
+                <div class="mdl-textfield mdl-js-textfield">
+                    <input class="mdl-textfield__input" type="text" id="image_name1">
+                    <label class="mdl-textfield__label" for="image_name1">Nhập tên ảnh</label>
+                </div>
+            </div>
+            <div>
+                <img id="show_image1" alt="image1" style="width: 100%;">
+            </div>
+        </div>
+        <div class="mdl-cell mdl-cell--6-col">
+            <div style="margin: 0px auto;">
+                <div class="mdl-textfield mdl-js-textfield">
+                    <input class="mdl-textfield__input" type="text" id="image_name2">
+                    <label class="mdl-textfield__label" for="image_name2">Nhập tên ảnh</label>
+                </div>
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="btn_confirm" style="background-color: green; margin-left: 20px;">
+                    Save
+                </button>
+                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="btn_skip" style="background-color: orangered; margin-left: 20px;">
+                    Ignore
+                </button>
+            </div>
+            <div>
+                <img id="show_image2" alt="image2" style="width: 100%;">
+            </div>
+        </div>
+    </div>
+</dialog>
+
+<script src="/Contents/libs/download.min.js"></script>
+<script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+<script src="/JS/HBI/Common/commonFactory.js"></script>
+<script src="/JS/HBI/Common/enum.js"></script>
+<script src="/JS/HBI/Production/mixsolve.js"></script>
+
+</html>

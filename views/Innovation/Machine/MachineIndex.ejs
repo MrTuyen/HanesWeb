@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        .select2-container{
+            width: 100%!important;;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">INNOVATION</span>
+                <%- include ("../../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("../partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="page-title text-center">
+                                    <strong class="text-uppercase"> Quản lý sewing machine, machine, model</strong>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="bg-white">
+                            <div class="d-sm-block">
+                                <div class="panel panel-default m-0">
+                                    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                                        <div class="mdl-tabs__tab-bar" id="machine-tab">
+                                            <a href="#sewing-machine-panel" class="mdl-tabs__tab is-active" onclick="getAllSewingMachine()"><strong>Sewing Machine <span id="sewing-machine-count"></span></strong></a>
+                                            <a href="#machine-panel" class="mdl-tabs__tab" onclick="getAllMachine()"><strong>Machine <span id="machine-count"></span></strong></a>
+                                            <a href="#model-panel" class="mdl-tabs__tab" onclick="getAllModel()"><strong>Model <span id="model-count"></span></strong></a>
+                                        </div>
+                                        <div class="mdl-tabs__panel is-active" id="sewing-machine-panel">
+                                            <div class="d-flex pl-4 pr-4 mt-3">
+                                                <div class="p-0">
+                                                    <div class="input-group">
+                                                        <button class="btn btn-success" data-target="#modalAddSewingMachine" data-toggle="modal"><i class="fa fa-plus"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="p-0 pl-2 mb-3">
+                                                    <div class="btn-group btn-filter">
+                                                        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                            <span class="fa fa-search"></span> Filter
+                                                        </button>
+                                                        <div class="dropdown-menu p-3" style="width: 300px;">
+                                                            <form class="form-inline" id="formTRReport">
+                                                                <div class="mt-2 d-flex">
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1"><strong>Zone</strong></p>
+                                                                        <select class="form-control w-100 list-zone" name="" id="txtFilterSMZone" onchange="">
+                                                                            <option value="">All</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-2 d-flex">
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1"><strong>Line</strong></p>
+                                                                        <select class="form-control w-100 list-zone" name="" id="txtFilterSMLine" onchange="">
+                                                                            <option value="">All</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="mt-2 d-flex">
+                                                                    <div class="w-100">
+                                                                        <label for="" class="col-form-label">Status:</label>
+                                                                        <div class="input-group w-100">
+                                                                            <select class="form-control w-100" name="" id="txtFilterSMStatus" onchange="">
+                                                                                <option value=""> All </option>
+                                                                                <option value="1"> Good </option>
+                                                                                <option value="2"> Error </option>
+                                                                                <option value="3"> Repairing </option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="justify-content-between align-items-center mt-3 text-right">
+                                                                    <button type="button" class="btn btn-success btn-sm" onclick="getAllSewingMachine()">Search</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>                                               
+                                                </div>
+                                                <div class="pl-2">
+                                                    <button type="button" class="btn btn-light" onclick="downloadSewingMachine()"><i class="fa fa-download"></i></button>
+                                                </div>
+                                                <div class="justify-content-end pl-2">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="txtFilterSMTag" placeholder="Tag máy">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-success" type="button" onclick="getAllSewingMachine()"><i class="fa fa-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="">
+                                                <table class="table table-hover table-bordered table-scrollable mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width='15%'>Tag</th>
+                                                            <th width='15%'>Serial</th>
+                                                            <th width='10%'>Model</th>
+                                                            <th width='10%'>Line</th>
+                                                            <th width='10%'>Position</th>
+                                                            <th width='20%'>Description</th>
+                                                            <th width='10%'>Status</th>
+                                                            <th width='10%'></th>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
+                                                <div class="onscrollbar onscrollbar-machine" style="overflow: auto;">
+                                                    <table class="table table-hover table-bordered m-0">
+                                                        <tbody id="sewing-machine-table-body">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mdl-tabs__panel" id="machine-panel">
+                                            <div class="d-flex pl-4 pr-4 mt-3">
+                                                <div class="p-0">
+                                                    <div class="input-group">
+                                                        <button class="btn btn-success" data-target="#modalAddMachine" data-toggle="modal"><i class="fa fa-plus"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="p-0 pl-2 mb-3">
+                                                    <div class="btn-group btn-filter">
+                                                        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                            <span class="fa fa-filter"></span>
+                                                        </button>
+                                                        <div class="dropdown-menu p-3" style="left: -30px;">
+                                                            <form class="form-inline" id="formTRReport">
+                                                                <div style="display: flex;">
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1">Loại máy</p>
+                                                                        <select class="form-control w-100" name="" id="txtFilterMachineType">
+                                                                            <option value="">Tất cả</option>
+                                                                            <option value="1">Máy may</option>
+                                                                            <option value="2">Máy cắt</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="justify-content-between align-items-center mt-3 text-right">
+                                                                    <button type="button" class="btn btn-success btn-sm" onclick="getAllMachine()">Lọc</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>                                                  
+                                                </div>
+                                                <div class="pl-2">
+                                                    <button type="button" class="btn btn-light" onclick="downloadMachine()"><i class="fa fa-download"></i></button>
+                                                </div>
+                                                <div class="justify-content-end pl-2">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="txtMachine" placeholder="Tên máy">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-success" type="button" onclick="getAllMachine()"><i class="fa fa-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="">
+                                                <table class="table table-hover table-bordered table-scrollable mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width='10%'>#</th>
+                                                            <th width='20%'>Mã</th>
+                                                            <th width='40%'>Tên</th>
+                                                            <th width='20%'>Loại</th>
+                                                            <th width='10%'></th>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
+                                                <div class="onscrollbar onscrollbar-machine" style="overflow: auto;">
+                                                    <table class="table table-hover table-bordered m-0">
+                                                        <tbody id="machine-table-body">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mdl-tabs__panel" id="model-panel">
+                                            <div class="d-flex pl-4 pr-4 mt-3">
+                                                <div class="p-0">
+                                                    <div class="input-group">
+                                                        <button class="btn btn-success" data-target="#modalAddModel" data-toggle="modal"><i class="fa fa-plus"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="p-0 pl-2 mb-3">
+                                                    <div class="btn-group btn-filter">
+                                                        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                            <span class="fa fa-filter"></span>
+                                                        </button>
+                                                        <div class="dropdown-menu p-3" style="left: -30px;">
+                                                            <form class="form-inline" id="">
+                                                                <div style="display: flex;">
+                                                                    <div class="w-100">
+                                                                        <p class="mb-1">Loại máy</p>
+                                                                        <select class="form-control w-100" name="" id="txtFilterMachine">
+                                                                            
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="justify-content-between align-items-center mt-3 text-right">
+                                                                    <button type="button" class="btn btn-success btn-sm" onclick="getAllModel()">Lọc</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>                                                  
+                                                </div>
+                                                <div class="pl-2">
+                                                    <button type="button" class="btn btn-light" onclick="downloadModel()"><i class="fa fa-download"></i></button>
+                                                </div>
+                                                <div class="justify-content-end pl-2">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="txtModel" placeholder="Tên máy">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-success" type="button" onclick="getAllModel()"><i class="fa fa-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="">
+                                                <table class="table table-hover table-bordered table-scrollable mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width='10%'>#</th>
+                                                            <th width='20%'>Mã</th>
+                                                            <th width='40%'>Tên</th>
+                                                            <th width='20%'>Mô tả</th>
+                                                            <th width='10%'></th>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
+                                                <div class="onscrollbar onscrollbar-machine" style="overflow: auto;">
+                                                    <table class="table table-hover table-bordered m-0">
+                                                        <tbody id="model-table-body">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+    </main>
+    </div>
+
+    <div class="modal fade" id="modalAddSewingMachine" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Thêm sewing machine</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Serial no</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtASMSerial" autofocus>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tag</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtASMTag" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Machine model</label>
+                            <div class="">
+                                <select class="form-control list-model" id="txtASMMachineModel">
+                                    
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mechanic location</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtASMMechanicLocation">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Line</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtASMLine" placeholder="">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Position</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtASMPosition">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Description</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtASMDescription">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Status</label>
+                            <div class="">
+                                <select class="form-control" id="txtASMStatus">
+                                    <option value="1" style="background-color: green;color:white">Good</option>
+                                    <option value="2" style="background-color: red;color:white">Error</option>
+                                    <option value="3" style="background-color: yellow;color:black">Repair</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="addSewingMachine()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalUpdateSewingMachine" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Thêm sewing machine</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <input type="hidden" id="txtUSMId">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Serial no</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUSMSerial" autofocus>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tag</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUSMTag" placeholder="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Machine model</label>
+                            <div class="">
+                                <select class="form-control list-model" id="txtUSMMachineModel">
+                                    
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mechanic location</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUSMMechanicLocation">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Line</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUSMLine" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Position</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUSMPosition" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Description</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUSMDescription">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Status</label>
+                            <div class="">
+                                <select class="form-control" id="txtUSMStatus">
+                                    <option value="1" style="background-color: green;color:white">Good</option>
+                                    <option value="2" style="background-color: red;color:white">Error</option>
+                                    <option value="3" style="background-color: yellow;color:black">Repair</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="updateSewingMachine()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAddMachine" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Thêm machine</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tên loại máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtMachineName" autofocus>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã loại máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtMachineCode" placeholder="M30...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Loại máy</label>
+                            <div class="">
+                                 <select class="form-control" name="" id="txtMachineType">
+                                     <option value="1">Máy may</option>
+                                     <option value="2">Máy cắt</option>
+                                     <option value="3">Máy auto</option>
+                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="addMachine()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalUpdateMachine" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Cập nhật thông tin machine</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <input type="hidden" class="form-control" id="txtUMachineId">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tên loại máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUMachineName" autofocus>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã loại máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUMachineCode">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Loại máy</label>
+                            <div class="">
+                                 <select class="form-control" name="" id="txtUMachineType">
+                                     <option value="1">Máy may</option>
+                                     <option value="2">Máy cắt</option>
+                                     <option value="3">Máy auto</option>
+                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Trạng thái</label>
+                            <div class="">
+                                 <select class="form-control" name="" id="txtUMachineActive">
+                                    <option value="0">Không hoạt động</option>
+                                     <option value="1">Hoạt động</option>
+                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="updateMachine()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalAddModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Thêm model</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tên model</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtModelName" autofocus>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtModelCode">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Số lượng</label>
+                            <div class="">
+                                <input type="number" class="form-control" id="txtModelQty" min="0">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mô tả</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtModelDes">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Loại máy</label>
+                            <div class="">
+                                 <select class="form-control" name="" id="txtModelMachine">
+                                   
+                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="addModel()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalUpdateModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Cập nhật thông tin model</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <input type="hidden" class="form-control" id="txtUModelId">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Tên model</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUModelName" autofocus>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUModelCode">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Số lượng model</label>
+                            <div class="">
+                                <input type="number" class="form-control" id="txtUModelQty">
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mô tả</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUModelDes">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Loại máy</label>
+                            <div class="">
+                                 <select class="form-control" name="" id="txtUModelMachine">
+                                     
+                                 </select>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Trạng thái</label>
+                            <div class="">
+                                 <select class="form-control" name="" id="txtUModelActive">
+                                    <option value="0">Không hoạt động</option>
+                                    <option value="1">Hoạt động</option>
+                                 </select>
+                            </div>
+                        </div>
+                    </div> -->
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="updateModel()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/MEC/machine.js"></script>
+</body>
+
+</html>

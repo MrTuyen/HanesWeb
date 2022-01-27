@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+
+        .line-box-header{
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .line-box {
+            margin: auto;
+            width: 420px;
+            display: -webkit-box;
+            flex-flow: row wrap;
+            align-content: space-between;
+            justify-content: space-between;
+        }
+
+        .machine {
+            width: 103px;
+            background-image: url("/Image/sewing-machine1.png");
+            background-repeat: no-repeat;
+            background-size: 90px;
+            background-position: center;
+            /* background-color: #512458; */
+            height: 86px;
+            font-size: 16px;
+            font-weight: 900;
+            margin: 1px;
+            /* border-radius: 5px; */
+            box-shadow: black 0 0 2px 0;
+            cursor: pointer;
+            /* padding: 13px; */
+            color: black;
+        }
+
+        .machine:hover{
+            transform: scale(1.1);
+            transition: .3s ease-in-out;
+            border: 2px solid rgb(164, 16, 233);
+        }
+
+        .mc-pos{
+
+        }
+
+        .mc-tag{
+            position: relative;
+            text-align: center;
+            top: 43px;
+        }
+
+        .item:nth-child(4n - 1) {
+            background: silver;
+        }
+
+        .line-break {
+            width: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">INNOVATION</span>
+                <%- include ("../../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("../partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="page-title text-center">
+                                    <strong class="text-uppercase"> Quản lý máy Realtime</strong>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="bg-white">
+                            <div class="d-sm-block">
+                                <div class="mdl-tabs__panel is-active">
+                                    <div class="d-flex pl-4 pr-4">
+                                        <div class="m-auto" style="width: 422px;">
+                                            <p class="mb-1"><strong>Chọn line</strong></p>
+                                            <select class="form-control w-100" name="" id="txtTime" onchange="changeLine(this.value)">
+                                                
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 machine-area" style="padding-top: 0px!important;">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+    </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/Common/class.js"></script>
+    <script src="/JS/HBI/MEC/realtime.js"></script>
+</body>
+
+</html>

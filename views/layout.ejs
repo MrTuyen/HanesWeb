@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+<link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+<link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+<link rel="stylesheet" href="/Contents/css/main.css">
+<script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+<script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+<script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script defer src="/JS/mdl/material.min.js"></script>
+
+
+    <style>
+        .mdl-layout__drawer {
+            width: 300px;
+            left: -250px;
+            background-color: white; 
+            border: none;
+        }
+
+        .header-img{
+            max-width: 100%; min-height: 80px; 
+            background-image: url('../Image/2.jpg');
+            background-size: 400px auto;
+        }
+
+        .mdl-layout__drawer.is-visible {
+            left: 0;
+        }
+
+        .mdl-layout__container{
+            top: 0;
+        }
+
+        .mdl-navigation__link{
+            color: black!important;
+            font-size: 14px;
+        }
+
+        .mdl-navigation__link i{
+            margin-right: 20px
+        }
+    </style>
+
+</head>
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">HanesBrands Inc.</span>
+                <%- include ("headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        
+        <div class="mdl-layout__drawer" style="border: none;">
+            <div class="sidebar-header">
+                <span class="mdl-layout-title" style="color: white; font-size: 30px; margin: 50px 20px;">BỘ PHẬN</span>
+                <div class="mdl-layout-spacer"></div>
+            </div>
+            
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" href="/home">
+                    <i class="material-icons">home</i>
+                    HOME
+                </a>
+                <a class="mdl-navigation__link" href="/innovation">
+                    <i class="material-icons">build</i>
+                    MECHANIC
+                </a>
+                <a class="mdl-navigation__link" href="/Production/Production">
+                    <i class="material-icons">work</i>
+                    SẢN XUẤT
+                </a>
+                <a class="mdl-navigation__link" href="/Cutting/">
+                    <i class="material-icons">content_cut</i>
+                    CUTTING
+                </a>
+                <hr>
+                <a class="mdl-navigation__link" href="/system-user">
+                    <i class="material-icons">group</i>
+                    Quản lý người dùng
+                </a>
+                <hr>
+                <a class="mdl-navigation__link" href="/login">
+                    <i class="material-icons">account_circle</i>
+                    ĐĂNG XUẤT
+                </a>
+                <div class="text-right developer">Contact: <a href="mailto:Tuyen.Nguyen@hanes.com">Tuyen.Nguyen@hanes.com</a></div>
+            </nav>
+        </div>
+
+        <main class="mdl-layout__content">
+            <div class="page-content">
+                 
+            </div>
+        </main>
+    </div>
+
+    <script>
+        $("#user-login").text(localStorage.getItem("username"));
+    </script>
+</body>
+</html>

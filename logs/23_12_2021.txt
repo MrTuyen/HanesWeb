@@ -1,0 +1,6 @@
+12/23/2021, 1:36:49 PM: excuteInsertReturnIdAsync
+ER_DATA_TOO_LONG: Data too long for column 'scanned_time' at row 1
+---------------------------------------------
+12/23/2021, 1:41:30 PM: fabric_receive.addScannedRecord
+result is not defined
+---------------------------------------------

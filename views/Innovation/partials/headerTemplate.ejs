@@ -1,0 +1,91 @@
+<style>
+    .modal {
+        background: rgba(0, 0, 0, 0.5); 
+        color: black;
+    }
+    .modal-backdrop {
+        display: none;
+    }
+</style>
+<div class="mdl-layout-spacer">
+    <ul class="pull-right list-unstyled mt-2">
+        <!-- BEGIN USER LOGIN DROPDOWN -->
+        <li class="dropdown user">
+            <a href="#" class="dropdown-toggle text-white" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                <span class="" id="user-login" ></span>
+                <i class="fa fa-angle-down"></i>
+            </a>
+            <ul class="dropdown-menu" style="left: -60px;">
+                <li>
+                    <a class="" href="/login">
+                        <a href="/login"><i class="fa fa-key"></i> Đăng xuất</a>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <!-- END USER LOGIN DROPDOWN -->
+    </ul>
+    <button class="mr-3 btn btn-success pull-right" data-toggle="modal" data-target="#modalContribution">
+        <i class="fa fa-envelope"></i>
+        <b class="">GÓP Ý</b>
+    </button>
+</div>
+
+<div class="modal fade" id="modalContribution">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"><strong>Feedback đóng góp, xây dựng phần mềm</strong></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Tên nhân sự</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="" autofocus>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Email nhân sự</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-12">
+                        <label for="">Mô tả</label>
+                        <div class="">
+                            <textarea type="text" class="form-control" id=""></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer pr-0">
+                <div class="col-sm-12 col-md-12">
+                    <button type="button" class="btn btn-secondary text-black-50" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" onclick="">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/JS/HBI/Common/commonFactory.js"></script>
+<script>
+    $("#user-login").text(localStorage.getItem("username"));
+
+    let action = '/user';
+    PostDataAjax(action, {} , function (response) {
+        if (response) {
+            localStorage.setItem("user", JSON.stringify(response));
+        }
+        else {
+
+        }
+    });
+    var userLogin = JSON.parse(localStorage.getItem("user"));
+</script>

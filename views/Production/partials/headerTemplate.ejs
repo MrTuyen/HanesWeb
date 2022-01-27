@@ -1,0 +1,37 @@
+<link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+<link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+<link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+<link rel="stylesheet" href="/Contents/css/main.css">
+<script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+<script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+<script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script defer src="/JS/mdl/material.min.js"></script>
+
+<div class="mdl-layout-spacer">
+    <!-- <a class="text-white" href="/login">
+        <i class="material-icons">account_circle</i>
+        ĐĂNG XUẤT
+    </a> -->
+    <ul class="pull-right list-unstyled">
+        <!-- BEGIN USER LOGIN DROPDOWN -->
+        <li class="dropdown user">
+            <a href="#" class="dropdown-toggle text-white" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+                <span class="" id="user-login" ><%= user.Name %></span>
+                <i class="fa fa-angle-down"></i>
+            </a>
+            <ul class="dropdown-menu" style="left: -60px;">
+                <li>
+                    <a href="/login"><i class="fa fa-key"></i> Đăng xuất </a>
+                </li>
+            </ul>
+        </li>
+        <!-- END USER LOGIN DROPDOWN -->
+    </ul>
+</div>
+<script>
+    $("#user-login").text(localStorage.getItem("username"));
+</script>

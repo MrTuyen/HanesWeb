@@ -1,0 +1,135 @@
+12/2/2021, 8:24:16 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:24:16 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:24:16 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:24:16 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:24:16 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:26:46 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:26:46 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:26:46 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:26:46 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:26:46 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:27:18 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:27:18 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:27:18 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:27:18 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:27:18 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:27:25 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:27:25 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:27:25 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:27:25 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:27:25 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:28:22 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:28:22 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:28:22 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:28:22 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:28:22 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:31:35 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:31:35 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:31:35 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 8:31:35 AM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 8:31:35 AM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 1:13:39 PM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 1:13:39 PM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 1:13:39 PM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 1:13:39 PM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 1:13:39 PM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 1:13:43 PM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 1:13:43 PM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 1:13:43 PM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 1:13:43 PM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 1:13:43 PM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 1:13:44 PM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 1:13:44 PM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 1:13:44 PM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------
+12/2/2021, 1:13:44 PM: excuteQueryAsync
+ER_BAD_FIELD_ERROR: Unknown column 'active' in 'where clause'
+---------------------------------------------
+12/2/2021, 1:13:44 PM: cutting.netCuttingTime
+Cannot read property 'filter' of null
+---------------------------------------------

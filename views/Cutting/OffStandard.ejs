@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cutting Off Standard</title>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        .mdl-data-table td {
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <!-- Title -->
+                <span class="mdl-layout-title">OFF STANDARD</span>
+                <!-- Add spacer, to align navigation to the right -->
+                <div class="mdl-layout-spacer"></div>
+                <!-- Navigation. We hide it in small screens. -->
+                <div id="div_cbb_week" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width: 50px; margin-right: 50px;">
+                    <input type="text" value="" class="mdl-textfield__input" id="cbb_week" readonly disabled style="color: white;">
+                    <input type="hidden" value="" name="cbb_week">
+                    <label for="cbb_week" class="mdl-textfield__label" style="color: white;">Tuần</label>
+                    <ul for="cbb_week" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="cbb_week_list">
+                    </ul>
+                </div>
+                <div id="div_cbb_group" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width: 100px; margin-right: 50px;">
+                    <input type="text" value="" class="mdl-textfield__input" id="cbb_group" readonly>
+                    <input type="hidden" value="" name="cbb_group">
+                    <label for="cbb_group" class="mdl-textfield__label" style="color: white;">Chuyền</label>
+                    <ul for="cbb_group" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="cbb_group_list">
+                    </ul>
+                </div>
+                <div id="div_cbb_shift" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width: 100px;;margin-right: 50px;">
+                    <input type="text" value="" class="mdl-textfield__input" id="cbb_shift" readonly>
+                    <input type="hidden" value="" name="cbb_shift">
+                    <label for="cbb_shift" class="mdl-textfield__label" style="color: white">Ca</label>
+                    <ul for="cbb_shift" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_shift">
+                        <!-- <li class="mdl-menu__item" data-val="RIT">RIT</li>
+                            <li class="mdl-menu__item" data-val="BALI">BALI</li> -->
+                    </ul>
+                </div>
+                <%- include ("../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="mdl-grid p-0">
+                        <div class="col-md-3 mdl-shadow--6dp p-0" style="background-color: white; height: 91;">
+                            <div class="mdl-card" style="width: 100%;">
+                                <div class="mdl-card__title" style="background: rgb(156,39,176); padding: 13px;">
+                                    <h2 class="mdl-card__title-text" style="color: white;">Nhập thông tin
+                                    </h2>
+                                </div>
+                                <div class="mdl-card__actions mdl-card--border" style="height: 530px;">
+                                    <div class="d-flex">
+                                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="margin-right: 50px; margin-left: 5px;">
+                                            <div>
+                                                <input class="mdl-textfield__input" type="text" id="date_group_search" style="color: black;">
+                                                <label class="mdl-textfield__label" for="date_group_search">Chọn ngày</label>
+                                            </div>
+                                        </div>
+                                        <div class="text-right pt-3">
+                                            <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" 
+                                            style="background: red; color: white; margin-left: 25px;" onclick="load_off_standard_tracking()">
+                                                SEARCH
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder getmdl-select getmdl-select__fix-height" style="margin-left: 5px;">
+                                        <input type="text" value="" class="mdl-textfield__input" id="cbb_wc" readonly style="color: black;">
+                                        <input type="hidden" value="" name="cbb_wc">
+                                        <label for="cbb_wc" class="mdl-textfield__label">Work center</label>
+                                        <ul for="cbb_wc" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_wc" style="height: 200px;">
+                                            <li class="mdl-menu__item" data-val="1">US Panty</li>
+                                            <li class="mdl-menu__item" data-val="2">HAA</li>
+                                            <li class="mdl-menu__item" data-val="3">US Bra</li>
+                                            <li class="mdl-menu__item" data-val="4">Microfiber</li>
+                                            <li class="mdl-menu__item" data-val="5">G10</li>
+                                            <li class="mdl-menu__item" data-val="6">Basic</li>
+                                            <li class="mdl-menu__item" data-val="7">HEI Basic </li>
+                                            <li class="mdl-menu__item" data-val="8">HEI Panty</li>
+                                            <li class="mdl-menu__item" data-val="9">PICO</li>
+                                            <li class="mdl-menu__item" data-val="10">MASK</li>
+                                            <li class="mdl-menu__item" data-val="11">Woven Boxer</li>
+                                            <li class="mdl-menu__item" data-val="12">HEI Bra</li>
+                                        </ul>
+                                    </div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="margin-right: 50px; margin-left: 5px;">
+                                        <input class="mdl-textfield__input" type="number" value="" id="txt_rfid" style="color:black">
+                                        <label class="mdl-textfield__label" for="txt_rfid" id="txt_rfid_name">Quẹt thẻ NV</label>
+                                        <span class="mdl-textfield__error" id="txt_rfid_check">Không tìm thấy NV!</span>
+                                    </div>
+                                    <!-- <div id="div_style_detail" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" 
+                                            style="width: 400px; margin-left: 5px;">
+                                        <input type="text" value="" class="mdl-textfield__input" id="cbb_style_detail" readonly style="color: black;">
+                                        <input type="hidden" value="" name="cbb_style_detail">
+                                        <label for="cbb_style_detail" class="mdl-textfield__label">Chọn mã hàng bấm giờ</label>
+                                        <ul for="cbb_style_detail" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_style_detail">
+                                        </ul>
+                                    </div> -->
+                                    <div id="div_cbb_code" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder getmdl-select getmdl-select__fix-height" style="margin-left: 5px;">
+                                        <input type="text" value="" class="mdl-textfield__input" id="cbb_code" readonly style="color: black;">
+                                        <input type="hidden" value="" name="cbb_code">
+                                        <label for="cbb_code" class="mdl-textfield__label">Chọn code quẹt thẻ</label>
+                                        <ul for="cbb_code" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_code" style="height: 200px;">
+                                            <li class="mdl-menu__item" data-val="01">01 (Máy hỏng)</li>
+                                            <li class="mdl-menu__item" data-val="02">02 (Cung cấp nguyên phụ liệu)</li>
+                                            <li class="mdl-menu__item" data-val="03">03 (Hỗ trợ đào tạo chuyển đổi)</li>
+                                            <li class="mdl-menu__item" data-val="04">04 (Họp, đào tạo, vào y tế,..)</li>
+                                            <li class="mdl-menu__item" data-val="05">05 (Mất cân bằng chuyền)</li>
+                                            <li class="mdl-menu__item" data-val="06">06 (Chất lượng)</li>
+                                            <li class="mdl-menu__item" data-val="08">08 (Đa kỹ năng chuyền)</li>
+                                            <li class="mdl-menu__item" data-val="09">09 (Không sản xuất)</li>
+                                            <li class="mdl-menu__item" data-val="10">10 (Đào tạo chéo tuần 0)</li>
+                                        </ul>
+                                    </div>
+                                    <!-- <div id="div_cbb_old_op" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width: 400px; margin-left: 5px;">
+                                        <input type="text" value="" class="mdl-textfield__input" id="cbb_old_op" readonly style="color: black;">
+                                        <input type="hidden" value="" name="cbb_old_op">
+                                        <label for="cbb_old_op" class="mdl-textfield__label">Công đoạn cũ</label>
+                                        <ul for="cbb_old_op" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_old_op">
+                                        </ul>
+                                    </div>
+                                    <div id="div_cbb_new_op" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width: 400px; margin-left: 5px;">
+                                        <input type="text" value="" class="mdl-textfield__input" id="cbb_new_op" readonly style="color: black;">
+                                        <input type="hidden" value="" name="cbb_new_op">
+                                        <label for="cbb_new_op" class="mdl-textfield__label">Công đoạn mới</label>
+                                        <ul for="cbb_new_op" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_new_op">
+                                        </ul>
+                                    </div> -->
+                                    <div id="div_cbb_old_op" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="margin-left: 5px;display:none">
+                                        <input class="mdl-textfield__input" type="text" id="txtOldOp" style="color: black;">
+                                        <label for="txtOldOp" class="mdl-textfield__label">Công đoạn cũ</label>
+                                    </div>
+                                    <div id="div_cbb_new_op" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="margin-left: 5px;display:none">
+                                        <input class="mdl-textfield__input" type="text" id="txtNewOp" style="color: black;">
+                                        <label for="txtNewOp" class="mdl-textfield__label">Công đoạn mới</label>
+                                    </div>
+                                    <div id="" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder pl-2 d-flex pt-0">
+                                        <div class="w-50">
+                                            <label class="" for="txt_note" style="color: rgb(156,39,176);
+                                            font-size: 12px;
+                                            top: 4px;">Bắt đầu</label>
+                                            <input class="mdl-textfield__input w-75" type="time" id="txtStartTime" name="" >
+                                        </div>
+                                        <div class="w-50">
+                                            <label class="" for="txt_note" style="color: rgb(156,39,176);
+                                            font-size: 12px;
+                                            top: 4px;">Kết thúc</label>
+                                            <input class="mdl-textfield__input w-75" type="time" id="txtFinishTime" name="" >
+                                        </div>
+                                    </div>
+                                    <div id="div_txt_note" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="margin-right: 50px; margin-left: 5px;">
+                                        <input class="mdl-textfield__input" type="text" id="txt_note" style="color: black;">
+                                        <label class="mdl-textfield__label" for="txt_note">Ghi chú</label>
+                                    </div>
+                                    <!-- <div id="div_cbb_note" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" style="width: 400px; margin-left: 5px; display: none;">
+                                        <input type="text" value="" class="mdl-textfield__input" id="cbb_note" readonly style="color: black;">
+                                        <input type="hidden" value="" name="cbb_note">
+                                        <label for="cbb_note" class="mdl-textfield__label">Lý do</label>
+                                        <ul for="cbb_note" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="list_cbb_note" style='height: 200px;'>
+                                            <li class="mdl-menu__item">Test máy đổi mã hàng</li>
+                                            <li class="mdl-menu__item">Hỗ trợ chuyền phó tạm thời</li>
+                                            <li class="mdl-menu__item">Chất lượng (lỗ kim, tưa vải, dầu..)</li>
+                                            <li class="mdl-menu__item">Nhân viên mất CBC</li>
+                                            <li class="mdl-menu__item">Đào tạo tuần 0</li>
+                                            <li class="mdl-menu__item">Hỗ trợ cắt hàng</li>
+                                            <li class="mdl-menu__item">Hỗ trợ kéo máy</li>
+                                        </ul>
+                                    </div> -->
+                                </div>
+                                <div class="mdl-card__actions" style="text-align: right;">
+                                    <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" 
+                                    style="color: white; background-color: rgb(156,39,176); margin-left: 5px;" id="btn_emp_register">
+                                        ADD
+                                        <i class="material-icons">add</i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="m-0 w-75" style="background-color: white;overflow: auto;height: 91vh;">
+                            <table class="mdl-data-table mdl-js-data-table" style="width:100%;">
+                                <thead style="background-color: rgb(156,39,176);">
+                                    <!-- <col width="20px"> -->
+                                    <tr style=" border-radius: 10px; height: 53px;">
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">ID</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">TÊN</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">CODE</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">CĐ1</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">CĐ2</th>
+                                        <!-- <th class="mdl-data-table__cell--non-numeric" style="color: white;">HS2</th> -->
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">BẮT ĐẦU</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">KẾT THÚC</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">TỔNG TG</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">GHI CHÚ</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">IE DUYỆT</th>
+                                        <!-- <th class="mdl-data-table__cell--non-numeric" style="color: white;">IE PHẢN HỒI</th> -->
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">ACTION</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table_employee_body">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+    </div>
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/Cutting/offstandard.js"></script>
+</body>
+</html>

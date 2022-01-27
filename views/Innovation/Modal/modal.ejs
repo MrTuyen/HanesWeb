@@ -1,0 +1,639 @@
+<!-- Modal add request -->
+<div class="modal fade" id="modalAddRequest">
+    <div class="modal-dialog modal-full m-0">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel"><strong>Phiếu yêu cầu vật tư</strong></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="panel panel-default mb-0">
+                    <div class="panel-heading text-center"><b>Thông tin phiếu</b></div>
+                    <div class="panel-body pr-0 pl-0">
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <div class="w-100">
+                                    <label for="">Loại phiếu</label>
+                                    <div class="switch-block">
+                                        <label class="switch-light switch-candy d-inline">
+                                            <input type="checkbox" name="" id="cbRRequestType" onchange="changeRequestType()" />
+                                            <span style="height: 33px">
+                                                <span style="line-height: 32px">Cấp mới</span>
+                                                <span style="line-height: 32px">Đổi trả</span>
+                                                <a></a>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="">Tag máy</label>
+                                <div class="">
+                                    <input type="text" class="form-control" id="txtRMachineTag">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="">Zone</label>
+                                <div class="">
+                                    <select class="form-control list-zone" name="" id="txtRZone">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="">Lý do</label>
+                                <div class="">
+                                    <select class="form-control list-error" name="" id="txtRPartReason">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="">ID Thợ máy</label>
+                                <div class="">
+                                    <input type="number" class="form-control" id="txtRPartIdMechanic" placeholder="Nhập vào ID nhân viên và nhấn enter" onkeypress="getMechanicById(event)">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="">Tên thợ máy</label>
+                                <div class="">
+                                    <input type="text" class="form-control" id="txtRPartRequesterName" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="">Supervisor</label>
+                                <div class="">
+                                    <input type="hidden" class="form-control" id="txtRPartManagerEmail" disabled>
+                                    <input type="text" class="form-control" id="txtRPartManager" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3" id="RSeniorManagerSection">
+                                <label for="">SuperIntendant</label>
+                                <div class="">
+                                    <select class="form-control" name="" id="txtRPartSeniorManager">
+                                        <option value="cnguyen" data-email="tuyen.nguyen@hanes.com">Nguyễn Chiến Thắng</option>
+                                        <option value="tiluong" data-email="tuyen.nguyen@hanes.com">Lương Văn Tìm</option>
+                                        <option value="ngbay" data-email="tuyen.nguyen@hanes.com">Nguyễn Văn Bẩy</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default mb-0">
+                    <div class="panel-heading d-flex p-0">
+                        <div class="col-md-6 pt-2">
+                            <b>Danh sách vật tư yêu cầu</b>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <button class="btn btn-success" onclick="addRow()"><i class="fa fa-plus"></i>&nbsp; Thêm vật tư</button>
+                        </div>
+                    </div>
+                    <div class="panel-body p-0" style="height: 360px; overflow-y: auto;">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr class="text-center">
+                                    <th width="10%">Model</th>
+                                    <th width="15%">Danh sách theo model</th>
+                                    <th width="20%">Tên vật tư</th>
+                                    <th width="15%">Mã vật tư</th>
+                                    <th width="10%">Số lượng/Trong kho</th>
+                                    <th width="10%">Vị trí</th>
+                                    <th width="15%">Lí do</th>
+                                    <th width="5%"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="list-part-body">
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer pr-0 mt-0">
+                <div class="col-sm-12 col-md-12">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close form</button>
+                    <button type="button" class="btn btn-success" onclick="addRequest()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal update request -->
+<!-- <div class="modal fade" id="modalUpdateRequest" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel"><strong>Cập nhật phiếu yêu cầu vật tư</strong></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <input type="hidden" id="txtURId">
+                <div class="form-row">
+                    <div class="form-group col-md-4">
+                        <div class="w-100">
+                            <label for="">Loại phiếu</label>
+                            <div class="switch-block">
+                                <label class="switch-light switch-candy d-inline">
+                                    <input type="checkbox" name="" id="cbURRequestType" />
+                                    <span style="height: 33px">
+                                        <span style="line-height: 32px">Cấp mới</span>
+                                        <span style="line-height: 32px">Đổi trả</span>
+                                        <a></a>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Model máy</label>
+                        <div class="">
+                            <select id="txtURModel" class="form-control list-model" onchange="changeURModel()">
+                                <option value="" selected="" disabled="">Select item...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="">Danh sách vật tư</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtUSearchPartModel">
+                        </div>
+                        <div class="d-none UR-search-model-panel" style="border: 1px dotted yellowgreen; width: 100%; height: 290px; border-radius: 3px; background: whitesmoke;overflow-y: scroll">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Tên vật tư</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtURPartName" autofocus>
+                        </div>
+                        <div class="d-none UR-search-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: 290px; border-radius: 3px; background: whitesmoke;overflow-y: scroll">
+
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Mã vật tư</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtURPartCode">
+                        </div>
+                        <div class="d-none UR-search-code-result-panel" style="border: 1px dotted yellowgreen; width: 100%; height: 290px; border-radius: 3px; background: whitesmoke;overflow-y: scroll">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Vị trí</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtURPartLocation" disabled>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Số lượng yêu cầu (Trong kho: <span class="text-success bold" id="txtURPartRemainQty"></span>)</label>
+                        <div class="">
+                            <input type="number" class="form-control" id="txtURPartQty">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Tag máy</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtURMachineTag">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Zone</label>
+                        <div class="">
+                            <select class="form-control list-zone" name="" id="txtURZone">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Lý do</label>
+                        <div class="">
+                            <select class="form-control list-error" name="" id="txtURPartReason">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">ID Thợ máy: <span id="txtURPartRequesterName"></span></label>
+                        <div class="">
+                            <input type="number" class="form-control" id="txtURPartIdMechanic" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Manager</label>
+                        <div class="d-flex form-inline">
+                            <input type="text" class="form-control" id="txtURParManager" disabled style="width: 75.8%" autofocus>
+                            <button class="btn btn-success ml-2" onclick="managerUpdateRequest()">&nbsp;Manager approve</button>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="">Thực xuất</label>
+                        <div class="d-flex form-inline">
+                            <input type="number" class="form-control" id="txtURPartQtyExport" placeholder="" style="width: 75.8%" autofocus>
+                            <button class="btn btn-success ml-2" onclick="clerkUpdateRequest(Enum_Action.Approve)">&nbsp;Clerk approve</button>
+                            <div class="btn-group dropup ml-2">
+                                <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Clerk reject
+                                </button>
+                                <div class="dropdown-menu" style="width: 420px; left: -323px; height: 90px; top: -100px; background: #f5e5e5">
+                                    <div class="form-group col-sm-12 col-md-12">
+                                        <label for="">Lý do:</label>
+                                        <div class="d-flex form-inline">
+                                            <input type="text" class="form-control" id="txtURPartRejectReason" style="width: 100%" autofocus>
+                                            <button class="btn btn-success ml-2" onclick="clerkUpdateRequest(Enum_Action.Reject)">&nbsp;Submit</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer pr-0">
+                <div class="col-sm-12 col-md-12">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button class="btn btn-success ml-2" onclick="updateRequest()">&nbsp;Thợ máy cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<div class="modal fade" id="modalUpdateRequest">
+    <div class="modal-dialog modal-full m-0">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel"><strong>Cập nhật phiếu yêu cầu vật tư</strong></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="panel panel-default mb-0">
+                    <div class="panel-heading text-center"><b>Thông tin phiếu</b></div>
+                    <div class="panel-body pr-0 pl-0">
+                        <input type="hidden" id="txtURId">
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <div class="w-100">
+                                    <label for="">Loại phiếu</label>
+                                    <div class="switch-block">
+                                        <label class="switch-light switch-candy d-inline">
+                                            <input type="checkbox" name="" id="cbURRequestType" />
+                                            <span style="height: 33px">
+                                                <span style="line-height: 32px">Cấp mới</span>
+                                                <span style="line-height: 32px">Đổi trả</span>
+                                                <a></a>
+                                            </span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="">Tag máy</label>
+                                <div class="">
+                                    <input type="text" class="form-control" id="txtURMachineTag">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="">Zone</label>
+                                <div class="">
+                                    <select class="form-control list-zone" name="" id="txtURZone">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="">Lý do</label>
+                                <div class="">
+                                    <select class="form-control list-error" name="" id="txtURPartReason">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-3">
+                                <label for="">ID Thợ máy: (<span id="txtURPartRequesterName"></span>)</label>
+                                <div class="">
+                                    <input type="number" class="form-control" id="txtURPartIdMechanic" placeholder="Nhập vào ID nhân viên và nhấn enter" onkeypress="getMechanicById(event)">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3">
+                                <label for="">Supervisor</label>
+                                <div class="d-flex form-inline">
+                                    <input type="text" class="form-control" id="txtURPartManager" disabled style="width: 75.8%">
+                                    <div class="form-inline manager-section" style="display: none!important;">
+                                        <button class="btn btn-success ml-2" onclick="Approve(Enum_User_Type.Manager)">&nbsp;Approve</button>
+                                        <div class="btn-group dropup ml-2">
+                                            <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Reject
+                                            </button>
+                                            <div class="dropdown-menu" style="width: 420px; left: -323px; height: 90px; top: -100px; background: #f5e5e5">
+                                                <div class="form-group col-sm-12 col-md-12">
+                                                    <label for="">Ghi chú:</label>
+                                                    <div class="d-flex form-inline">
+                                                        <input type="text" class="form-control" id="txtManagerComment" style="width: 100%" autofocus>
+                                                        <button class="btn btn-success ml-2" onclick="Reject(Enum_User_Type.Manager)">&nbsp;Submit</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-3" id="URSeniorManagerSection">
+                                <label for="">SuperIntendant</label>
+                                <div class="d-flex form-inline">
+                                    <input type="text" class="form-control" id="txtURPartSeniorManager" disabled style="width: 75.8%">
+                                    <div class="form-inline senior-manager-section" style="display: none!important;">
+                                        <button class="btn btn-success ml-2" onclick="Approve(Enum_User_Type.SeniorManager)">&nbsp;Approve</button>
+                                        <div class="btn-group dropup ml-2">
+                                            <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Reject
+                                            </button>
+                                            <div class="dropdown-menu" style="width: 420px; left: -323px; height: 90px; top: -100px; background: #f5e5e5">
+                                                <div class="form-group col-sm-12 col-md-12">
+                                                    <label for="">Ghi chú:</label>
+                                                    <div class="d-flex form-inline">
+                                                        <input type="text" class="form-control" id="txtSManagerComment" style="width: 100%" autofocus>
+                                                        <button class="btn btn-success ml-2" onclick="Reject(Enum_User_Type.SeniorManager)">&nbsp;Submit</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3 clerk-section" style="display: none!important;">
+                                <label for="">Warehouse Clerk</label>
+                                <div class="d-flex form-inline">
+                                    <button class="btn btn-success" onclick="clerkApprove()">&nbsp;Approve</button>
+                                    <div class="btn-group dropup ml-2">
+                                        <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            Reject
+                                        </button>
+                                        <div class="dropdown-menu" style="width: 420px; left: -323px; height: 90px; top: -100px; background: #f5e5e5">
+                                            <div class="form-group col-sm-12 col-md-12">
+                                                <label for="">Ghi chú:</label>
+                                                <div class="d-flex form-inline">
+                                                    <input type="text" class="form-control" id="txtClerkComment" style="width: 100%" autofocus>
+                                                    <button class="btn btn-success ml-2" onclick="Reject(Enum_User_Type.Clerk)">&nbsp;Submit</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-default mb-0">
+                    <div class="panel-heading d-flex p-0">
+                        <div class="col-md-6 pt-2 pb-2">
+                            <b>Danh sách vật tư yêu cầu</b>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <!-- <button class="btn btn-success" onclick="addRow()"><i class="fa fa-plus"></i>&nbsp; Thêm vật tư</button> -->
+                        </div>
+                    </div>
+                    <div class="panel-body p-0" style="height: 360px; overflow-y: auto;">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr class="text-center">
+                                    <th width="20%">Tên vật tư</th>
+                                    <th width="15%">Mã vật tư</th>
+                                    <th width="10%">Vị trí</th>
+                                    <th width="10%">Số lượng yêu cầu</th>
+                                    <th width="10%">Trong kho</th>
+                                    <th width="10%">Lí do</th>
+                                    <th width="10%">Số lượng xuất</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ur-list-part">
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer pr-0 mt-0">
+                <div class="col-sm-12 col-md-12">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close form</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal add part -->
+<div class="modal fade" id="modalAddPart" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xlg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel"><strong>Thêm thông tin vật tư</strong></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Tên vật tư <span class="text-danger">*</span></label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtAPartName" autofocus>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">ID nhà máy <span class="text-danger">*</span></label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtAPartVendorCode">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Mã vật tư MEC <span class="text-danger">*</span></label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtAPartCode">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Số lượng</label>
+                        <div class="">
+                            <input type="number" class="form-control" id="txtAPartQty" value="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Số lượng tối thiểu</label>
+                        <div class="">
+                            <input type="number" class="form-control" id="txtAPartMinQty" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Vị trí</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtAPartLocation">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Đơn giá</label>
+                        <div class="">
+                            <input type="number" class="form-control" id="txtAPartPrice" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Đơn vị</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtAPartUnit">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Model</label>
+                        <div class="">
+                            <select id="txtAPartModel" class="form-control list-model" onchange="changeModel()">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Mô tả</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtAPartDes">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3 d-flex">
+                        <label for="" class="mr-3">Ảnh</label>
+                        <div class="">
+                            <label class="d-flex align-items-center justify-content-center" style="cursor: pointer;">
+                                <img id="part-img" src="/Image/upload.png" width="150px" height="150px">
+                                <input type="file" accept=".jpg, .jpeg, .png" id="part-image-upload" onchange="uploadImage(event)" class="d-none">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer pr-0">
+                <div class="col-sm-12 col-md-12">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" onclick="addPart()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal update part -->
+<div class="modal fade" id="modalUpdatePart" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xlg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel"><strong>Cập nhật thông tin vật tư</strong></h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="form-row">
+                    <input type="hidden" id="txtDPartId">
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Tên vật tư <span class="text-danger">*</span></label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtDPartName" autofocus>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">ID nhà máy <span class="text-danger">*</span></label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtDPartVendorCode">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Mã vật tư MEC <span class="text-danger">*</span></label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtDPartCode">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Số lượng</label>
+                        <div class="">
+                            <input type="number" class="form-control" id="txtDPartQty" value="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Số lượng tối thiểu</label>
+                        <div class="">
+                            <input type="number" class="form-control" id="txtDPartMinQty" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Vị trí</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtDPartLocation">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Đơn giá</label>
+                        <div class="">
+                            <input type="number" class="form-control" id="txtDPartPrice" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Đơn vị</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtDPartUnit">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Model</label>
+                        <div class="w-100">
+                            <select id="txtPartModel" class="form-control list-model" onchange="changeModel()">
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3">
+                        <label for="">Mô tả</label>
+                        <div class="">
+                            <input type="text" class="form-control" id="txtDPartDes">
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-3 d-flex">
+                        <label for="" class="mr-3">Ảnh</label>
+                        <div class="">
+                            <label class="d-flex align-items-center justify-content-center" style="cursor: pointer;">
+                                <input type="hidden" id="d-old-part-img">
+                                <img id="d-part-img" src="/Image/upload.png" width="150px" height="150px" loading="lazy">
+                                <input type="file" accept=".jpg, .jpeg, .png" id="d-part-image-upload" onchange="uploadImage(event)" class="d-none">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer pr-0">
+                <div class="col-sm-12 col-md-12">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" onclick="updatePart()">Update</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

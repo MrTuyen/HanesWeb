@@ -1,0 +1,189 @@
+11/28/2021, 11:04:10 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:04:10 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:04:10 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:04:10 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:04:10 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:04:10 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:04:10 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:00 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:00 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:05:00 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:00 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:00 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:00 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:00 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:23 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:05:23 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:23 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:23 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:23 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:23 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:23 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:32 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:32 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:05:38 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:05:38 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:06:39 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:06:39 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:06:39 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:06:39 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:06:39 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:06:39 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:06:40 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:09 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:09 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:13:09 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:09 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:09 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:09 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:09 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:33 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:33 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:13:33 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:33 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:34 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:34 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:13:34 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:04 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:04 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:16:04 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:04 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:04 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:04 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:04 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:15 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:15 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:16:15 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:15 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:16:16 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:16 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:16:16 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:16 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------
+11/28/2021, 11:16:16 AM: excuteQueryAsync
+ER_CANT_AGGREGATE_2COLLATIONS: Illegal mix of collations (utf8_unicode_ci,IMPLICIT) and (utf8_general_ci,IMPLICIT) for operation '='
+---------------------------------------------
+11/28/2021, 11:16:16 AM: cutting.netCuttingTime
+Cannot read property '0' of null
+---------------------------------------------

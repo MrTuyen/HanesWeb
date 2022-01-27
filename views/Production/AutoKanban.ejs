@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <header>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <!-- <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-purple.min.css"> -->
+        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css"/>
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+        <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <title>Auto Kanban</title>
+    </header>
+    <body>
+        <!-- Always shows a header, even in smaller screens. -->
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+            <header class="mdl-layout__header">
+                <div class="mdl-layout__header-row">
+                    <span class="mdl-layout-title">AUTO KANBAN & PHÁT TEM</span>
+                    <%- include ("partials/headerTemplate.ejs"); -%>
+                    <div class="mdl-layout-spacer"></div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable
+                                mdl-textfield--floating-label mdl-textfield--align-right text_expand" style="margin-right: 20px;" id="div_asslot">
+                        <label class="mdl-button mdl-js-button mdl-button--icon"
+                            for="txt_asslot">
+                        <i class="material-icons">search</i>
+                        </label>
+                        <div class="mdl-textfield__expandable-holder" style="width: 120px;">
+                        <input class="mdl-textfield__input" type="text" name="txt_asslot" id="txt_asslot">
+                        </div>
+                    </div>
+                    <div id="cbb_shift_div" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" 
+                                            style="width: 60px; margin-right: 20px;">
+                        <input type="text" value="" class="mdl-textfield__input" id="cbb_shift" readonly>
+                        <input type="hidden" value="" name="cbb_shift">
+                        <label for="cbb_shift" class="mdl-textfield__label" style="color: white;">Ca</label>
+                        <ul for="cbb_shift" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="cbb_shift_list">
+                            <li class="mdl-menu__item" data-val="R">RIT</li>
+                            <li class="mdl-menu__item" data-val="B">BALI</li>
+                        </ul>
+                    </div>
+                    <div id="cbb_span_div" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" 
+                                            style="width: 60px; margin-right: 20px;">
+                        <input type="text" value="" class="mdl-textfield__input" id="cbb_span" readonly>
+                        <input type="hidden" value="" name="cbb_span">
+                        <label for="cbb_span" class="mdl-textfield__label" style="color: white;">Khung giờ</label>
+                        <ul for="cbb_span" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="cbb_span_list">
+                            <li class="mdl-menu__item" data-val="1h">01h</li>
+                            <li class="mdl-menu__item" data-val="2h">02h</li>
+                            <li class="mdl-menu__item" data-val="3h">03h</li>
+                            <li class="mdl-menu__item" data-val="4h">04h</li>
+                            <li class="mdl-menu__item" data-val="5h">05h</li>
+                            <li class="mdl-menu__item" data-val="6h">06h</li>
+                            <li class="mdl-menu__item" data-val="7h">07h</li>
+                            <li class="mdl-menu__item" data-val="8h">08h</li>
+                            <li class="mdl-menu__item" data-val="9h">09h</li>
+                            <li class="mdl-menu__item" data-val="10h">10h</li>
+                            <li class="mdl-menu__item" data-val="11h">11h</li>
+                            <li class="mdl-menu__item" data-val="12h">12h</li>
+                            <li class="mdl-menu__item" data-val="12h">13h</li>
+                        </ul>
+                    </div>
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-shadow--2dp" id="btn_get_asslot">
+                        <i class="material-icons" style="margin-right: 20px;">search</i>
+                        TÌM KIẾM
+                    </button>
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-shadow--2dp" 
+                                style="background-color: red; margin-left: 10px;" id="btn_submit">
+                        <i class="material-icons" style="margin-right: 10px;">send</i>
+                        XÁC NHẬN
+                    </button>
+                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-shadow--2dp" 
+                                style="background-color: white; color:black; margin-left: 10px;" id="btn_kanban">
+                        <i class="material-icons" style="margin-right: 10px;">grading</i>
+                        KANBAN
+                    </button>
+                    <div class="mdl-tooltip mdl-tooltip--large" for="btn_kanban" id="btn_kanban_status">
+                        Tình Trạng
+                    </div>
+                </div>
+            </header>
+            <%- include ("partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="mdl-grid" style="background: white; border-radius: 10px;">
+                        <div class="mdl-cell mdl-cell--3-col mdl-shadow--6dp">
+                            <div class="mdl-card" style="width: 100%;">
+                                <div class="mdl-card__title" style="font-size: 20px; background-color: rgba(0, 119, 255, 0.644);">
+                                    <h4 id="txt_target" style="width: 100%; margin: 0px; padding: 0;">MỤC TIÊU:</h4>
+                                </div>
+                                <div class="mdl-card__supporting-text">
+                                    <div class="mdl-grid" id="spinner_div" style="margin: 0px auto; display: none;"></div>
+                                    <div class="mdl-grid" style="margin-top: 0px;">
+                                        <i class="material-icons" style="color: chartreuse; font-size: 30px;">center_focus_strong</i>
+                                        <div style="margin-left: 20px; margin-top:8px; color:black;" id="txt_asslot_info">Assort.Lot</div>
+                                    </div>
+                                    <div class="mdl-grid" style="margin-top: 10px;">
+                                        <i class="material-icons" style="color: red; font-size: 30px;">location_on</i>
+                                        <div style="margin-left: 20px; margin-top:8px; color:black; cursor: pointer;" id="txt_group">Group</div>
+                                    </div>
+                                    <div class="mdl-tooltip" data-mdl-for="txt_group" style="font-size: 12px;">
+                                        Thay đổi Group
+                                    </div>
+                                    <div class="mdl-grid" style="margin-top: 10px;">
+                                        <i class="material-icons" style="color: Green; font-size: 30px;">local_offer</i>
+                                        <div style="margin-left: 20px; margin-top:8px; color:black;" id="txt_work_center">Work Center</div>
+                                    </div>
+                                    <div class="mdl-grid" style="margin-top: 10px;">
+                                        <i class="material-icons" style="color: indigo; font-size: 30px;">menu_book</i>
+                                        <div style="margin-left: 20px; margin-top:8px; color:black; cursor: pointer;" id="txt_style_detail">Style Detail</div>
+                                    </div>
+                                    <div class="mdl-tooltip" data-mdl-for="txt_style_detail" style="font-size: 12px;">
+                                        Thay đổi Style Detail
+                                    </div>
+                                    <div class="mdl-grid" style="margin-top: 10px;">
+                                        <i class="material-icons" style="color: purple; font-size: 30px;">navigation</i>
+                                        <div style="margin-left: 20px; margin-top:8px; color:black;" id="txt_selling_style">Selling Style</div>
+                                    </div>
+                                    <div class="mdl-grid" style="margin-top: 10px;">
+                                        <i class="material-icons" style="color: green; font-size: 30px;">star</i>
+                                        <div style="margin-left: 20px; margin-top:8px; color:black;" id="txt_size">Size</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mdl-cell mdl-cell--9-col mdl-shadow--6dp" style="background-color: white;">
+                            <table class="mdl-data-table mdl-js-data-table table-hover" style="width:100%; height: 100%; margin: 0px auto; border: none; margin-bottom: 0px;">
+                                <thead  STYLE="background-color: green;">
+                                    <style>
+                                        .btn_attach_class:hover{
+                                            color: white;
+                                        }
+                                    </style>
+                                    <tr style=" border-radius: 10px; height: 65px;">
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">STT</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">WORKLOT</th>
+                                        <th class="mdl-data-table__cell--non-numeric" style="color: white;">MÀU</th>
+                                        <th style="color: white;">TỈ LỆ</th>
+                                        <th style="color: white;">KHO IN (TỜ)</th>
+                                        <th style="color: white;">ĐÃ PHÁT (TỜ)</th>
+                                        <th style="color: white;">CÒN LẠI</th>
+                                        <th style="color: white;">ĐÃ SCAN</th>
+                                        <th style="color: white;">CHÊNH LỆCH<br>TỈ LỆ</th>
+                                        <th style="color: white;">TÍNH TOÁN (TỜ)</th>
+                                        <!-- <th style="color: white;">THỰC PHÁT</th> -->
+                                    </tr>
+                                </thead>
+                                <tbody id="table_asslot_body">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="mdl-grid" style="margin-right: 5px; margin-left: 5px;">
+                        <div style="width: 100%;">
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-shadow--6dp" 
+                                    style="margin-left: 20px; background-color: green; float: left; margin-top: 10px; margin-bottom: 10px; float: right; border-radius: 20px;" id="btn_color_back">
+                                <i class="material-icons" style="margin-right: 10px;">backspace</i>
+                                TRẢ TEM
+                            </button>
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-shadow--6dp" 
+                                    style="margin-right: 0px; background-color: red; float: left; margin-top: 10px; margin-bottom: 10px; float: right; margin-left: 20px; border-radius: 20px;" id="btn_operations">
+                                <i class="material-icons" style="margin-right: 10px;">published_with_changes</i>
+                                CÔNG ĐOẠN
+                            </button>
+                            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent mdl-shadow--6dp" 
+                                    style="margin-right: 0px; background-color: purple; float: left; margin-top: 10px; margin-bottom: 10px; float: right; border-radius: 20px;" id="btn_add_employee">
+                                <i class="material-icons" style="margin-right: 10px;">add</i>
+                                THÊM
+                            </button>
+                            <div class="mdl-grid" style="vertical-align: middle;">
+                                <h4 style="margin: 0; padding: 0; margin-top: 5px;" id="txt_output_emplist">SẢN LƯỢNG THEO NĂNG LỰC MAY: 0</h4>
+                            </div>
+                        </div>
+                        <table class="mdl-data-table mdl-js-data-table table-hover mdl-shadow--6dp" style="width: 100%; border: none; margin:0 auto; margin-top: 20px;">
+                            <thead  STYLE="background-color: orange;">
+                                <style>
+                                    .btn_attach_class:hover{
+                                        color: white;
+                                    }
+                                </style>
+                                <tr style=" border-radius: 10px; ">
+                                    <th class="mdl-data-table__cell--non-numeric" style="color: white;">STT</th>
+                                    <th class="mdl-data-table__cell--non-numeric" style="color: white;">ID</th>
+                                    <th class="mdl-data-table__cell--non-numeric" style="color: white;">TÊN NHÂN VIÊN</th>
+                                    <th class="mdl-data-table__cell--non-numeric" style="color: white;">LINE</th>
+                                    <th class="mdl-data-table__cell--non-numeric" style="color: white;">CÔNG ĐOẠN</th>
+                                    <th style="color: white;">LÀM VIỆC (PHÚT)</th>
+                                    <th style="color: white;">HIỆU SUẤT (%)</th>
+                                    <th style="color: white;">SẢN LƯỢNG (Dz)</th>
+                                    <th class="mdl-data-table__cell--non-numeric" style="color: white;">MÀU</th>
+                                    <th style="color: white;">CHỈ TIÊU (TỜ)</th>
+                                    <th style="color: white;">THỰC PHÁT (TỜ)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_employee_body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <dialog id="dialog_color" style="border-radius: 10px; border:none; padding: 0;">
+            <div class="mdl-card">
+                <div class="mdl-card__title" style="background-color: red; color: white;">
+                  <h2 class="mdl-card__title-text">CHỌN MÀU</h2>
+                </div>
+                <ul class="mdl-list" id="ul_color">
+                </ul>
+                <div class="mdl-card__actions mdl-card--border">
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_cancel" style="float: right;">
+                        CANCEL
+                    </a>
+                </div>
+            </div>
+        </dialog>
+        <dialog id="dialog_work_hrs" style="border-radius: 10px; border:none; padding: 0;">
+            <div class="mdl-card" style="border-radius: 10px;">
+                <div class="mdl-card__title" style="background-color: red; color: white;">
+                  <h2 class="mdl-card__title-text">CHỌN THỜI GIAN</h2>
+                </div>
+                <div style="height: 400px; overflow-y:auto;">
+                    <p style="margin-left: 5px; margin-top: 10px;">Chọn thời gian nhân viên làm việc (phút)</p>
+                    <ul class="mdl-list" id="ul_work_hrs">
+                    </ul>
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_work_hrs_cancel" style="float: right;">
+                        CANCEL
+                    </a>
+                </div>
+            </div>
+        </dialog>
+        <dialog id="dialog_employee" style="border-radius: 10px; border:none; padding: 0;">
+            <div class="mdl-card">
+                <div class="mdl-card__title" style="background-color: blue; color: white;">
+                    <h2 class="mdl-card__title-text">THÊM NHÂN VIÊN</h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="number" maxlength="6" pattern="-?[0-9]*(\.[0-9]+)?" id="txt_add_ID">
+                        <label class="mdl-textfield__label" for="txt_add_ID">ID NV</label>
+                        <span class="mdl-textfield__error">ID nhân viên là một con số có 6 số!</span>
+                    </div>
+                    <h5 id="txt_add_name"></h5>
+                    <div id="txt_add_ID_6"></div>
+                    <div id="txt_add_line"></div>
+                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                        <input class="mdl-textfield__input" type="number" step="0.01" pattern="-?[0-9]*(\.[0-9]+)?" min="0" max="400" id="txt_add_eff">
+                        <label class="mdl-textfield__label" for="txt_add_eff">Hiệu suất</label>
+                        <span class="mdl-textfield__error">Hiệu suất một con số!</span>
+                    </div>
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_dialog_add">
+                        ĐỒNG Ý
+                    </a>
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_dialog_cancel">
+                        HỦY
+                    </a>
+                </div>
+            </div>
+        </dialog>
+        <dialog id="dialog_color_back" style="border-radius: 10px; border: none; padding: 0;">
+            <div class="mdl-card" style="border-radius: 10px;">
+                <div class="mdl-card__title" style="background-color: red; color: white;">
+                  <h2 class="mdl-card__title-text">TRẢ TEM (TỜ)</h2>
+                </div>
+                <div style="height: 400px; overflow-y:auto;">
+                    <p style="margin-left: 5px; margin-top: 10px;">Nhập số lượng tem (tờ) trả cuối ca hoặc hàng suspend. Hệ thống ghi nhận 1 lần nhập duy nhất cho 1 ca và 1 lot.</p>
+                    <ul class="mdl-list" id="ul_color_back">
+                    </ul>
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_color_back_cancel" style="float: right;">
+                        CANCEL
+                    </a>
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_color_back_ok" style="float: right;">
+                        ĐỒNG Ý
+                    </a>
+                </div>
+            </div>
+        </dialog>
+        <dialog id="dialog_operations" style="border-radius: 10px; border: none; padding: 0;">
+            <div class="mdl-card" style="border-radius: 10px;">
+                <div class="mdl-card__title" style="background-color: red; color: white;">
+                  <h2 class="mdl-card__title-text">CÔNG ĐOẠN PHÁT TEM</h2>
+                </div>
+                <div style="height: 400px; overflow-y:auto;">
+                    <p style="margin-left: 5px; margin-top: 10px;">Công đoạn phát tem có thể không phải là CĐ đoạn đầu.</p>
+                    <ul class="mdl-list" id="ul_operations">
+                    </ul>
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_operations_cancel" style="float: right;">
+                        CANCEL
+                    </a>
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_operations_ok" style="float: right;">
+                        ĐỒNG Ý
+                    </a>
+                </div>
+            </div>
+        </dialog>
+        <dialog id="dialog_group_special" style="border-radius: 10px; border: none; padding: 0;">
+            <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css"/>
+            <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+            <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
+            <div class="mdl-card" style="border-radius: 10px; height: 500px;">
+                <div class="mdl-card__title" style="background-color: red; color: white;">
+                  <h2 class="mdl-card__title-text">CÁC GROUP ĐẶC BIỆT</h2>
+                </div>
+                <div class="mdl-grid" style="margin:10px auto; height: 80%;">
+                    <!-- <p style="margin-left: 5px; margin-top: 10px;"></p> -->
+                    <div id="cbb_group_special_div" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" 
+                                            style="width: 300px;">
+                        <input type="text" value="" class="mdl-textfield__input" id="cbb_group_special">
+                        <input type="hidden" value="" name="cbb_group_special">
+                        <label for="cbb_group_special" class="mdl-textfield__label">Chọn Group</label>
+                        <ul for="cbb_group_special" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="cbb_group_special_list">
+                            <!-- <li class="mdl-menu__item" data-val="7h">Hello world</li> -->
+                        </ul>
+                    </div>
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_group_special_cancel" style="float: right;">
+                        CANCEL
+                    </a>
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_group_special_ok" style="float: right;">
+                        ĐỒNG Ý
+                    </a>
+                </div>
+            </div>
+        </dialog>
+        <dialog id="dialog_style_detail" style="border-radius: 10px; border: none; padding: 0;">
+            <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css"/>
+            <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+            <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
+            <div class="mdl-card" style="border-radius: 10px;">
+                <div class="mdl-card__title" style="background-color: red; color: white;">
+                  <h2 class="mdl-card__title-text">STYLE DETAIL</h2>
+                </div>
+                <div style="height: 400px; overflow-y:auto;">
+                    <p style="margin-left: 5px; margin-top: 10px;"></p>
+                    <div id="cbb_style_detail_div" class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label getmdl-select getmdl-select__fix-height" 
+                                            style="width: 60px; margin-right: 20px;">
+                        <input type="text" value="" class="mdl-textfield__input" id="cbb_style_detail" readonly>
+                        <input type="hidden" value="" name="cbb_style_detail">
+                        <label for="cbb_style_detail" class="mdl-textfield__label" style="color: white;">Chọn Style</label>
+                        <ul for="cbb_style_detail" class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-shadow--8dp" id="cbb_style_detail_list">
+                        </ul>
+                    </div>
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_style_detail_cancel" style="float: right;">
+                        CANCEL
+                    </a>
+                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_style_detail_ok" style="float: right;">
+                        ĐỒNG Ý
+                    </a>
+                </div>
+            </div>
+        </dialog>
+        <dialog id="dialog_asslot_infor" style="border-radius: 10px; border: none; padding: 0; width: 400px;">
+            <div class="mdl-card mdl-shadow--2dp" style="width: 100%; border-radius: 10px;">
+                <div class="mdl-card__title" style="background-color:indigo; ">
+                    <h2 class="mdl-card__title-text" style="color: white; font-weight: bold;">
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="txt_asslot_infor_asslot" style="font-size: 20px;">
+                            <label class="mdl-textfield__label" for="txt_asslot_infor_asslot" style="font-size: 13px; color: white; font-weight: normal;">ASSORT.LOT TIẾP THEO</label>
+                        </div>
+                    </h2>
+                </div>
+                <div class="mdl-card__supporting-text" style="margin-bottom: 10px;">
+                    <label class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" for="checkbox_2_style">
+                        <input type="checkbox" id="checkbox_2_style" class="mdl-checkbox__input">
+                        <span class="mdl-checkbox__label" style="color: purple;">May 2 mã hàng</span>
+                    </label>
+                    <div id="div_small_asslot_output" style="display: none;">
+                        <div style="font-size: 15px; color: black; margin-bottom: 10px;">Nhập 2 lô con tiếp theo</div>
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="number" id="txt_asslot_2" style="color: black;">
+                            <label class="mdl-textfield__label" for="txt_asslot_2">ASSLOT 2</label>
+                        </div>
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="number" id="txt_asslot_3" style="color: black;">
+                            <label class="mdl-textfield__label" for="txt_asslot_3">ASSLOT 3</label>
+                        </div>
+                    </div>
+                    <div style="font-size: 15px; color: black; margin-bottom: 10px;">Thông tin Assortment Lot kho cần chuẩn bị:</div>
+                    <div id="txt_asslot_infor_selling" style="font-size: 15px; color: blue">Selling Style:</div>
+                    <div id="txt_asslot_infor_size" style="font-size: 15px; margin-top: 10px; color: green">Size:</div>
+                    <div id="txt_asslot_cutpart_count" style="font-size: 15px; margin-top: 10px; color: black">Cutparts: 1 Giờ</div>
+                    <div id="txt_asslot_supplie_count" style="font-size: 15px; margin-top: 10px; color: black">Supplies: 1 Giờ</div>
+                    <table class="mdl-data-table mdl-js-data-table table-hover mdl-shadow--2dp" style="width: 100%; border: none; margin:0 auto; margin-top: 20px;">
+                        <thead  STYLE="background-color: purple;">
+                            <style>
+                                .btn_attach_class:hover{
+                                    color: white;
+                                }
+                            </style>
+                            <tr style="border-radius: 10px;">
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">STT</th>
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">WORK_LOT</th>
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">COLOR</th>
+                                <th style="color: white;">OUTPUT (Dz)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_asslot_infor_body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_asslot_infor_prepare" style="float: right;">
+                        ĐỒNG Ý
+                    </button>
+                    <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_asslot_infor_cancel" style="float: right;">
+                        HỦY ĐỒNG Ý
+                    </button>
+                    <!-- <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_asslot_infor_supplie" style="float: right; float: right;">
+                        NHẬN SUPPLIES
+                    </a> -->
+                </div>
+                <div class="mdl-card__menu">
+                    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect" id="btn_asslot_infor_close">
+                        <i class="material-icons" style="color: white;">close</i>
+                    </button>
+                </div>
+            </div>
+        </dialog>
+        <dialog id="dialog_kanban" style="border-radius: 10px; border: none; padding: 0; width: 400px;">
+            <div class="mdl-card mdl-shadow--2dp" style="width: 100%; border-radius: 10px;">
+                <div class="mdl-card__title" style="background-color:indigo; ">
+                    <h2 class="mdl-card__title-text" style="color: white; font-weight: bold;">
+                        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                            <input class="mdl-textfield__input" type="text" id="txt_kanban_asslot" style="font-size: 20px; color: white;" disabled>
+                            <label class="mdl-textfield__label" for="txt_kanban_asslot" style="font-size: 15px; color: white; font-weight: normal;">ASSORT.LOT TIẾP THEO</label>
+                        </div>
+                    </h2>
+                </div>
+                <div class="mdl-card__supporting-text">
+                    <div id="div_small_asslot_output_kanban">
+                        <label id="txt_asslot_2_kanban" style="color: black; font-size: 15;">Asslot 1: </label>
+                        <label id="txt_asslot_3_kanban" style="color: black; font-size: 15;">Asslot 2: </label>
+                    </div>
+                    <div style="font-size: 15px; color: black; margin-bottom: 10px;">Thông tin Assortment Lot chuẩn bị gọi ra:</div>
+                    <div id="txt_kanban_selling" style="font-size: 15px; color: blue">Selling Style:</div>
+                    <div id="txt_kanban_size" style="font-size: 15px; margin-top: 10px; color: green">Size:</div>
+                    <div id="txt_kanban_cutpart_count" style="font-size: 15px; margin-top: 10px; color: black">Cutpart: 15 Phút</div>
+                    <div id="txt_kanban_supplie_count" style="font-size: 15px; margin-top: 10px; color: black">Supplies: 45 Phút</div>
+                    <table class="mdl-data-table mdl-js-data-table table-hover mdl-shadow--2dp" style="width: 100%; border: none; margin:0 auto; margin-top: 20px;">
+                        <thead  STYLE="background-color: purple;">
+                            <style>
+                                .btn_attach_class:hover{
+                                    color: white;
+                                }
+                            </style>
+                            <tr style="border-radius: 10px;">
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">STT</th>
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">WORK_LOT</th>
+                                <th class="mdl-data-table__cell--non-numeric" style="color: white;">COLOR</th>
+                                <th style="color: white;">OUTPUT (Dz)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table_kanban_infor_body">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mdl-card__actions mdl-card--border">
+                    <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_kanban_confirm" style="float: right; background-color: red; color: white; margin-right: 10px;">
+                        GỌI HÀNG
+                    </button>
+                    <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_kanban_receive" style="float: right; background-color: green; color: white; margin-right: 10px; display: none;">
+                        CUTPART
+                    </button>
+                    <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_kanban_supplie" style="float: right; background-color: white; color: black; margin-right: 10px;">
+                        HOÀN TẤT
+                    </button>
+                    <button class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_kanban_suspend" style="float: right; background-color: black; color: white; margin-right: 10px;">
+                        SUSPEND
+                    </button>
+                </div>
+                <div class="mdl-card__menu">
+                    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect" id="btn_kanban_close">
+                        <i class="material-icons" style="color: white;">close</i>
+                    </button>
+                </div>
+            </div>
+        </dialog>
+    </body>
+    <script>
+        table_asslot_body   = document.getElementById('table_asslot_body');
+        table_employee_body = document.getElementById('table_employee_body');
+        spinner_div         = document.getElementById('spinner_div');
+        var group_infor;
+        var output_total=0;
+        var date='';
+        var shift='';
+        var asslot_list;
+        // window.onload=load_shift();
+        load_shift();
+        function load_kanban(){
+            curr_group=sessionStorage.getItem('curr_group');
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/GetGroupKanban",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=JSON.parse(xsend.responseText);
+                    // console.log(result);
+                    for (var i=0; i<result.length; i++)
+                        if (result[i].NAMEGROUP==curr_group){
+                            // console.log(result[i].ASS_LOT)
+                            sessionStorage.setItem("KANBAN_ASSLOT", result[i].HQAS);
+                            // console.log('kanban_asslot', result[i].ASS_LOT)
+                            group_infor=new Array();
+                            group_infor=[];
+                            group_infor.push(result[i]);
+                            switch (result[i].ASS_STATUS){
+                                case 'NOTIFY':
+                                    document.getElementById("btn_kanban").style.backgroundColor="rgb(220, 118, 51)";
+                                    document.getElementById("btn_kanban_status").innerHTML="Kho Chuẩn Bị<br><div style='margin-top:5px'>Trước 1H<div>";
+                                    document.getElementById("btn_kanban").style.color="white";
+                                    document.getElementById('btn_asslot_infor_prepare').disabled=true;
+                                    document.getElementById('btn_asslot_infor_prepare').style.cursor="no-drop";
+                                    break;
+                                case 'CALL':
+                                    document.getElementById("btn_kanban").style.backgroundColor="red";
+                                    document.getElementById("btn_kanban_status").innerHTML="Đang Gọi Hàng";
+                                    document.getElementById("btn_kanban").style.color="white";
+                                    document.getElementById('btn_asslot_infor_prepare').disabled=true;
+                                    document.getElementById("btn_kanban_confirm").disabled=true;
+                                    document.getElementById('btn_asslot_infor_prepare').style.cursor="no-drop";
+                                    document.getElementById("btn_kanban_confirm").style.cursor="no-drop";
+                                    document.getElementById('btn_asslot_infor_cancel').disabled=true;
+                                    document.getElementById('btn_asslot_infor_cancel').style.cursor="no-drop";
+                                    break;
+                                case 'SEND':
+                                    document.getElementById("btn_kanban").style.backgroundColor="Green";
+                                    document.getElementById("btn_kanban_status").innerHTML="Đã Gửi CUTPART";
+                                    document.getElementById("btn_kanban").style.color="white";
+                                    document.getElementById('btn_asslot_infor_prepare').disabled=true;
+                                    document.getElementById("btn_kanban_confirm").disabled=true;
+                                    document.getElementById('btn_asslot_infor_prepare').style.cursor="no-drop";
+                                    document.getElementById("btn_kanban_confirm").style.cursor="no-drop";
+                                    document.getElementById('btn_asslot_infor_cancel').disabled=true;
+                                    document.getElementById('btn_asslot_infor_cancel').style.cursor="no-drop";
+                                    break;
+                                case 'RECEIVE':
+                                    document.getElementById("btn_kanban").style.backgroundColor="green";
+                                    document.getElementById("btn_kanban_status").innerHTML="Đã Nhận CUTPART";
+                                    document.getElementById("btn_kanban").style.color="white";
+                                    document.getElementById('btn_asslot_infor_prepare').disabled=true;
+                                    document.getElementById("btn_kanban_confirm").disabled=true;
+                                    document.getElementById('btn_kanban_receive').disabled=true;
+                                    document.getElementById('btn_asslot_infor_prepare').style.cursor="no-drop";
+                                    document.getElementById("btn_kanban_confirm").style.cursor="no-drop";
+                                    document.getElementById('btn_kanban_receive').style.cursor="no-drop";
+                                    document.getElementById('btn_asslot_infor_cancel').disabled=true;
+                                    document.getElementById('btn_asslot_infor_cancel').style.cursor="no-drop";
+                                    break;
+                                case 'SUPPLIES':
+                                    document.getElementById("btn_kanban").style.backgroundColor="blue";
+                                    document.getElementById("btn_kanban_status").innerHTML="Đã Gửi SUPPLIES";
+                                    document.getElementById("btn_kanban").style.color="white";
+                                    document.getElementById('btn_asslot_infor_prepare').disabled=true;
+                                    document.getElementById("btn_kanban_confirm").disabled=true;
+                                    document.getElementById('btn_kanban_receive').disabled=true;
+                                    document.getElementById('btn_asslot_infor_prepare').style.cursor="no-drop";
+                                    document.getElementById("btn_kanban_confirm").style.cursor="no-drop";
+                                    document.getElementById('btn_kanban_receive').style.cursor="no-drop";
+                                    document.getElementById('btn_asslot_infor_cancel').disabled=true;
+                                    document.getElementById('btn_asslot_infor_cancel').style.cursor="no-drop";
+                                    break;
+                                case 'PENDING':
+                                    document.getElementById("btn_kanban").style.backgroundColor="black";
+                                    document.getElementById("btn_kanban_status").innerHTML="PENDING";
+                                    document.getElementById("btn_kanban").style.color="white";
+                                    document.getElementById('btn_asslot_infor_prepare').disabled=false;
+                                    document.getElementById('btn_asslot_infor_prepare').style.cursor="pointer";
+                                    document.getElementById('btn_asslot_infor_cancel').disabled=false;
+                                    document.getElementById('btn_asslot_infor_cancel').style.cursor="pointer";
+                                    break;
+                                default:
+                                    document.getElementById("btn_kanban").style.backgroundColor="white";
+                                    document.getElementById("btn_kanban_status").innerHTML="Trạng Thái";
+                                    document.getElementById("btn_kanban").style.color="black";
+                                    document.getElementById('btn_asslot_infor_prepare').disabled=false;
+                                    document.getElementById('btn_kanban_confirm').disabled=false;
+                                    document.getElementById('btn_kanban_receive').disabled=false;
+                                    document.getElementById('btn_asslot_infor_prepare').style.cursor="pointer";
+                                    document.getElementById('btn_kanban_confirm').style.cursor="pointer";
+                                    document.getElementById('btn_kanban_receive').style.cursor="pointer";
+                                    document.getElementById('btn_asslot_infor_cancel').disabled=false;
+                                    document.getElementById('btn_asslot_infor_cancel').style.cursor="pointer";
+                            }
+                            refresh_page();
+                            break;
+                        }
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            xsend.send();
+        }
+        function load_shift(){
+            clear_asslot_table();
+            clear_employee_table();
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+            var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+            var timeUpdate=localISOTime.replace(/T/, ' ').replace(/\..+/, '');
+            currHrs=parseInt(timeUpdate.substring(11,13));
+            year=timeUpdate.substring(0,4);
+            month=timeUpdate.substring(5,7);
+            day=timeUpdate.substring(8,10);
+            date=year+month+day;
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/GetShiftTime",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200){
+                    data=JSON.parse(xsend.responseText);
+                    if (data.length>0){
+                        currShift='';
+                        currSpan=0;
+                        if (data[0].StartTime<=currHrs&&data[0].FinishTime>=currHrs) {
+                            currShift=data[0].Shift;
+                            currSpan=currHrs-parseInt(data[0].StartTime)+1;
+                        } else {
+                            if (data[0].Shift=='R') currShift='B'; else currShift='R';
+                            currSpan=currHrs-parseInt(data[0].FinishTime)+1;
+                        }
+                        shift=currShift;
+                        currSpan_txt=currSpan.toString()+'h';
+                        $('ul[for="cbb_shift"] li[data-val="'+currShift+'"]').attr("data-selected", "true");
+                        
+                        // componentHandler.upgradeAllRegistered();
+                        // document.getElementById('cbb_shift').parentNode.classList.add('is-dirty');
+                        $('ul[for="cbb_span"] li[data-val="'+currSpan_txt+'"]').attr("data-selected", "true");
+                        
+                        // componentHandler.upgradeAllRegistered();
+                        getmdlSelect.init('#cbb_span_div');
+                        getmdlSelect.init('#cbb_shift_div');
+                        // $('ul[for="cbb_spantime"] li[data-val="'+currSpan_txt+'"]').attr('data-selected',true); 
+                    }
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            xsend.send();
+        }
+        document.getElementById('div_asslot').addEventListener('mouseover', function(){
+            document.getElementById('txt_asslot').focus();
+            // document.getElementById('txt_asslot').parentNode.classList.add('is-dirty');
+        });
+        function load_added_employee(asslot){
+            asslot_add_employees=localStorage.getItem(asslot+'ADDEMPLOYEE');
+            console.log(asslot+'ADDEMPLOYEE', asslot_add_employees)
+            if (asslot_add_employees!=null && asslot_add_employees.length>0){
+                employee_added_list=asslot_add_employees.split(';');
+                console.log(employee_added_list)
+                for (var i=0; i<employee_added_list; i++){
+                    employee_infor=employee_added_list[i].split('+');
+                    employeeID   = employee_infor[0];
+                    employeeName = employee_infor[1];
+                    employeeLine = employee_infor[2];
+                    employeeEff  = employee_infor[3];
+                    console.log(employeeID, employeeName, employeeLine, employeeEff)
+                    add_employee_table(employeeID, employeeName, employeeLine, employeeEff)
+                }
+            }
+        }
+        document.getElementById('btn_get_asslot').addEventListener('click', function(){
+            asslot=document.getElementById('txt_asslot').value;
+            // if (asslot.length==6 && isNaN(asslot)==false) {
+            //     asslot='98'+asslot+'01'; 
+            //     document.getElementById('txt_asslot').value=asslot;
+            // }
+            if (asslot=='' || asslot.length!=6 || isNaN(asslot)==true){
+                alert('HQAS nhập vào chưa đúng. Vui lòng kiểm tra lại!');
+                return;
+            }
+            shift =document.getElementById('cbb_shift').value;
+            if (shift==''){
+                alert('Vui lòng chọn Ca của bạn!');
+                return;
+            }
+            span  =document.getElementById('cbb_span').value;
+            if (span==''){
+                alert('Vui lòng chọn khung giờ hiện tại của bạn!');
+                return;
+            }
+            document.getElementById('btn_get_asslot').disabled=true;
+            operation=localStorage.getItem(asslot+'fist_operation');
+            group_special=localStorage.getItem(asslot+'group_special');
+            if (operation==null) operation='';
+            if (group_special==null) group_special='';
+            data={asslot: asslot, shift: shift, span: span, operation: operation, group_special: group_special}
+            var spinning=document.createElement("div");
+            spinning.setAttribute("class","mdl-spinner mdl-js-spinner is-active");
+            spinning.setAttribute("id", "spin_load");
+            spinning.setAttribute("style", "margin: 0px auto;");
+            componentHandler.upgradeElement(spinning);
+            spinner_div.appendChild(spinning);
+            spinner_div.style.display='grid';
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/GetAsslotInfor",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200){
+                    spinner_div.removeChild(spinner_div.childNodes[0]);
+                    spinner_div.style.display='none';
+                    document.getElementById('btn_get_asslot').disabled=false;
+                    if (xsend.responseText.includes('fail')){
+                        alert('Không tìm thấy Asslot trong Kế Hoạch Sản Xuất!');
+                        clear_asslot_table();
+                        clear_employee_table();
+                        return;
+                    }
+                    if (xsend.responseText.includes('no_data')){
+                        alert('Tem Assortment chưa được in! Vui lòng liên hệ kho!');
+                        clear_asslot_table();
+                        clear_employee_table();
+                        return;
+                    }
+                    data=JSON.parse(JSON.parse(xsend.responseText).ass);
+                    employee=JSON.parse(JSON.parse(xsend.responseText).employee);
+                    output_total=0;
+                    if (data.length>0) insert_asslot_table(data);
+                    else {
+                        alert('Không tìm thấy thông tin Assot.Lot!');
+                        return;
+                    }
+                    if (employee.length>0) {
+                        insert_employee_table(employee);
+                        console.log('load_added_employee')
+                        load_added_employee(asslot);
+                    }
+                    else {
+                        alert('Không tìm thấy danh sách NV trong CBC! Vui lòng liên hệ IE.');
+                        return;
+                    }
+                    //load kanban status
+                    load_kanban();
+                    
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            xsend.send(JSON.stringify(data));
+            // var socket=io();
+            // socket.emit('client-request-worklot', asslot);
+        });
+        document.getElementById('txt_asslot').addEventListener('keyup', function(event){
+            if (event.keyCode === 13) {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                document.getElementById('btn_get_asslot').click();
+            }
+        });
+        function clear_asslot_table(){
+            while (table_asslot_body.childNodes.length>0)
+                table_asslot_body.removeChild(table_asslot_body.childNodes[0]);
+        }
+        function insert_asslot_table(data){
+            clear_asslot_table();
+            if (data.length>0){
+                sessionStorage.setItem('STYLE_DETAIL', data[0].Style_Detail);
+                sessionStorage.setItem('ASSLOT', data[0].Asslot);
+                document.getElementById('txt_asslot_info').innerHTML  ='<u>Assort.Lot:</u>    <b style="margin-left: 15px;">'+data[0].Asslot       +'</b>';
+                document.getElementById('txt_group').innerHTML        ='<u>Group:</u>         <b style="margin-left: 38px;">'+data[0].Location     +'</b>';
+                document.getElementById('txt_work_center').innerHTML  ='<u>Work Center:</u>   <b style="margin-left: 5px;">' +data[0].WorkCenter   +'</b>';
+                document.getElementById('txt_style_detail').innerHTML ='<u>Style Detail:</u>  <b style="margin-left: 10px;">'+data[0].Style_Detail +'</b>';
+                document.getElementById('txt_selling_style').innerHTML='<u>Selling Style:</u> <b style="margin-left: 5px;">' +data[0].Selling_Style+'</b>';
+                document.getElementById('txt_size').innerHTML         ='<u>Size:</u>          <b style="margin-left: 55px;">'+data[0].Size         +'</b>';
+                document.getElementById('txt_target').innerHTML       ='MỤC TIÊU:<b style="margin-left: 10px;">'+data[0].Target_1h+'/'+data[0].Target+'</b>';
+                sessionStorage.setItem('curr_group', data[0].Location);
+                sum_rate=0;
+                color_list="";
+                sum_output_left=0;
+                khoin=0;
+                dascan=0;
+                for (var i=0; i<data.length; i++){
+                    khoin+=data[i].Issue;
+                    dascan+=data[i].Scan;
+                    sum_output_left+=parseFloat(data[i].Issue-data[i].Sup_Issue);
+                }
+                console.log(dascan, khoin, dascan+4>=khoin) 
+                // if (dascan+4>=khoin) document.getElementById('btn_submit').disabled=true; //&& data[0].Location!='112-118'
+                // else document.getElementById('btn_submit').disabled=false;
+                for (var i=0; i<data.length; i++){
+                    var tr=document.createElement("tr");
+                    //STT
+                    var tdSTT=document.createElement("td");
+                    tdSTT.setAttribute("class","mdl-data-table__cell--non-numeric");
+                    var node=document.createTextNode(i+1);
+                    tdSTT.appendChild(node);
+                    tr.appendChild(tdSTT);
+                    //Worklot
+                    var tdWorklot=document.createElement("td");
+                    tdWorklot.setAttribute("class","mdl-data-table__cell--non-numeric");
+                    var node=document.createTextNode(data[i].Worklot);
+                    tdWorklot.appendChild(node);
+                    tr.appendChild(tdWorklot);
+                    //Color
+                    color_list+=data[i].Color+";";
+                    var tdColor=document.createElement("td");
+                    tdColor.setAttribute("class","mdl-data-table__cell--non-numeric");
+                    var node=document.createTextNode(data[i].Color);
+                    sessionStorage.setItem(data[i].Color, data[i].Worklot)
+                    tdColor.appendChild(node);
+                    tr.appendChild(tdColor);
+                    //Rate
+                    sum_rate+=data[i].Ratio;
+                    var tdRate=document.createElement("td");
+                    var node=document.createTextNode(data[i].Ratio);
+                    tdRate.appendChild(node);
+                    tr.appendChild(tdRate);
+                    //Issue
+                    var tdIssue=document.createElement("td");
+                    var node=document.createTextNode(data[i].Issue);
+                    tdIssue.appendChild(node);
+                    tr.appendChild(tdIssue);
+                    //Phat
+                    var tdSew=document.createElement("td");
+                    var node;
+                    if (data[i].Sup_Issue!=null)
+                    node=document.createTextNode(data[i].Sup_Issue);
+                    else node=document.createTextNode(0);
+                    tdSew.appendChild(node);
+                    tr.appendChild(tdSew);
+                    //NScan
+                    var tdNScan=document.createElement("td");
+                    var node=document.createTextNode(data[i].Issue-data[i].Sup_Issue);//data[i].Not_scan);
+                    tdNScan.appendChild(node);
+                    tr.appendChild(tdNScan);
+                    //Scan
+                    var tdScan=document.createElement("td");
+                    var node;
+                    if (data[i].Scan==null) node=document.createTextNode(0);
+                    else node=document.createTextNode(data[i].Scan);
+                    tdScan.appendChild(node);
+                    tr.appendChild(tdScan);
+                    //Var
+                    var tdVar=document.createElement("td");
+                    var node=document.createTextNode('');
+                    tdVar.setAttribute('style', 'font-size: 20px;');
+                    tdVar.appendChild(node);
+                    tr.appendChild(tdVar);
+                    //Cal
+                    var tdCal=document.createElement("td");
+                    var node=document.createTextNode('');
+                    tdCal.setAttribute('style', 'font-size: 20px;');
+                    tdCal.appendChild(node);
+                    tr.appendChild(tdCal);
+                    
+                    componentHandler.upgradeElement(tr);
+                    table_asslot_body.appendChild(tr);
+                }
+                sessionStorage.setItem('SUM_RATE', sum_rate);
+                sessionStorage.setItem('COLOR_LIST', color_list);
+                for (var i=0; i<data.length; i++){
+                    color_target=Math.round(sum_output_left/sum_rate*data[i].Ratio);
+                    table_asslot_body.childNodes[i].childNodes[8].innerHTML=parseInt(table_asslot_body.childNodes[i].childNodes[6].innerHTML)-color_target;
+                }
+            }
+        }
+        function clear_employee_table(){
+            while (table_employee_body.childNodes.length>0)
+                table_employee_body.removeChild(table_employee_body.childNodes[0]);
+        }
+        function insert_employee_table(data){
+            clear_employee_table();
+            if (data.length>0){
+                sessionStorage.setItem('SAM', data[0].SAM);
+                sessionStorage.setItem('UNITS', data[0].UNITS);
+                sessionStorage.setItem('OPERATION', data[0].OPERATION);
+                // localStorage.setItem('')
+                color_txt=sessionStorage.getItem('COLOR_LIST');
+                if (color_txt!=null) color_list=color_txt.substring(0, color_txt.length-1).split(';');
+                ID_off_txt=localStorage.getItem(date+shift+'off');
+                if (ID_off_txt!=null) ID_off_list=ID_off_txt.substring(0, ID_off_txt.length-1).split(';');
+                for (var i=0; i<data.length; i++){
+                    var tr=document.createElement("tr");
+                    //STT
+                    var tdSTT=document.createElement("td");
+                    tdSTT.setAttribute("class","mdl-data-table__cell--non-numeric");
+                    var node=document.createTextNode(i+1);
+                    tdSTT.appendChild(node);
+                    tr.appendChild(tdSTT);
+                    //Employee
+                    var tdID=document.createElement("td");
+                    tdID.setAttribute("class","mdl-data-table__cell--non-numeric");
+                    var node=document.createTextNode(data[i].ID);
+                    tdID.appendChild(node);
+                    tr.appendChild(tdID);
+                    //Name
+                    var tdName=document.createElement("td");
+                    tdName.setAttribute("class","mdl-data-table__cell--non-numeric");
+                    var node=document.createTextNode(data[i].NAME);
+                    tdName.appendChild(node);
+                    tr.appendChild(tdName);
+                    //Line
+                    var tdLine=document.createElement("td");
+                    tdLine.setAttribute("class","mdl-data-table__cell--non-numeric");
+                    var node=document.createTextNode(data[i].LINE);
+                    tdLine.appendChild(node);
+                    tr.appendChild(tdLine);
+                    //Operation
+                    var tdOperation=document.createElement("td");
+                    tdOperation.setAttribute("class","mdl-data-table__cell--non-numeric");
+                    var node=document.createTextNode(data[i].OPERATION);
+                    tdOperation.appendChild(node);
+                    tr.appendChild(tdOperation);
+                    //WHr
+                    var tdWHr=document.createElement("td");
+                    tdWHr.setAttribute('onclick', 'fnc_choose_workHrs(this)');
+                    tdWHr.setAttribute('style', 'cursor: pointer;');
+                    txt_hrs='60';
+                    if (ID_off_txt!=null) if (ID_off_list.includes(data[i].ID)) txt_hrs='0';
+                    var node=document.createTextNode(txt_hrs);
+                    tdWHr.appendChild(node);
+                    tr.appendChild(tdWHr);
+                    //Eff
+                    var tdEff=document.createElement("td");
+                    var node=document.createTextNode(data[i].EFF);
+                    tdEff.appendChild(node);
+                    tr.appendChild(tdEff);
+                    //Output
+                    var tdOutput=document.createElement("td");
+                    output_element=Math.round(data[i].EFF/100*60/data[i].SAM*data[i].UNITS/12,1);
+                    var node=document.createTextNode(output_element);
+                    tdOutput.appendChild(node);
+                    tr.appendChild(tdOutput);
+                    output_total+=output_element;
+                    //Color
+                    var tdColor=document.createElement("td");
+                    tdColor.setAttribute("class","mdl-data-table__cell--non-numeric");
+                    tdColor.setAttribute('onclick', 'fnc_choose_color(this)');
+                    txt_color=localStorage.getItem(data[i].ID+(parseInt(i)+1).toString());
+                    var node=document.createTextNode('Chọn');
+                    if (txt_color!=null&&txt_color!=''&&color_list.includes(txt_color)) node=document.createTextNode(txt_color);
+                    tdColor.appendChild(node);
+                    tdColor.setAttribute('style', 'font-size: 20px; cursor: pointer;');
+                    tr.appendChild(tdColor);
+                    //Recommend
+                    var tdRec=document.createElement("td");
+                    var node=document.createTextNode(Math.round(data[i].EFF/100*60/data[i].SAM,1));
+                    tdRec.appendChild(node);
+                    tdRec.setAttribute('style', 'font-size: 20px;');
+                    tr.appendChild(tdRec);
+                    //Release
+                    var tdRelease=document.createElement("td");
+                    var div1=document.createElement('div');
+                    div1.setAttribute('class', 'mdl-textfield mdl-js-textfield');
+                    div1.setAttribute('style', 'width: 50px;')
+                    var input1=document.createElement('input');
+                    input1.setAttribute('class', 'mdl-textfield__input');
+                    input1.setAttribute('type', 'number');
+                    input1.setAttribute('id', 'txt_release'+i);
+                    input1.setAttribute('onkeyup', 'fnc_release_by_emp(this)');
+                    input1.value=Math.round(data[i].EFF/100*60/data[i].SAM,1);
+                    var label1=document.createElement('label');
+                    label1.setAttribute('class', 'mdl-textfield__label');
+                    label1.setAttribute('for', 'txt_release'+i);
+                    label1.innerHTML='Phút';
+                    componentHandler.upgradeElement(input1);
+                    componentHandler.upgradeElement(label1);
+                    div1.appendChild(input1);
+                    div1.appendChild(label1);
+                    componentHandler.upgradeElement(div1);
+                    tdRelease.appendChild(div1);
+                    tr.appendChild(tdRelease);
+                    componentHandler.upgradeElement(tr);
+                    table_employee_body.appendChild(tr);
+                }
+                txt_minute0=document.getElementById('txt_minute0');
+                $(txt_minute0).keyup();
+                units=sessionStorage.getItem('UNITS');
+                document.getElementById('txt_output_emplist').innerHTML="SẢN LƯỢNG THEO NĂNG LỰC MAY: <b style='margin-left: 5px;'> "+output_total+" Dz &#8594; "+Math.round(output_total/units*12)+" TỜ<b>";
+                output_calculation(table_employee_body.childNodes[0].childNodes[5]);
+            }
+        }
+        function fnc_release_by_emp(x){
+            // row=x.id.substring(11, x.id.length)
+            // console.log(row);
+            // stt=x.parentNode.parentNode.parentNode.parentNode.childNodes[0].chi
+            output_calculation(table_employee_body.childNodes[0].childNodes[5], false);
+            refresh_output_emplist();
+        }
+        function refresh_output_emplist(){
+            units=sessionStorage.getItem('UNITS');
+            papers=0;
+            for (var i=0; i<table_employee_body.childNodes.length; i++){
+                papers+=parseInt(document.getElementById('txt_release'+i).value);
+            }
+            total_output=Math.round(papers*units/12);
+            document.getElementById('txt_output_emplist').innerHTML="SẢN LƯỢNG THEO NĂNG LỰC MAY: <b style='margin-left: 5px;'> "+total_output+" Dz &#8594; "+papers+" TỜ<b>";
+        }
+        function output_calculation(x, isedit=true){
+            // console.log(x)
+            work_min=x.innerHTML;
+            eff=x.parentNode.childNodes[6].innerHTML;
+            sam=sessionStorage.getItem('SAM');
+            units=sessionStorage.getItem('UNITS');
+            console.log(eff, work_min, sam)
+            x.parentNode.childNodes[7].innerHTML=Math.round(eff/100*work_min/sam*units/12);
+            x.parentNode.childNodes[9].innerHTML=Math.round(eff/100*work_min/sam);
+            stt=x.parentNode.childNodes[0].innerHTML-1;
+            if (isedit==true) document.getElementById('txt_release'+stt).value=Math.round(eff/100*work_min/sam);
+            // else {
+            //     re=document.getElementById('txt_release'+stt).value;
+            //     // console.log(x.parentNode);
+            //     if (isNaN(re)==false){
+            //         if (parseInt(re)>parseInt(x.parentNode.childNodes[9].innerHTML)*1.5){
+            //             alert('Số tem THỰC PHÁT không vượt quá 1.5 lần số tem CHỈ TIÊU.'+'\n'+'Hãy liên hệ IE để cập nhật Hiệu Suất NV!');
+            //             document.getElementById('txt_release'+stt).value=Math.round(eff/100*work_min/sam);
+            //             return;
+            //         }
+            //     } else {
+            //         document.getElementById('txt_release'+stt).value='0';
+            //     }
+            // }
+            for (var i=0; i<table_employee_body.childNodes.length; i++){
+                ta=parseInt(table_employee_body.childNodes[i].childNodes[9].innerHTML);
+                re=parseInt(document.getElementById('txt_release'+i).value);
+                if (re>ta*1.5){
+                    alert('Số tem THỰC PHÁT không vượt quá 1.5 lần số tem CHỈ TIÊU.'+'\n'+'Hãy liên hệ IE để cập nhật Hiệu Suất NV!');
+                    document.getElementById('txt_release'+i).value=ta;
+                    return;
+                }
+            }
+            total_output=0;
+            for (var i=0; i<table_employee_body.childNodes.length; i++){
+                if (table_employee_body.childNodes[i].childNodes[7].innerHTML!='')
+                total_output+=parseInt(table_employee_body.childNodes[i].childNodes[7].innerHTML);
+            }
+            papers=Math.round(total_output/units*12);
+            document.getElementById('txt_output_emplist').innerHTML="SẢN LƯỢNG THEO NĂNG LỰC MAY: <b style='margin-left: 5px;'> "+total_output+" Dz &#8594; "+papers+" TỜ<b>";
+            sum_rate=sessionStorage.getItem('SUM_RATE');
+            for (var i=0; i<table_asslot_body.childNodes.length; i++) {
+                // rate=table_asslot_body.childNodes[i].childNodes[3].innerHTML;
+                // paper_per_color=Math.round(papers*rate/sum_rate);
+                // table_asslot_body.childNodes[i].childNodes[8].innerHTML=paper_per_color
+                // document.getElementById('txt_input'+i).value=paper_per_color;
+                // document.getElementById('txt_input'+i).parentNode.classList.add('is-dirty');
+                color_by_worklot=table_asslot_body.childNodes[i].childNodes[2].innerHTML;
+                sum_color=0
+                for (var j=0; j<table_employee_body.childNodes.length; j++){
+                    color_by_employee=table_employee_body.childNodes[j].childNodes[8].innerHTML;
+                    if (color_by_worklot==color_by_employee) {
+                        sum_color+=parseInt(document.getElementById('txt_release'+j).value);
+                    }
+                }
+                table_asslot_body.childNodes[i].childNodes[9].innerHTML=sum_color;
+            }
+        }
+        function fnc_choose_color(x){
+            ID=x.parentNode.childNodes[1].innerHTML.toString()+x.parentNode.childNodes[0].innerHTML.toString();
+            color_txt=sessionStorage.getItem('COLOR_LIST');
+            color_list=color_txt.substring(0, color_txt.length-1).split(';');
+            ulcolor=document.getElementById('ul_color');
+            while (ulcolor.childNodes.length>0)
+            ulcolor.removeChild(ulcolor.childNodes[0]);
+            for (var i=0; i<color_list.length; i++){
+                var li=document.createElement('li');
+                li.setAttribute('class', 'mdl-list__item');
+                var span1=document.createElement('span');
+                span1.setAttribute('class', 'mdl-list__item-primary-content');
+                span1.innerHTML="<i class='material-icons  mdl-list__item-avatar' style='margin-left: 20px; margin-right: 20px; color: green; background-color:white;'>done</i>"+color_list[i];
+                var span2=document.createElement('span');
+                span2.setAttribute('class', 'mdl-list__item-secondary-action');
+                // span2.innerHTML="<i class='material-icons  mdl-list__item-avatar'>colorize</i>Bob Odenkirk";
+                var label=document.createElement('label');
+                label.setAttribute('class', 'mdl-radio mdl-js-radio mdl-js-ripple-effect')
+                label.setAttribute('for', 'color_'+i);
+                var input=document.createElement('input');
+                input.setAttribute('class', 'mdl-radio__button');
+                input.setAttribute('type', 'radio');
+                input.setAttribute('id', 'color_'+i);
+                input.setAttribute('name', 'options1');
+                input.setAttribute('value', color_list[i]);
+                input.setAttribute('onchange', 'fnc_color_selected(this,"'+ID.toString()+'")');
+                componentHandler.upgradeElement(input);
+                label.appendChild(input);
+                componentHandler.upgradeElement(label);
+                span2.appendChild(label);
+                componentHandler.upgradeElement(span1);
+                componentHandler.upgradeElement(span2);
+                li.appendChild(span1);
+                li.appendChild(span2);
+                componentHandler.upgradeElement(li);
+                ulcolor.appendChild(li);
+                componentHandler.upgradeElement(ulcolor);
+            }
+            document.getElementById('dialog_color').showModal();
+        }
+        function fnc_color_selected(x, ID){
+            asslot=document.getElementById('txt_asslot').value;
+            for (var i=0; i<table_employee_body.childNodes.length; i++){
+                if (ID==table_employee_body.childNodes[i].childNodes[1].innerHTML+(parseInt(i)+1).toString()){
+                    table_employee_body.childNodes[i].childNodes[8].innerHTML=x.value;
+                    localStorage.setItem(ID.toString(), x.value);
+                    output_calculation(table_employee_body.childNodes[0].childNodes[5]);
+                    document.getElementById('btn_cancel').click();
+                    break;
+                }
+            }
+        }
+        function fnc_choose_workHrs(x){
+            ID=x.parentNode.childNodes[1].innerHTML.toString();
+            ul_work_hrs=document.getElementById('ul_work_hrs');
+            while (ul_work_hrs.childNodes.length>0)
+            ul_work_hrs.removeChild(ul_work_hrs.childNodes[0]);
+            work_hrs_list=["0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100", "110", "120"]
+            for (var i=0; i<work_hrs_list.length; i++){
+                var li=document.createElement('li');
+                li.setAttribute('class', 'mdl-list__item');
+                var span1=document.createElement('span');
+                span1.setAttribute('class', 'mdl-list__item-primary-content');
+                span1.innerHTML="<i class='material-icons  mdl-list__item-avatar' style='margin-left: 10px; margin-right: 20px; color: indigo; background-color:white;'>av_timer</i>"+work_hrs_list[i];
+                var span2=document.createElement('span');
+                span2.setAttribute('class', 'mdl-list__item-secondary-action');
+                // span2.innerHTML="<i class='material-icons  mdl-list__item-avatar'>colorize</i>Bob Odenkirk";
+                var label=document.createElement('label');
+                label.setAttribute('class', 'mdl-radio mdl-js-radio mdl-js-ripple-effect')
+                label.setAttribute('for', 'work_hrs_'+i);
+                var input=document.createElement('input');
+                input.setAttribute('class', 'mdl-radio__button');
+                input.setAttribute('type', 'radio');
+                input.setAttribute('id', 'work_hrs_'+i);
+                input.setAttribute('name', 'options2');
+                input.setAttribute('value', work_hrs_list[i]);
+                input.setAttribute('onchange', 'fnc_work_hrs_selected(this,"'+ID.toString()+'")');
+                componentHandler.upgradeElement(input);
+                label.appendChild(input);
+                componentHandler.upgradeElement(label);
+                span2.appendChild(label);
+                componentHandler.upgradeElement(span1);
+                componentHandler.upgradeElement(span2);
+                li.appendChild(span1);
+                li.appendChild(span2);
+                componentHandler.upgradeElement(li);
+                ul_work_hrs.appendChild(li);
+                componentHandler.upgradeElement(ul_work_hrs);
+            }
+            document.getElementById('dialog_work_hrs').showModal();
+        }
+        document.getElementById('btn_cancel').addEventListener('click', function(){
+            document.getElementById('dialog_color').close();
+        });
+        document.getElementById('btn_add_employee').addEventListener('click', function(){
+            document.getElementById('txt_add_ID').value='';
+            document.getElementById('txt_add_name').value='';
+            document.getElementById('txt_add_line').value='';
+            document.getElementById('txt_add_eff').value='0';
+            document.getElementById('txt_add_eff').parentNode.classList.add('is-dirty');
+            document.getElementById('dialog_employee').showModal();
+        });
+        document.getElementById('txt_add_ID').addEventListener('keyup', function(){
+            if (event.keyCode === 13) {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                // document.getElementById("btn_bundle_submit").click();
+            }
+            if (document.getElementById('txt_add_ID').value.length==6){
+                var ID=document.getElementById('txt_add_ID').value.substring(1,6);
+                style_detail=sessionStorage.getItem('STYLE_DETAIL');
+                operation=sessionStorage.getItem('OPERATION');
+                var style=document.getElementById('txt_style_detail')
+                var xsend= new XMLHttpRequest();
+                xsend.open("POST","/Production/AutoKanban/GetEmployeeInfo",true);
+                xsend.onreadystatechange= function(){
+                    if (this.readyState==4 && this.status==200) {
+                        data=JSON.parse(xsend.responseText);
+                        if (data[0].NAME!=null){
+                            document.getElementById('btn_dialog_add').disabled =false;
+                            document.getElementById('txt_add_ID_6').innerHTML=data[0].ID;
+                            document.getElementById('txt_add_name').innerHTML=data[0].NAME;
+                            document.getElementById('txt_add_line').innerHTML=data[0].LINE;
+                            if (data[0].EFF==null) {
+                                alert('Không tìm thấy hiệu suất CBC, vui lòng nhập tay!');
+                                document.getElementById('txt_add_eff').value='';
+                                document.getElementById('txt_add_eff').focus();
+                            }
+                            else document.getElementById('txt_add_eff').value=data[0].EFF;
+                            document.getElementById('txt_add_eff').parentNode.classList.add('is-dirty');
+                        } else {
+                            alert('Không tìm thấy thông tin nhân viên!');
+                            document.getElementById('btn_dialog_add').disabled =true;
+                        }
+                    }
+                }
+                xsend.setRequestHeader("Content-type", "application/json");
+                data={ID:ID, style_detail: style_detail, operation: operation};
+                xsend.send(JSON.stringify(data));
+            } 
+            // else {
+            //     document.getElementById('txt_add_EFF').value='';
+            // } 
+        });
+        function add_more_employee(asslot, employeeID, employeeName, employeeLine, employeeEff){
+            asslot_add_employees=localStorage.getItem(asslot+'ADDEMPLOYEE');
+            asslot=document.getElementById('txt_asslot').value;
+            if (asslot_add_employees==null){
+                asslot_add_employees=employeeID+'+'+employeeName+'+'+employeeLine+'+'+employeeEff;
+            } else {
+                asslot_add_employees=asslot_add_employees+';'+employeeID+'+'+employeeName+'+'+employeeLine+'+'+employeeEff;
+            }
+            // console.log(asslot+'ADDEMPLOYEE', asslot_add_employees);
+            localStorage.setItem(asslot+'ADDEMPLOYEE', asslot_add_employees);
+        }
+        document.getElementById('btn_dialog_add').addEventListener('click', function(){
+            asslot=document.getElementById('txt_asslot').value;
+            employeeID=document.getElementById('txt_add_ID_6').innerHTML;
+            if (employeeID=='') {
+                alert('Hãy nhập ID đúng!');
+                return;
+            }
+            employeeName=document.getElementById('txt_add_name').innerHTML;
+            employeeLine=document.getElementById('txt_add_line').innerHTML;
+            employeeEff=document.getElementById('txt_add_eff').value;
+            if (employeeEff=='' || employeeEff=='0'){
+                alert('Nhân viên may phải có hiệu suất >0%!');
+                return;
+            }
+            add_more_employee(asslot, employeeID, employeeName, employeeLine, employeeEff);
+            add_employee_table(employeeID, employeeName, employeeLine, employeeEff);
+        });
+        document.getElementById('checkbox_2_style').addEventListener('click', function(){
+            result=document.getElementById('checkbox_2_style').checked;
+            if (result==true) document.getElementById('div_small_asslot_output').style.display="grid";
+            else document.getElementById('div_small_asslot_output').style.display="none";
+        });
+        function add_employee_table(employeeID, employeeName, employeeLine, employeeEff){
+            sam=sessionStorage.getItem('SAM');
+            units=sessionStorage.getItem('UNITS');
+            operation=sessionStorage.getItem('OPERATION')
+            i=0;
+            if (table_employee_body.childNodes.length>0)
+                i=table_employee_body.childNodes[table_employee_body.childNodes.length-1].childNodes[0].innerHTML;
+            // console.log(i)
+                // i=parseInt(i)+1;
+            localStorage.setItem(employeeID+(i+1).toString()+'addAsslot', asslot);
+            var tr=document.createElement("tr");
+            //STT
+            var tdSTT=document.createElement("td");
+            tdSTT.setAttribute("class","mdl-data-table__cell--non-numeric");
+            var node=document.createTextNode(parseInt(i)+1);
+            tdSTT.appendChild(node);
+            tr.appendChild(tdSTT);
+            //Employee
+            var tdID=document.createElement("td");
+            tdID.setAttribute("class","mdl-data-table__cell--non-numeric");
+            var node=document.createTextNode(employeeID);
+            tdID.appendChild(node);
+            tr.appendChild(tdID);
+            //Name
+            var tdName=document.createElement("td");
+            tdName.setAttribute("class","mdl-data-table__cell--non-numeric");
+            var node=document.createTextNode(employeeName);
+            tdName.appendChild(node);
+            tr.appendChild(tdName);
+            //Line
+            var tdLine=document.createElement("td");
+            tdLine.setAttribute("class","mdl-data-table__cell--non-numeric");
+            var node=document.createTextNode(employeeLine);
+            tdLine.appendChild(node);
+            tr.appendChild(tdLine);
+            //Operation
+            var tdOperation=document.createElement("td");
+            tdOperation.setAttribute("class","mdl-data-table__cell--non-numeric");
+            var node=document.createTextNode(operation);
+            tdOperation.appendChild(node);
+            tr.appendChild(tdOperation);
+            //WHr
+            var tdWHr=document.createElement("td");
+            tdWHr.setAttribute('onclick', 'fnc_choose_workHrs(this)');
+            tdWHr.setAttribute('style', 'cursor: pointer;');
+            var node=document.createTextNode('60');
+            tdWHr.appendChild(node);
+            tr.appendChild(tdWHr);
+            //Eff
+            var tdEff=document.createElement("td");
+            var node=document.createTextNode(employeeEff);
+            tdEff.appendChild(node);
+            tr.appendChild(tdEff);
+            //Output
+            var tdOutput=document.createElement("td");
+            output_element=Math.round(employeeEff/100*60/sam*units/12,1);
+            var node=document.createTextNode(output_element);
+            tdOutput.appendChild(node);
+            // tdOutput.setAttribute('style', 'font-size: 20px;');
+            tr.appendChild(tdOutput);
+            output_total+=output_element;
+            //Color
+            var tdColor=document.createElement("td");
+            tdColor.setAttribute("class","mdl-data-table__cell--non-numeric");
+            tdColor.setAttribute('onclick', 'fnc_choose_color(this)');
+            txt_color=localStorage.getItem(employeeID+(i+1).toString());
+            var node=document.createTextNode('Chọn');
+            if (txt_color!=null&&txt_color!=''&&color_list.includes(txt_color)) node=document.createTextNode(txt_color);
+            tdColor.appendChild(node);
+            tdColor.setAttribute('style', 'font-size: 20px; cursor: pointer;');
+            tr.appendChild(tdColor);
+            //Recommend
+            var tdRec=document.createElement("td");
+            var node=document.createTextNode(Math.round(employeeEff/100*60/sam,1));
+            tdRec.appendChild(node);
+            tdRec.setAttribute('style', 'font-size: 20px;');
+            tr.appendChild(tdRec);
+            //Release
+            var tdRelease=document.createElement("td");
+            var div1=document.createElement('div');
+            div1.setAttribute('class', 'mdl-textfield mdl-js-textfield');
+            div1.setAttribute('style', 'width: 50px;')
+            var input1=document.createElement('input');
+            input1.setAttribute('class', 'mdl-textfield__input');
+            input1.setAttribute('type', 'number');
+            input1.setAttribute('id', 'txt_release'+i);
+            input1.setAttribute('onkeyup', 'fnc_release_by_emp(x)');
+            input1.value=Math.round(employeeEff/100*60/sam,1);
+            var label1=document.createElement('label');
+            label1.setAttribute('class', 'mdl-textfield__label');
+            label1.setAttribute('for', 'txt_release'+i);
+            label1.innerHTML='Phút';
+            componentHandler.upgradeElement(input1);
+            componentHandler.upgradeElement(label1);
+            div1.appendChild(input1);
+            div1.appendChild(label1);
+            componentHandler.upgradeElement(div1);
+            // var node=document.createTextNode('');
+            tdRelease.appendChild(div1);
+            tr.appendChild(tdRelease);
+            componentHandler.upgradeElement(tr);
+            table_employee_body.appendChild(tr);
+            x=document.getElementById('txt_release'+i).innerHTML;
+            output_calculation(table_employee_body.childNodes[0].childNodes[5]);
+            document.getElementById('btn_dialog_cancel').click();
+        };
+        document.getElementById('btn_dialog_cancel').addEventListener('click', function(){
+            document.getElementById('dialog_employee').close();
+        });
+        function kanban_check(){
+            sum_issue    = 0;//chuyen truong nhan tu kho
+            sum_release  = 0;//chuyen truong da phat
+            sum_released = 0;//chuyen truong se phat
+            for (var i=0; i<table_asslot_body.childNodes.length; i++){
+                sum_issue    += parseInt(table_asslot_body.childNodes[i].childNodes[4].innerHTML);
+                sum_released += parseInt(table_asslot_body.childNodes[i].childNodes[5].innerHTML);
+                sum_release  += parseInt(table_asslot_body.childNodes[i].childNodes[9].innerHTML);
+            }
+            //con/s
+            paper_left=sum_issue-sum_release-sum_released;
+            console.log(paper_left-15, sum_release)
+            if (paper_left-15<sum_release) return true;
+            else return false;
+        }
+        function get_sum_release(){
+            var str_list=new Array();
+            str_list=document.getElementById('txt_output_emplist').innerHTML.split(' ');
+            // console.log(str_list);
+            max_output=parseInt(str_list[str_list.length-5]);
+            return max_output;
+        }
+        function get_next_asslot(asslot6, callback){
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/GetNextAsslot6",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=JSON.parse(xsend.responseText);
+                    i=0;
+                    asslot_list=new Array();
+                    while (i<result.length) {
+                        asslot_list.push(result[i].HQAS);
+                        i++;
+                    }
+                    i=0;
+                    while (i<result.length&&result[i].HQAS!=asslot6) i++;
+                    while (i<result.length&&result[i].HQAS==asslot6) i++;
+                    if (i==result.length){
+                        i=0;
+                        // hqas=asslot.substring(2,8);
+                        // while (i<result.length&&result[i].HQAS!=hqas) i++;
+                        // while (i<result.length&&result[i].HQAS==hqas) i++;
+                        return callback('');
+                    }
+                    next_asslot6=result[i].HQAS;
+                    next_asslot6_list=new Array();
+                    while (i<result.length&&result[i].HQAS==next_asslot6) {
+                        next_asslot6_list.push(result[i]);
+                        i++;
+                    }
+                    return callback(next_asslot6_list);
+                    // if (result=='done') alert('Cập nhật thành công!')
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={asslot6: asslot6}
+            console.log(data);
+            xsend.send(JSON.stringify(data));
+        }
+        function get_kanban_asslot(asslot6, callback){
+            curr_group=sessionStorage.getItem('curr_group');
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/GetKanbanAsslot6",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=JSON.parse(xsend.responseText);
+                    console.log(result);
+                    kanban_asslot6_list=new Array();
+                    for (var i=0; i<result.length; i++){
+                        kanban_asslot6_list.push(result[i]);
+                    }
+                    return callback(kanban_asslot6_list);
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={group: curr_group}
+            console.log(data)
+            xsend.send(JSON.stringify(data));
+        }
+        function get_assign_asslot(assign_asslot6, callback){
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/GetNextAsslot6",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=JSON.parse(xsend.responseText);
+                    i=0;
+                    while (i<result.length&&result[i].HQAS!=assign_asslot6) i++;
+                    // while (i<result.length&&result[i].LotTotal==asslot) i++;
+                    if (i==result.length){
+                        return callback('');
+                    }
+                    next_asslot=result[i].HQAS;
+                    next_asslot_list=new Array();
+                    next_asslot_list=[];
+                    while (i<result.length&&result[i].HQAS==next_asslot) {
+                        next_asslot_list.push(result[i]);
+                        i++;
+                    }
+                    return callback(next_asslot_list);
+                    // if (result=='done') alert('Cập nhật thành công!')
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={asslot6: assign_asslot6}
+            xsend.send(JSON.stringify(data));
+        }
+        function set_next_asslot(asslot) {
+            // console.log(asslot_list);
+            document.getElementById('txt_asslot_infor_asslot').value=asslot[0].HQAS;
+            document.getElementById('txt_asslot_infor_asslot').parentNode.classList.add('is-dirty');
+            document.getElementById('txt_asslot_infor_selling').innerHTML='Selling Style: <b>'+asslot[0].SELLSTYLE+'</b>';
+            document.getElementById('txt_asslot_infor_size').innerHTML='Size: <b>'+asslot[0].SIZE+'</b>';
+            sessionStorage.setItem('curr_group', asslot[0].NAMEGROUP);
+            curr_group=sessionStorage.getItem('curr_group');
+            table_asslot_infor_body=document.getElementById('table_asslot_infor_body');
+            while (table_asslot_infor_body.childNodes.length>0)
+                table_asslot_infor_body.removeChild(table_asslot_infor_body.childNodes[0]);
+            next_wl_output=0;
+            for(i=0; i<asslot.length; i++){
+                var tr=document.createElement("tr");
+                //STT
+                var tdSTT=document.createElement("td");
+                tdSTT.setAttribute("class","mdl-data-table__cell--non-numeric");
+                tdSTT.setAttribute("style","color: black;");
+                var node=document.createTextNode(i+1);
+                tdSTT.appendChild(node);
+                tr.appendChild(tdSTT);
+                //WORKLOT
+                var tdWorklot=document.createElement("td");
+                tdWorklot.setAttribute("class","mdl-data-table__cell--non-numeric");
+                tdWorklot.setAttribute("style","color: black;");
+                var node=document.createTextNode(asslot[i].CutLot);
+                tdWorklot.appendChild(node);
+                tr.appendChild(tdWorklot);
+                //Color
+                var tdColor=document.createElement("td");
+                tdColor.setAttribute("class","mdl-data-table__cell--non-numeric");
+                tdColor.setAttribute("style","color: black;");
+                var node=document.createTextNode(asslot[i].COLOR);
+                tdColor.appendChild(node);
+                tr.appendChild(tdColor);
+                //Output
+                var tdOutput=document.createElement("td");
+                var node=document.createTextNode(asslot[i].TOTAL);
+                next_wl_output+=asslot[i].TOTAL;
+                tdOutput.setAttribute("style","color: black;");
+                tdOutput.appendChild(node);
+                tr.appendChild(tdOutput);
+                componentHandler.upgradeElement(tr);
+                table_asslot_infor_body.appendChild(tr);
+            }
+            max_output=get_sum_release();
+            if (max_output>next_wl_output){
+                //enable call 3 wl
+                document.getElementById('div_small_asslot_output').style.display="grid";
+            } else {
+                document.getElementById('div_small_asslot_output').style.display="none";
+            }
+            // if (asslot[0].NAMEGROUP=='075-082'||asslot[0].NAMEGROUP=='067-074'){
+            //     document.getElementById('div_small_asslot_output').style.display="grid";
+            // }
+        }
+        function set_kanban_asslot(asslot){
+            if (asslot.length>0){
+                document.getElementById('div_small_asslot_output_kanban').style.display="grid";
+                if (asslot.length>1){
+                    document.getElementById('txt_asslot_2_kanban').innerHTML='Asslot 2: '+asslot[1].HQAS;
+                    document.getElementById('txt_asslot_2_kanban').style.display="grid";
+                }
+                else {
+                    document.getElementById('txt_asslot_2_kanban').style.display="none";
+                    document.getElementById('txt_asslot_3_kanban').style.display="none";
+                }
+                if (asslot.length>2){
+                    document.getElementById('txt_asslot_3_kanban').innerHTML='Asslot 3: '+asslot[2].HQAS;
+                    document.getElementById('txt_asslot_3_kanban').style.display="grid";
+                } else {
+                    document.getElementById('txt_asslot_3_kanban').style.display="none";
+                }
+            } else {
+                document.getElementById('div_small_asslot_output_kanban').style.display="none";
+            }
+            document.getElementById('txt_kanban_asslot').value=asslot[0].HQAS;
+            document.getElementById('txt_kanban_asslot').parentNode.classList.add('is-dirty');
+            document.getElementById('txt_kanban_selling').innerHTML='Selling Style: <b>'+asslot[0].SELLSTYLE+'</b>';
+            document.getElementById('txt_kanban_size').innerHTML='Size: <b>'+asslot[0].SIZE+'</b>';
+            curr_group=sessionStorage.setItem('curr_group', asslot[0].NAMEGROUP);
+            curr_group=sessionStorage.getItem('curr_group');
+            table_kanban_infor_body=document.getElementById('table_kanban_infor_body');
+            while (table_kanban_infor_body.childNodes.length>0)
+                table_kanban_infor_body.removeChild(table_kanban_infor_body.childNodes[0]);
+            for(i=0; i<asslot.length; i++){
+                var tr=document.createElement("tr");
+                //STT
+                var tdSTT=document.createElement("td");
+                tdSTT.setAttribute("class","mdl-data-table__cell--non-numeric");
+                tdSTT.setAttribute("style","color: black;");
+                var node=document.createTextNode(i+1);
+                tdSTT.appendChild(node);
+                tr.appendChild(tdSTT);
+                //WORKLOT
+                var tdWorklot=document.createElement("td");
+                tdWorklot.setAttribute("class","mdl-data-table__cell--non-numeric");
+                tdWorklot.setAttribute("style","color: black;");
+                var node=document.createTextNode(asslot[i].CutLot);
+                tdWorklot.appendChild(node);
+                tr.appendChild(tdWorklot);
+                //Color
+                var tdColor=document.createElement("td");
+                tdColor.setAttribute("class","mdl-data-table__cell--non-numeric");
+                tdColor.setAttribute("style","color: black;");
+                var node=document.createTextNode(asslot[i].COLOR);
+                tdColor.appendChild(node);
+                tr.appendChild(tdColor);
+                //Output
+                var tdOutput=document.createElement("td");
+                var node=document.createTextNode(asslot[i].TOTAL);
+                tdOutput.setAttribute("style","color: black;");
+                tdOutput.appendChild(node);
+                tr.appendChild(tdOutput);
+                componentHandler.upgradeElement(tr);
+                table_kanban_infor_body.appendChild(tr);
+            }
+        }
+        document.getElementById('btn_submit').addEventListener('click', function(){
+            asslot=sessionStorage.getItem('ASSLOT');
+            if (document.getElementById('txt_kanban_asslot').style.backgroundColor=='GREEN')
+                if (asslot==document.getElementById('txt_kanban_asslot').value){
+                    document.getElementById('btn_kanban_supplie').click();
+                }
+            shift=document.getElementById('cbb_shift').value;
+            spantime=document.getElementById('cbb_span').value;
+            delete_asslot(asslot, shift, spantime);
+            upload_offstd_list();
+            var data=new Array();
+            for (var i=0; i<table_employee_body.childNodes.length; i++){
+                ID=table_employee_body.childNodes[i].childNodes[1].innerHTML;
+                color=table_employee_body.childNodes[i].childNodes[8].innerHTML;
+                if (color=='Chọn') continue;
+                work_hrs=table_employee_body.childNodes[i].childNodes[5].innerHTML;
+                worklot='';
+                for (var j=0; j<table_asslot_body.childNodes.length; j++)
+                    if (table_asslot_body.childNodes[j].childNodes[2].innerHTML==color) {
+                        worklot=table_asslot_body.childNodes[j].childNodes[1].innerHTML;
+                        break;
+                    }
+                output=document.getElementById('txt_release'+i).value;
+                if (isNaN(output)) output='0';
+                data.push({asslot: asslot, worklot: worklot, work_hrs: work_hrs, shift: shift, spantime: spantime, ID: ID, color: color, output: output});
+            }
+            if (data.length>0){
+                submit_asslot(data);
+                result=kanban_check();
+                // console.log("kanban")
+                // console.log(result)
+                if (result==true){//need to call kanban
+                    //next asslot
+                    // cutlot=asslot.substr(2,6);
+                    get_next_asslot(asslot, function(next_asslot){
+                        //notify
+                        if (asslot=='') {
+                            alert('Không tìm thấy asslot tiếp theo');
+                            return;
+                        }
+                        set_next_asslot(next_asslot);
+                        
+                        document.getElementById('dialog_asslot_infor').showModal();
+                        // var is_kanban=confirm("Lô của bạn sẽ hết trong giờ tiếp theo.\nBạn có muốn kiểm tra lô tiếp theo: "+next_asslot[0].LotTotal+"?");
+                        // if (is_kanban==true) alert("Đã gửi đến kho Lô "+next_asslot[0].LotTotal+" để chuẩn bị!");
+                        //call kanban
+                    });
+                }
+                document.getElementById('btn_get_asslot').click();
+            }
+            else
+                alert('Bạn chưa gán màu cho bất kỳ nhân viên nào!');
+        });
+        function upload_offstd_list(){
+            list_txt='';
+            for (var i=0; i<table_employee_body.childNodes.length; i++){
+                if (table_employee_body.childNodes[i].childNodes[5].innerHTML=='0'){
+                    list_txt+=table_employee_body.childNodes[i].childNodes[1].innerHTML+';';
+                }
+            }
+            localStorage.setItem(date+shift+'off', list_txt);
+        }
+        function fnc_work_hrs_selected(x, ID){
+            for (var i=0; i<table_employee_body.childNodes.length; i++){
+                if (ID==table_employee_body.childNodes[i].childNodes[1].innerHTML){
+                    table_employee_body.childNodes[i].childNodes[5].innerHTML=x.value;
+                    // localStorage.setItem(ID.toString()+'workHrs', x.value);
+                    document.getElementById('btn_work_hrs_cancel').click();
+                    output_calculation(table_employee_body.childNodes[i].childNodes[5]);
+                    break;
+                }
+            }
+        }
+        function submit_asslot(data){
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/SubmitAsslotHistory",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=xsend.responseText;
+                    if (result=='done') alert('Cập nhật thành công!');
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data_send={data: data}
+            xsend.send(JSON.stringify(data_send));
+        }
+        function delete_asslot(asslot, shift, spantime){
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/DeleteAsslotHistory",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=xsend.responseText;
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={asslot: asslot, shift: shift, spantime: spantime}
+            xsend.send(JSON.stringify(data));
+        }
+        document.getElementById('btn_work_hrs_cancel').addEventListener('click', function(){
+            document.getElementById('dialog_work_hrs').close();
+        })
+        document.getElementById('btn_color_back').addEventListener('click', function(){
+            ul_color_back=document.getElementById('ul_color_back');
+            while (ul_color_back.childNodes.length>0) ul_color_back.removeChild(ul_color_back.childNodes[0]);
+            for (var i=0; i<table_asslot_body.childNodes.length; i++){
+                color=table_asslot_body.childNodes[i].childNodes[2].innerHTML;
+                var li=document.createElement('li');
+                li.setAttribute('class', 'mdl-list__item');
+                li.setAttribute('style', 'padding:0;')
+                var span1=document.createElement('span');
+                span1.setAttribute('class', 'mdl-list__item-primary-content');
+                span1.setAttribute('style', 'padding:0; margin-right: 20px;')
+                span1.innerHTML="<i class='material-icons  mdl-list__item-avatar' style='margin-left: 10px; margin-right: 20px; color: blue; background-color:white;'>west</i>"+color;
+                var span2=document.createElement('span');
+                span2.setAttribute('class', 'mdl-list__item-secondary-action');
+                span2.setAttribute('style', 'padding:0; margin-right: 20px;')
+                var div1=document.createElement('div');
+                div1.setAttribute('class', 'mdl-textfield mdl-js-textfield');
+                div1.setAttribute('style', 'width: 50px;')
+                var input1=document.createElement('input');
+                input1.setAttribute('class', 'mdl-textfield__input');
+                input1.setAttribute('type', 'number');
+                input1.setAttribute('id', 'txt_color_back'+i);
+                input1.value=0;
+                var label1=document.createElement('label');
+                label1.setAttribute('class', 'mdl-textfield__label');
+                label1.setAttribute('for', 'txt_color_back'+i);
+                label1.innerHTML='Phút';
+                componentHandler.upgradeElement(input1);
+                componentHandler.upgradeElement(label1);
+                div1.appendChild(input1);
+                div1.appendChild(label1);
+                componentHandler.upgradeElement(div1);
+                span2.appendChild(div1);
+                componentHandler.upgradeElement(span1);
+                componentHandler.upgradeElement(span2);
+                li.appendChild(span1);
+                li.appendChild(span2);
+                componentHandler.upgradeElement(li);
+                ul_color_back.appendChild(li);
+                componentHandler.upgradeElement(ul_color_back);
+            }
+            document.getElementById('dialog_color_back').showModal();
+        });
+        document.getElementById('btn_color_back_cancel').addEventListener('click', function(){
+            document.getElementById('dialog_color_back').close();
+        });
+        document.getElementById('btn_color_back_ok').addEventListener('click', function(){
+            asslot=sessionStorage.getItem('ASSLOT');
+            shift=document.getElementById('cbb_shift').value;
+            spantime='20h';
+            delete_asslot(asslot, shift, spantime);
+            upload_offstd_list();
+            var data=new Array();
+            
+            for (var i=0; i<table_asslot_body.childNodes.length; i++){
+                ID='000000';
+                color=table_asslot_body.childNodes[i].childNodes[2].innerHTML;
+                worklot=table_asslot_body.childNodes[i].childNodes[1].innerHTML;
+                back_txt=document.getElementById('txt_color_back'+i).value;
+                if (back_txt=='' || back_txt=='0'|| isNaN(back_txt)==true) continue;
+                if (isNaN(output)==true) output=0;
+                else output=-parseInt(back_txt);
+                work_hrs=0;
+                data.push({asslot: asslot, worklot: worklot, work_hrs: work_hrs, shift: shift, spantime: spantime, ID: ID, color: color, output: output});
+            }
+            if (data.length>0) {
+                submit_asslot(data);
+                document.getElementById('btn_color_back_cancel').click();
+            }
+            else{
+                alert('Không có màu nào được trả lại!');
+                document.getElementById('btn_color_back_cancel').click();
+            }
+        })
+        document.getElementById('btn_operations').addEventListener('click', function(){
+            if (table_asslot_body.childNodes.length==0) {
+                alert('Hãy tìm kiếm Worklot trước khi thay đổi CĐ đầu!');
+                return;
+            }
+            worklot=table_asslot_body.childNodes[0].childNodes[1].innerHTML;
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/GetOperations",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=JSON.parse(xsend.responseText)
+                    ul_operations=document.getElementById('ul_operations');
+                    while (ul_operations.childNodes.length>0) ul_operations.removeChild(ul_operations.childNodes[0]);
+                    operation=sessionStorage.getItem('OPERATION');
+                    for (var i=0; i<result.length; i++){
+                        var li=document.createElement('li');
+                        li.setAttribute('class', 'mdl-list__item');
+                        var span1=document.createElement('span');
+                        span1.setAttribute('class', 'mdl-list__item-primary-content');
+                        span1.innerHTML="<i class='material-icons  mdl-list__item-avatar' style='margin-left: 10px; margin-right: 20px; color: indigo; background-color:white;'>keyboard_tab</i>"+result[i].OPERATION;
+                        var span2=document.createElement('span');
+                        span2.setAttribute('class', 'mdl-list__item-secondary-action');
+                        // span2.innerHTML="<i class='material-icons  mdl-list__item-avatar'>colorize</i>Bob Odenkirk";
+                        var label=document.createElement('label');
+                        label.setAttribute('class', 'mdl-radio mdl-js-radio mdl-js-ripple-effect')
+                        label.setAttribute('for', 'operation_'+i);
+                        var input=document.createElement('input');
+                        if (operation==result[i].OPERATION){
+                            input.checked=true;
+                        }
+                        input.setAttribute('class', 'mdl-radio__button');
+                        input.setAttribute('type', 'radio');
+                        input.setAttribute('id', 'operation_'+i);
+                        input.setAttribute('name', 'options3');
+                        input.setAttribute('value', result[i].OPERATION);
+                        // input.setAttribute('onchange', 'fnc_work_hrs_selected(this,"'+ID.toString()+'")');
+                        componentHandler.upgradeElement(input);
+                        label.appendChild(input);
+                        componentHandler.upgradeElement(label);
+                        span2.appendChild(label);
+                        componentHandler.upgradeElement(span1);
+                        componentHandler.upgradeElement(span2);
+                        li.appendChild(span1);
+                        li.appendChild(span2);
+                        componentHandler.upgradeElement(li);
+                        ul_operations.appendChild(li);
+                        componentHandler.upgradeElement(ul_operations);
+                    }
+                    document.getElementById('dialog_operations').showModal();
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={worklot: worklot}
+            xsend.send(JSON.stringify(data));
+        });
+        document.getElementById('btn_operations_cancel').addEventListener('click', function(){
+            document.getElementById('dialog_operations').close();
+        });
+        document.getElementById('btn_operations_ok').addEventListener('click', function(){
+            operations=document.getElementsByName('options3');
+            operation='';
+            for (var i=0; i<operations.length; i++){
+                if (operations[i].checked==true){
+                    operation=operations[i].value;
+                    asslot=document.getElementById('txt_asslot').value;
+                    localStorage.setItem(asslot+'fist_operation', operation)
+                }
+            }
+            document.getElementById('btn_operations_cancel').click();
+            document.getElementById('btn_get_asslot').click();
+        });
+        document.getElementById('txt_group').addEventListener('click', function(){
+            if (table_asslot_body.childNodes.length==0) {
+                alert('Hãy tìm kiếm Worklot trước khi thay đổi Group!');
+                return;
+            }
+            worklot=table_asslot_body.childNodes[0].childNodes[1].innerHTML;
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/GetGroup",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=JSON.parse(xsend.responseText)
+                    ul_groups=document.getElementById('cbb_group_special_list');
+                    while (ul_groups.childNodes.length>0) ul_groups.removeChild(ul_groups.childNodes[0]);
+                    for (var i=0; i<result.length; i++){
+                        // if (result[i].GROUP_PLAN==null && isNaN(result[i].GROUP_IE.substring(0,1))==false && result[i].GROUP_IE!='000-000'){
+                        if (result[i].GROUP_IE!='000-000'){
+                            var li=document.createElement("li");
+                            li.setAttribute("class","mdl-menu__item");
+                            var textNode=document.createTextNode(result[i].GROUP_IE);
+                            li.appendChild(textNode);
+                            li.setAttribute('data-val', result[i].GROUP_IE);
+                            ul_groups.appendChild(li);
+                        }
+                    }
+                    getmdlSelect.init("#cbb_group_special_div");    
+                    document.getElementById('dialog_group_special').showModal();
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            xsend.send();
+        }); 
+        document.getElementById('btn_group_special_cancel').addEventListener('click', function(){
+            document.getElementById('dialog_group_special').close();
+        }); 
+        document.getElementById('btn_group_special_ok').addEventListener('click', function(){
+            group_special=document.getElementById('cbb_group_special').value;
+            asslot=document.getElementById('txt_asslot').value;
+            localStorage.setItem(asslot+'group_special', group_special);
+            document.getElementById('dialog_group_special').close();
+            document.getElementById('btn_get_asslot').click();
+        }); 
+        document.getElementById('btn_asslot_infor_prepare').addEventListener('click', function(){
+            next_asslot=document.getElementById('txt_asslot_infor_asslot').value;
+            if (next_asslot.length!=6) {
+                alert('HQAS phải là số có 6 chữ số!');
+                return;
+            }
+            console.log(asslot_list)
+            var is_exist = asslot_list.includes(next_asslot);
+            // if (is_exist==false){
+            //     alert('Không tìm thấy Asslot!');
+            //     return;
+            // }
+            next_asslot2=document.getElementById('txt_asslot_2').value;
+            is_exist = asslot_list.includes(next_asslot2);
+            if (is_exist==false&&next_asslot2!=''){
+                alert('Không tìm thấy Asslot 2!');
+                return;
+            }
+            next_asslot3=document.getElementById('txt_asslot_3').value;
+            is_exist = asslot_list.includes(next_asslot3);
+            if (is_exist==false&&next_asslot3!=''){
+                alert('Không tìm thấy Asslot 3!');
+                return;
+            }
+            if (next_asslot2!=''&& next_asslot2.length==6) next_asslot=next_asslot+';'+next_asslot2;
+            if (next_asslot3!=''&& next_asslot3.length==6) next_asslot=next_asslot+';'+next_asslot3;
+            curr_group=sessionStorage.getItem('curr_group');
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/NotifyAsslots6",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200){
+                    result=JSON.parse(xsend.responseText);
+                    // console.log(result)
+                    if (result.result=='') {
+                        alert('Đã gửi thông tin đến kho!');
+                        sessionStorage.setItem('KANBAN_ASSLOT', next_asslot);
+                        socket.emit('client-send-kanban', {next_asslot: next_asslot, curr_group: curr_group, status: 'notify'});
+                        document.getElementById("dialog_asslot_infor").close();
+                        load_kanban();
+                        // document.getElementById('btn_kanban').style.backgroundColor="rgb(220, 118, 51)";
+                        // document.getElementById('btn_kanban').style.color="white";
+                    } else if (result.result=="existed"){
+                        alert("Asslot đã được gọi!");
+                    }
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={next_asslot: next_asslot, curr_group: curr_group};
+            xsend.send(JSON.stringify(data));
+        });
+        document.getElementById('btn_asslot_infor_close').addEventListener('click', function(){
+            document.getElementById('dialog_asslot_infor').close();
+            document.getElementById('btn_get_asslot').click();
+        });
+        document.getElementById('txt_asslot_infor_asslot').addEventListener('keyup', function(event){
+            if (event.keyCode === 13) {
+                // Cancel the default action, if needed
+                event.preventDefault();
+                // Trigger the button element with a click
+                new_asslot=document.getElementById('txt_asslot_infor_asslot').value;
+                get_assign_asslot(new_asslot, function(next_asslot){
+                    if (next_asslot=='') {
+                        alert('Không tìm thấy Worklot tiếp theo!');
+                        return;
+                    }
+                    //notify
+                    set_next_asslot(next_asslot);
+                });
+            }
+        });
+        //================================KANBAN=====================================
+        document.getElementById('btn_kanban').addEventListener('click', function(){
+            asslot=sessionStorage.getItem('KANBAN_ASSLOT');
+            get_kanban_asslot(asslot, function(kanban_asslot){
+                if (kanban_asslot=='') {
+                    alert('Không tìm thấy Asslot gọi Kanban!');
+                    return;
+                }
+                //notify
+                set_kanban_asslot(kanban_asslot);
+                document.getElementById('dialog_kanban').showModal();
+            });
+        });
+        document.getElementById('btn_kanban_confirm').addEventListener('click', function(){
+            if (group_infor.length>0){
+                if (group_infor[0].ASS_STATUS!="NOTIFY"&&group_infor[0].ASS_STATUS!="PENDING"){
+                    alert("Yêu cầu bị từ chối vì chưa phát hết tem!");
+                    return;
+                }
+            }
+            asslot=document.getElementById('txt_kanban_asslot').value;
+            
+            asslot2=document.getElementById('txt_asslot_2_kanban').innerHTML;
+            if (asslot2.length>15) asslot2=asslot2.split(' ')[2];
+            asslot3=document.getElementById('txt_asslot_3_kanban').innerHTML;
+            if (asslot3.length>15) asslot3=asslot3.split(' ')[2];
+            if (asslot2!='') asslot=asslot+';'+asslot2;
+            if (asslot3!='') asslot=asslot+';'+asslot3;
+            curr_group=sessionStorage.getItem('curr_group');
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/CallAsslots6",true);
+            xsend.onreadystatechange= function() {
+                if (this.readyState==4 && this.status==200) {
+                    result=xsend.responseText;
+                    if (result=='done') {
+                        alert('Đã gửi thông tin đến kho!');
+                        socket.emit('client-send-kanban', {next_asslot: asslot, curr_group: curr_group, status: 'call'});
+                        document.getElementById('dialog_kanban').close();
+                        load_kanban();
+                        // document.getElementById('btn_kanban').style.backgroundColor="red";
+                        // document.getElementById('btn_kanban').style.color="white";
+                        // document.getElementById('btn_kanban_confirm').disabled=true;
+                    }
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={asslot: asslot, curr_group: curr_group}
+            // console.log(data)
+            xsend.send(JSON.stringify(data));
+        });
+        document.getElementById('btn_kanban_receive').addEventListener('click', function(){
+            console.log(group_infor[0].ASS_STATUS)
+            if (group_infor.length>0)
+                if (group_infor[0].ASS_STATUS!="SEND"&&group_infor[0].ASS_STATUS!="PENDING"){
+                    alert("Yêu cầu bị từ chối vì Kho chưa thực hiện lệnh gửi ra! Vui lòng liên hệ kho!");
+                    return;
+                }
+            asslot=document.getElementById('txt_kanban_asslot').value;
+            asslot2=document.getElementById('txt_asslot_2_kanban').innerHTML;
+            if (asslot2.length>15) asslot2=asslot2.split(' ')[2];
+            asslot3=document.getElementById('txt_asslot_3_kanban').innerHTML;
+            if (asslot3.length>15) asslot3=asslot3.split(' ')[2];
+            if (asslot2!='') asslot=asslot+';'+asslot2;
+            if (asslot3!='') asslot=asslot+';'+asslot3;
+            curr_group=sessionStorage.getItem('curr_group');
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/ReceiveAsslots6",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=xsend.responseText;
+                    if (result=='done') {
+                        alert('Đã gửi thông tin đến kho!');
+                        socket.emit('client-send-kanban', {next_asslot: asslot, curr_group: curr_group, status: 'receive'});
+                        document.getElementById('dialog_kanban').close();
+                        load_kanban();
+                        // document.getElementById('btn_kanban').style.backgroundColor="green";
+                        // document.getElementById('btn_kanban').style.color="white";
+                        // document.getElementById('btn_kanban_receive').disabled=false;
+                    }
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={asslot: asslot, curr_group: curr_group}
+            xsend.send(JSON.stringify(data));
+        });
+        document.getElementById('btn_kanban_supplie').addEventListener('click', function(){
+            if (group_infor.length>0)
+                if (group_infor[0].ASS_STATUS!="SEND"&&group_infor[0].ASS_STATUS!="PENDING"){
+                    alert("Yêu cầu bị từ chối vì Kho chưa thực hiện lệnh gửi ra! Vui lòng liên hệ kho!");
+                    return;
+                }
+            asslot=document.getElementById('txt_kanban_asslot').value;
+            asslot2=document.getElementById('txt_asslot_2_kanban').innerHTML;
+            if (asslot2.length>15) asslot2=asslot2.split(' ')[2];
+            asslot3=document.getElementById('txt_asslot_3_kanban').innerHTML;
+            if (asslot3.length>15) asslot3=asslot3.split(' ')[2];
+            if (asslot2!='') asslot=asslot+';'+asslot2;
+            if (asslot3!='') asslot=asslot+';'+asslot3;
+            curr_group=sessionStorage.getItem('curr_group');
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/DoneAsslots6",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=xsend.responseText;
+                    if (result=='done') {
+                        alert('Đã gửi thông tin đến kho!');
+                        socket.emit('client-send-kanban', {next_asslot: asslot, curr_group: curr_group, status: 'done'});
+                        document.getElementById('dialog_kanban').close();
+                        sessionStorage.removeItem('KANBAN_ASSLOT');
+                        load_kanban();
+                        // document.getElementById('btn_kanban').style.backgroundColor="white";
+                        // document.getElementById('btn_kanban').style.color="black";
+                    }
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={asslot: asslot, group: curr_group}
+            xsend.send(JSON.stringify(data));
+        });
+        document.getElementById('btn_kanban_suspend').addEventListener('click', function(){
+            var r = confirm("BẠN CÓ CHẮC HÀNG BỊ SUSPEND (THIẾU NGUYÊN PHỤ LIỆU MAY)?");
+            if (r == false) {
+                return;
+            } else {
+                asslot=document.getElementById('txt_kanban_asslot').value;
+                asslot2=document.getElementById('txt_asslot_2_kanban').innerHTML;
+                if (asslot2.length>15) asslot2=asslot2.split(' ')[2];
+                asslot3=document.getElementById('txt_asslot_3_kanban').innerHTML;
+                if (asslot3.length>15) asslot3=asslot3.split(' ')[2];
+                if (asslot2!='') asslot=asslot+';'+asslot2;
+                if (asslot3!='') asslot=asslot+';'+asslot3;
+                curr_group=sessionStorage.getItem('curr_group');
+                var xsend= new XMLHttpRequest();
+                xsend.open("POST","/Production/AutoKanban/PendingAsslots",true);
+                xsend.onreadystatechange= function(){
+                    if (this.readyState==4 && this.status==200) {
+                        result=xsend.responseText;
+                        if (result=='done') {
+                            alert('Đã gửi thông tin đến kho!');
+                            socket.emit('client-send-kanban', {next_asslot: asslot, curr_group: curr_group, status: 'pending'});
+                            document.getElementById('dialog_kanban').close();
+                            load_kanban();
+                            // document.getElementById('btn_kanban').style.backgroundColor="white";
+                            // document.getElementById('btn_kanban').style.color="black";
+                        }
+                    }
+                }
+                xsend.setRequestHeader("Content-type", "application/json");
+                data={asslot: asslot, group: curr_group}
+                xsend.send(JSON.stringify(data));
+            }
+        });
+        document.getElementById('btn_asslot_infor_cancel').addEventListener('click', function(){
+            next_asslot=document.getElementById('txt_asslot_infor_asslot').value;
+            curr_group=sessionStorage.getItem('curr_group');
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Production/AutoKanban/CancelAsslots6",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200){
+                    result=xsend.responseText;
+                    // console.log(result)
+                    if (result=='done') {
+                        alert('Đã gửi thông tin đến kho!');
+                        sessionStorage.removeItem('KANBAN_ASSLOT');
+                        localStorage.removeItem('KANBAN_ASSLOT');
+                        socket.emit('client-send-kanban', {next_asslot: next_asslot, curr_group: curr_group, status: 'done'});
+                        document.getElementById("dialog_asslot_infor").close();
+                        load_kanban();
+                    }
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={next_asslot: next_asslot, curr_group: curr_group};
+            xsend.send(JSON.stringify(data));
+        });
+        var socket=io();
+        socket.on('client-send-kanban', function(data){
+            curr_group=sessionStorage.getItem('curr_group');
+            if (data.curr_group==curr_group) alert('Đã gửi thông tin đến kho!');
+        });
+        function refresh_page(){
+            if (group_infor!=null)
+            if (group_infor[0].ASS_STATUS=='CALL'){
+                timeCall=new Date(change_time(group_infor[0].ASS_CALL));//);
+                timeCurr=new Date(get_current());
+                timeSpan=15-Math.round((timeCurr-timeCall)/1000/60);
+                timeSpanSupply=45-Math.round((timeCurr-timeCall)/1000/60);
+                document.getElementById('txt_kanban_cutpart_count').innerHTML="Cutpart: "+timeSpan.toString()+ " min";
+                document.getElementById('txt_kanban_supplie_count').innerHTML="Supplies: "+timeSpanSupply.toString()+ " min";
+            }
+        }
+        setInterval(function(){ 
+            refresh_page();
+        }, 60000);//set every in a span time millisecond => 1 minute=60000
+        function get_current(){
+            var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+            var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+            return change_time(localISOTime);
+        }
+        function change_time(time){
+            return (new Date(time)).toLocaleString("en-US", {timeZone: "Asia/Bangkok"});
+        }
+        var socket=io();
+        socket.on('client-receive-kanban', function(data){
+            curr_group=sessionStorage.getItem('curr_group');
+            if (data.group==curr_group) load_kanban();
+        });
+        document.getElementById('btn_kanban_close').addEventListener('click', function(){
+            document.getElementById('dialog_kanban').close();
+        });
+    </script>
+</html>

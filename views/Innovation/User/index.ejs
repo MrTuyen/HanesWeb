@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        
+    </style>
+
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">INNOVATION</span>
+                <%- include ("../../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("../partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="page-title text-center">
+                                    <strong class="text-uppercase"> Quản lý danh sách thợ máy</strong>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="bg-white">
+                            <div class="d-sm-block">
+                                <div class="panel panel-default m-0">
+                                    <div class="mdl-tabs__panel is-active" id="machine-panel">
+                                        <div class="d-flex pl-4 pr-4 mt-3">
+                                            <div class="p-0">
+                                                <div class="input-group">
+                                                    <button class="btn btn-success" data-target="#modalAddUser" data-toggle="modal"><i class="fa fa-plus"></i>&nbsp;&nbsp;Add</button>
+                                                </div>
+                                            </div>
+                                            <div class="p-0 pl-2 mb-3">
+                                                <div class="btn-group btn-filter">
+                                                    <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                        <span class="fa fa-filter"></span> Filter
+                                                    </button>
+                                                    <div class="dropdown-menu p-3" style="width: 220px;">
+                                                        <form class="form-inline" id="">
+                                                            <div style="display: flex;">
+                                                                <div class="w-100">
+                                                                    <p class="mb-1">Manager</p>
+                                                                    <select class="form-control w-100 list-sup" name="" id="txtManager">
+                                                                        <option value="">Tất cả</option>
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <div class="w-100">
+                                                                    <p class="mb-1">Mã thợ máy</p>
+                                                                    <input type="text" class="form-control" id="txtMechanicId" placeholder="">
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <div class="w-100">
+                                                                    <p class="mb-1">Tên thợ máy</p>
+                                                                    <input type="text" class="form-control" id="txtMechanicName" placeholder="">
+                                                                </div>
+                                                            </div>
+                                                            <div class="justify-content-between align-items-center mt-3 text-right">
+                                                                <button type="button" class="btn btn-success btn-sm" onclick="getAllUser()" >Lọc</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>                                                  
+                                            </div>
+                                            <div class="pl-2">
+                                                <button type="button" class="btn btn-light" onclick="downloadUser()"><i class="fa fa-download"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="">
+                                            <table class="table table-hover table-bordered table-scrollable mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th width='10%'>#</th>
+                                                        <th width='20%'>Mã nhân viên</th>
+                                                        <th width='40%'>Họ tên</th>
+                                                        <th width='20%'>Manager</th>
+                                                        <th width='10%'></th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                            <div class="onscrollbar onscrollbar-user" style="overflow: auto;">
+                                                <table class="table table-hover table-bordered m-0">
+                                                    <tbody id="user-table-body">
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+    </main>
+    </div>
+    
+    <!-- Modal add user -->
+    <div class="modal fade" id="modalAddUser" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Thêm thợ máy</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Họ tên thợ máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtAMechanicName" autofocus> 
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã nhân viên</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtAMechanicId">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Manager</label>
+                            <div class="">
+                                <select id="txtAManager" class="form-control list-sup">
+                                    <option value="" selected="" disabled="">Select item...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-success ml-2" onclick="addUser()">&nbsp;Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal update user -->
+    <div class="modal fade" id="modalUpdateUser" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Cập nhật thông tin thợ máy</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <input type="hidden" id="txtUId">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Họ tên thợ máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUMechanicName" autofocus> 
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã nhân viên</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUMechanicId">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Manager</label>
+                            <div class="">
+                                <select id="txtUManager" class="form-control list-sup">
+                                    <option value="" selected="" disabled="">Select item...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-success ml-2" onclick="updateUser()">&nbsp;Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/MEC/user.js"></script>
+</body>
+
+</html>

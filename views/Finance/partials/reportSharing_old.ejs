@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <header>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+        <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css"/>    
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+        <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
+    </header>
+    <body>
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <a class="mdl-button mdl-js-button mdl-button--icon" style="left: 10px; position: fixed;" href="/Finance/Finance_page">
+                    <!-- <a href="/Fianance/Finance_page"></a> -->
+                    <i class="material-icons">keyboard_backspace</i>
+                </a>
+                <!-- Title -->
+                <span class="mdl-layout-title">Report Sharing</span>
+                <!-- Add spacer, to align navigation to the right -->
+                <div class="mdl-layout-spacer"></div>
+                <!-- Navigation. We hide it in small screens. -->
+                <nav class="mdl-navigation mdl-layout--large-screen-only">
+                    <a class="mdl-navigation__link" href="/">Back</a>
+                    <a class="mdl-navigation__link" href="">Contact</a>
+                </nav>
+            </div>
+        </header>
+        <div class="mdl-card mdl-shadow--6dp" style="margin-left: 20px; margin-top: 20px; height: 80%;">
+            <div class="mdl-card__title"  style="background:coral; color: white;">
+                <h2 class="mdl-card__title-text">Subject 1</h2>
+            </div>
+            <div class="mdl-card__supporting-text">          
+                <ul class="mdl-list">
+                    <li class="mdl-list__item mdl-list__item--three-line">
+                        <span class="mdl-list__item-primary-content">
+                            <span>File 1</span>
+                            <span class="mdl-list__item-text-body">
+                                Comment 1
+                            </span>
+                        </span>
+                        <span class="mdl-list__item-secondary-content">
+                            <a class="mdl-list__item-secondary-action" href="#">
+                                <i class="material-icons">star</i>
+                            </a>
+                        </span>
+                    </li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li class="mdl-list__item mdl-list__item--three-line">
+                        <span class="mdl-list__item-primary-content">
+                            <span>File 2</span>
+                            <span class="mdl-list__item-text-body">
+                                Comment 2
+                            </span>
+                        </span>
+                        <span class="mdl-list__item-secondary-content">
+                            <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">star</i></a>
+                        </span>
+                    </li>
+                    <li>
+                        <hr>
+                    </li>
+                    <li class="mdl-list__item mdl-list__item--three-line">
+                        <span class="mdl-list__item-primary-content">
+                            <span>File 3</span>
+                            <span class="mdl-list__item-text-body">
+                                Comment 3
+                            </span>
+                        </span>
+                        <span class="mdl-list__item-secondary-content">
+                            <a class="mdl-list__item-secondary-action" href="#"><i class="material-icons">star</i></a>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div class="mdl-card__actions mdl-card--border" style="height: fit-content;">
+                <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect">
+                    Detail
+                    <i class="material-icons">arrow_downward</i>
+                </a>
+            </div>
+        </div>
+        <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                style="position: fixed; bottom: 20px; right:20px; z-index: 1000; background-color: green;" 
+                id="btn_group_report">
+            <i class="material-icons">create</i>
+        </button>
+    </body>
+</html>

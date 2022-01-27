@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <header>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+        <!-- <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-purple.min.css"> -->
+        <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css"/>
+        <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+        <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
+        <title>Reports Control</title>
+    </header>
+    <body id="tbody"> 
+        <div id="page-mask"></div>
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+            <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">Reports Control</span>
+                <%- include ("partials/headerTemplate.ejs"); -%>
+            </div>
+            </header>
+            <%- include ("partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="mdl-grid">
+                        <div class="mdl-cell mdl-cell--4-col">
+                            <div class="mdl-shadow--6dp">
+                                <div class="mdl-card__title" style="background-color: orange;">
+                                    <h2 class="mdl-card__title-text">Incentive</h2>
+                                </div>
+                                <div class="mdl-card__supporting-text">
+                                    <div style="font-size: 15px;">Get incentive by employee in a span time.</div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 20px;">
+                                        <input class="mdl-textfield__input" type="date" id="date_from_incentive">
+                                        <label class="mdl-textfield__label" for="date_from_incentive">Date from</label>
+                                    </div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 20px;">
+                                        <input class="mdl-textfield__input" type="date" id="date_to_incentive">
+                                        <label class="mdl-textfield__label" for="date_to_incentive">Date To</label>
+                                    </div>
+                                    <div class="mdl-grid" id="spinner_div" style="margin: 0px auto; display: none;"></div>
+                                </div>
+                                <div class="mdl-card__actions mdl-card--border">
+                                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_process_incentive">
+                                        <i class="material-icons" style="margin-right:10px;">attachment</i>Process
+                                    </a>
+                                </div>
+                                <!-- <div class="mdl-card__menu">
+                                    <button class="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+                                        <i class="material-icons">share</i>
+                                    </button>
+                                </div> -->
+                            </div>
+                        </div>
+                        <!-- <div class="mdl-cell mdl-cell--6-col">
+                            <div class="mdl-shadow--6dp">
+                                <div class="mdl-card__title" style="background-color: orange;">
+                                    <h2 class="mdl-card__title-text">Incentive</h2>
+                                </div>
+                                <div class="mdl-card__supporting-text">
+                                    <div style="font-size: 15px;">Get incentive by employee in a span time.</div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 20px;">
+                                        <input class="mdl-textfield__input" type="date" id="date_from_incentive">
+                                        <label class="mdl-textfield__label" for="date_from_incentive">Date from</label>
+                                    </div>
+                                    <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 20px;">
+                                        <input class="mdl-textfield__input" type="date" id="date_to_incentive">
+                                        <label class="mdl-textfield__label" for="date_to_incentive">Date To</label>
+                                    </div>
+                                </div>
+                                <div class="mdl-card__actions mdl-card--border">
+                                    <a class="mdl-button mdl-button--colored mdl-js-button mdl-js-ripple-effect" id="btn_process_incentive">
+                                        <i class="material-icons" style="margin-right:10px;">attachment</i>Process
+                                    </a>
+                                </div>
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </body>
+    
+    <script>
+        window.onload=function(){
+
+        }
+        var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+        var localISOTime = (new Date(Date.now() - tzoffset)).toISOString().slice(0, -1);
+        var today= localISOTime;
+        spinner_div         = document.getElementById('spinner_div');
+        document.getElementById('date_from_incentive').value=today.substr(0,10);
+        document.getElementById('date_to_incentive').value=today.substr(0,10);
+        document.getElementById('btn_process_incentive').addEventListener('click', function(){
+            var s = confirm('Bạn đã chắc chắn?');
+            if (s==false){
+                return;
+            }
+            myTimeOut = setTimeout(function(){ 
+                var r = confirm('Thời gian lấy data quá lâu, Bạn có muốn thử lại?');
+                if (r==true){
+                    location.reload();
+                }
+            }, 700000);
+            alert('Hệ thống đang xử lý, vui lòng chờ...');
+            datefrom=document.getElementById('date_from_incentive').value;
+            dateto=document.getElementById('date_to_incentive').value;
+            var spinning=document.createElement("div");
+            spinning.setAttribute("class","mdl-spinner mdl-js-spinner is-active");
+            spinning.setAttribute("id", "spin_load");
+            spinning.setAttribute("style", "margin: 0px auto;")
+            componentHandler.upgradeElement(spinning);
+            spinner_div.appendChild(spinning);
+            spinner_div.style.display='grid';
+            var xsend= new XMLHttpRequest();
+            xsend.open("POST","/Finance/Export_Reports/Incentive_Report_Production",true);
+            xsend.onreadystatechange= function(){
+                if (this.readyState==4 && this.status==200) {
+                    result=xsend.responseText;
+                    spinner_div.removeChild(spinner_div.childNodes[0]);
+                    spinner_div.style.display='none';
+                    var a=document.createElement('a');
+                    a.setAttribute('href', '../Python/Finance/ExportReports/Files/'+result);
+                    a.download=result;
+                    a.click();
+                    clearTimeout(myTimeOut);
+                }
+            }
+            xsend.setRequestHeader("Content-type", "application/json");
+            data={datefrom: datefrom, dateto: dateto};
+            console.log(data)
+            xsend.send(JSON.stringify(data));
+        })
+    </script>
+</html> 
+
+

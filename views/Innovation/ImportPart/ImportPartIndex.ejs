@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        
+    </style>
+
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">INNOVATION</span>
+                <%- include ("../../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("../partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="page-title text-center">
+                                    <strong class="text-uppercase"> Quản lý danh sách nhập hàng</strong>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="bg-white">
+                            <div class="d-sm-block">
+                                <div class="mdl-tabs__panel is-active">
+                                    <div class="d-flex pl-4 pr-4 mt-3">
+                                        <div class="p-0">
+                                            <div class="input-group">
+                                                <a href="/innovation/import/add" class="btn btn-success"><i class="fa fa-plus"></i> Add</a>
+                                            </div>
+                                        </div>
+                                        <div class="btn-group btn-filter pl-2">
+                                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                <span class="fa fa-search"></span> Filter
+                                            </button>
+                                            <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
+                                                <form class="form-inline">
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>Nhà cung cấp</strong></p>
+                                                        <input type="text" class="form-control w-100" id="txtFilterVendor" placeholder="">
+                                                    </div>
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>Thời gian</strong></p>
+                                                        <select class="form-control w-100" name="" id="txtFilterTime" onchange="changeDateFilter()">
+                                                            
+                                                        </select>
+                                                    </div>
+                                                    <div id="importFilterPickTime" style="display: none">
+                                                        <div class="d-flex">
+                                                            <div class="">
+                                                                <p class="mb-1"><strong>Từ ngày</strong></p>
+                                                                <input type="text" class="form-control w-100 isDate" id="txtFilterFromDate" />
+                                                            </div>
+                                                            <div class="ml-2">
+                                                                <p class="mb-1"><strong>Đến ngày</strong></p>
+                                                                <input type="text" class="form-control w-100 isDate" id="txtFilterToDate" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="justify-content-between align-items-center mt-3 text-right">
+                                                        <button type="button" class="btn btn-success btn-sm" onclick="getAllRequest()">Search</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="btn-group btn-filter pl-2">
+                                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                <span class="fa fa-download"></span> Report
+                                            </button>
+                                            <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
+                                                <form class="form-inline" id="">
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>Nhà cung cấp</strong></p>
+                                                        <input type="text" class="form-control w-100" id="txtReportVendor" placeholder="">
+                                                    </div>
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>Thời gian</strong></p>
+                                                        <select class="form-control w-100" name="" id="txtReportTime" onchange="changeDateReport()">
+                                                            
+                                                        </select>
+                                                    </div>
+                                                    <div id="importFilterPickTime" style="display: none">
+                                                        <div class="d-flex">
+                                                            <div class="">
+                                                                <p class="mb-1"><strong>Từ ngày</strong></p>
+                                                                <input type="text" class="form-control w-100 isDate" id="txtReportFromDate" />
+                                                            </div>
+                                                            <div class="ml-2">
+                                                                <p class="mb-1"><strong>Đến ngày</strong></p>
+                                                                <input type="text" class="form-control w-100 isDate" id="txtReportToDate" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-2 d-flex">
+                                                        <div class="w-100">
+                                                            <p class="mb-1"><strong>Loại file</strong></p>
+                                                            <select class="form-control w-100" name="" id="txtDownloadType">
+                                                                <option value="0">Tất cả</option>
+                                                                <option value="1">Chi phí nhập theo part</option>
+                                                                <option value="2">Xuất bên kho</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="justify-content-between align-items-center mt-3 text-right">
+                                                        <button type="button" class="btn btn-success btn-sm" onclick="report()">Download</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="justify-content-end pl-2">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="txtPO" placeholder="Số PO">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-success" type="button" onclick="getAllRequest()"><i class="fa fa-search"></i></button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3">
+                                        <table class="table table-hover table-bordered table-scrollable mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th width='10%'>#</th>
+                                                    <th width='15%'>PO</th>
+                                                    <th width='15%'>Date</th>
+                                                    <th width='20%'>Vendor</th>
+                                                    <th width='20%'>Nội dung</th>
+                                                    <th width='10%'>Thành tiền</th>
+                                                    <th width='10%'></th>
+                                                </tr>
+                                            </thead>
+                                        </table>
+                                        <div class="onscrollbar onscrollbar-import" style="overflow: auto;">
+                                            <table class="table table-hover table-bordered m-0">
+                                                <tbody id="import-table-body">
+                                                                                                         
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <div class="modal fade" id="modalImportDetail" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xlg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Chi tiết nhập hàng PO: <span class="text-danger" id="txtDPO"></span></strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="d-flex">
+                        <input type="hidden" id="txtDId">
+                        <div class="col-md-3">
+                            <label for="">Ngày nhập</label>
+                            <div class="">
+                                <input type="text" class="form-control isDate" id="txtDImportDate">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="">Nhà cung cấp</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDVendor">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="">Người giao</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDDeliverer">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="">Người nhận</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtDReceiver">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default mt-4 mb-0">
+                        <div class="panel-heading text-center"><b>Danh sách vật tư</b></div>
+                        <div class="panel-body">
+                            <table class="table table-bordered mb-0">
+                                <thead>
+                                    <tr class="text-center">
+                                        <th>Tên part</th>
+                                        <th>Part code</th>
+                                        <th>Đơn vị</th>
+                                        <th>SL PO</th>
+                                        <th>SL nhập</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="list-part-body">
+                                    
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- <div class="panel-footer pl-4">
+                            <button onclick="addRow()"><i class="fa fa-plus"></i></button>
+                        </div> -->
+                    </div>
+                </div>
+                <div class="modal-footer pr-0 mt-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <!-- <button type="button" class="btn btn-success" onclick="updateRequest()">Update</button> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/MEC/import.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        .datepicker{
+            z-index:9999 !important
+        }
+
+        .line-box-header{
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .line-box {
+            margin: auto;
+            width: 420px;
+            display: -webkit-box;
+            flex-flow: row wrap;
+            align-content: space-between;
+            justify-content: space-between;
+        }
+
+        .machine {
+            width: 103px;
+            background-image: url("/Image/sewing-machine1.png");
+            background-repeat: no-repeat;
+            background-size: 90px;
+            background-position: center;
+            /* background-color: #512458; */
+            height: 86px;
+            font-size: 16px;
+            font-weight: 900;
+            margin: 1px;
+            /* border-radius: 5px; */
+            box-shadow: black 0 0 2px 0;
+            cursor: pointer;
+            /* padding: 13px; */
+            color: black;
+        }
+
+        .no-machine{
+            width: 103px;
+            background-repeat: no-repeat;
+            background-size: 90px;
+            background-position: center;
+            height: 86px;
+            font-size: 16px;
+            font-weight: 900;
+            margin: 1px;
+            box-shadow: black 0 0 2px 0;
+            cursor: pointer;
+            color: black;
+        }
+
+        .machine:hover{
+            transform: scale(1.1);
+            transition: .3s ease-in-out;
+            border: 2px solid rgb(164, 16, 233);
+            cursor: pointer;
+        }
+
+        .mc-pos{
+
+        }
+
+        .mc-tag{
+            position: relative;
+            text-align: center;
+            top: 43px;
+        }
+
+        .item:nth-child(4n - 1) {
+            background: silver;
+        }
+
+        .line-break {
+            width: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">INNOVATION</span>
+                <%- include ("../../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("../partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="page-title text-center">
+                                    <strong class="text-uppercase"> Cập nhật vị trí máy</strong>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="bg-white">
+                            <div class="d-sm-block">
+                                <div class="mdl-tabs__panel is-active">
+                                    <div class="d-flex pl-4 pr-4">
+                                        <div class="col-sm-12 col-md-4 ml-2">
+                                            <p class="mb-1">&nbsp;</p>
+                                            <button class="btn btn-success" onclick="getPositionHistory()"><i class="fa fa-eye"></i> Xem lịch sử chuyển vị trí máy</button>
+                                        </div>
+                                        <div class="col-sm-12 col-md-4 m-auto" style="width: 452px;">
+                                            <p class="mb-1"><strong>Chọn line</strong></p>
+                                            <select class="form-control w-100" name="" id="txtLineRange" onchange="changeLine(this.value)">
+                                                
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-12 col-md-4">
+                                        </div>
+                                    </div>
+                                    <div class="p-4 machine-area" style="padding-top: 0px!important;">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+    </main>
+    </div>
+
+    <!-- Modal update machine position -->
+    <div class="modal fade" id="modalUpdateMachinePosition" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Cập nhật vị trí máy may</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0 pt-3">
+                    <input type="hidden" id="txtUId">
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Mã máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUMachineTag" disabled> 
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Loại máy</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUMachineType" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Line hiện tại</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUMachineOldLine" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Vị trí hiện tại</label>
+                            <div class="">
+                                <input type="text" class="form-control" id="txtUMachineOldPosition" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Line mới</label>
+                            <div class="">
+                                <select id="txtUMachineNewLine" class="form-control" autofocus>
+                                    <option value="1">Line 1</option>
+                                    <option value="2">Line 2</option>
+                                    <option value="3">Line 3</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-sm-12 col-md-6">
+                            <label for="">Vị trí mới</label>
+                            <div class="">
+                                <select id="txtUMachineNewPosition" class="form-control">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button class="btn btn-success ml-2" onclick="updateMachinePosition()">&nbsp;Update</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalPositionHistory" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xlg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Lịch sử chuyển vị trí máy may</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="d-flex pl-3 pr-3 mt-3">
+                        <div class="p-0 pl-2 mb-3">
+                            <div class="btn-group btn-filter">
+                                <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                    <span class="fa fa-search"></span> Filter
+                                </button>
+                                <div class="dropdown-menu p-3" style="width: 300px;">
+                                    <form class="form-inline" id="">
+                                        <div>
+                                            <div class="w-100">
+                                                <p class="mb-1"><strong>Thời gian</strong></p>
+                                                <select class="form-control w-100" name="" id="txtTime" onchange="changeDateFilter()">
+
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div id="filterTime" style="display: none">
+                                            <div class="d-flex">
+                                                <div class="">
+                                                    <p class="mb-1"><strong>Từ ngày</strong></p>
+                                                    <input type="text" class="form-control w-100 isDate" id="txtFilterFrom" />
+                                                </div>
+                                                <div class="ml-2">
+                                                    <p class="mb-1"><strong>Đến ngày</strong></p>
+                                                    <input type="text" class="form-control w-100 isDate" id="txtFilterTo" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="justify-content-between align-items-center mt-3 text-right">
+                                            <button type="button" class="btn btn-success btn-sm" onclick="downloadHistory()">Download</button>
+                                            <button type="button" class="btn btn-success btn-sm" onclick="getPositionHistory()">Search</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>                                               
+                        </div>
+                        <div class="justify-content-end pl-2">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="txtFilterTag" placeholder="Tag máy">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-success" type="button" onclick="getPositionHistory()"><i class="fa fa-search"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pl-4 pr-4">
+                        <table class="table table-hover table-bordered table-scrollable mb-0">
+                            <thead>
+                                <tr>
+                                    <th width='10%'>#</th>
+                                    <th width='10%'>Tag</th>
+                                    <th width='10%'>Model</th>
+                                    <th width='10%'>Pre line</th>
+                                    <th width='10%'>Pre pos</th>
+                                    <th width='10%'>Line</th>
+                                    <th width='10%'>Pos</th>
+                                    <th width='10%'>Status</th>
+                                    <th width='10%'>Time</th>
+                                    <th width='10%'>User</th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div class="onscrollbar onscrollbar-machine" style="overflow: auto;">
+                            <table class="table table-hover table-bordered m-0">
+                                <tbody id="history-table-body">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/Common/class.js"></script>
+    <script src="/JS/HBI/MEC/position.js"></script>
+</body>
+
+</html>

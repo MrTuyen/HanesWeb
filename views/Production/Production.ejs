@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<header>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <!-- <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-purple.min.css"> -->
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <link rel="stylesheet" href="/JS/getmdl/getmdl-select.min.css" />
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <script defer src="/JS/getmdl/getmdl-select.min.js"></script>
+    <script defer type="text/javascript" src="/JS/chart/Chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</header>
+
+<body>
+    <!-- Always shows a header, even in smaller screens. -->
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">SẢN XUẤT</span>
+                <%- include ("partials/headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div style="width: 95%; margin: 10px auto; border-radius: 10px;">
+                        <div class="mdl-grid mdl-shadow--6dp" style="background: white; border-radius: 10px;">
+                            <div style="margin: 10px auto;">
+                                <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label has-placeholder" style="width:150px; margin-right: 50px;">
+                                    <input class="mdl-textfield__input" type="date" id="date_group_search">
+                                    <label class="mdl-textfield__label" for="date_group_search">Chọn ngày</label>
+                                </div>
+                                <button class="mdl-button mdl-js-button mdl-button--fab 
+                                        mdl-js-ripple-effect mdl-button--colored" id="btn_group_search">
+                                    <i class="material-icons">search</i>
+                                </button>
+                            </div>
+                            <div style="width: 100%;">
+                                <div id="table_group_spinner" style="margin-left: 50%; margin-top: 20px;"></div>
+                            </div>
+                            <div style="width:90%; margin: 10px auto; background-color: white; display: none;" id="group_chart_div">
+                                <canvas id="group_chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="width:90%; margin: 10px auto; background-color: white; display: none;" id="group_chart_div">
+                            <canvas id="kickout_chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </main>
+    </div>
+</body>
+
+</html>
+<script>
+    var today = new Date();
+    var table_group_search = document.getElementById('table_group_search');
+    document.getElementById('date_group_search').value = today.toISOString().substr(0, 10);
+    document.getElementById('btn_group_search').addEventListener('click', function () {
+        var table_group_load_spinner = document.getElementById('table_group_spinner');
+        table_group_load_spinner.setAttribute("class", "mdl-spinner mdl-js-spinner is-active");
+        componentHandler.upgradeElement(table_group_load_spinner);
+        var xsend = new XMLHttpRequest();
+        xsend.open("POST", "/Production/Production/GroupSummary", true);
+        xsend.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                data = JSON.parse(xsend.responseText);
+                if (data == 'empty') {
+                    alert('Không tìm thấy dữ liệu!');
+                }
+                else {
+                    console.log(data);
+                    table_group_load_spinner.removeAttribute("class");
+                    document.getElementById("group_chart_div").style.display = "grid";
+                }
+                var group_list = new Array();
+                var gorup_output = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    group_list.push(data[i].LOCATION);
+                    gorup_output.push(data[i].OUTPUT);
+                }
+                draw_graph(group_list, gorup_output, 'GROUP', 'group_chart', 'horizontalBar');
+            }
+        }
+        xsend.setRequestHeader("Content-type", "application/json");
+        var full_date = document.getElementById('date_group_search').value;
+        year = full_date.substr(0, 4);
+        month = full_date.substr(5, 2);
+        day = full_date.substr(8, 2);
+        var date = year + month + day;
+        data = { date: date };
+        xsend.send(JSON.stringify(data));
+    });
+
+
+
+    function draw_graph(name, list_data, label, chart_name, typeChar) {
+        var color = new Array();
+        for (var i = 0; i < name.length; i++) {
+            color.push('#' + (Math.random().toString(16) + '0000000').slice(2, 8));
+        }
+        if (window.qtyLineChart) {
+            window.qtyLineChart.destroy();
+        }
+
+        var ctx = document.getElementById(chart_name).getContext('2d');
+        window.qtyLineChart = new Chart(ctx, {
+            type: typeChar,//'bar',
+            data: {
+                labels: name,
+                datasets: [{
+                    label: label,//'Sản lượng theo Công đoạn',
+                    data: list_data,
+                    backgroundColor: color,
+                    borderWidth: 1,
+                    fill: false
+                }]
+            }
+            , options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        },
+                        gridLines: {
+                            display: true
+                        }
+                    }]
+                }
+            }
+        });
+
+    }
+</script>

@@ -1,0 +1,18 @@
+12/9/2021, 8:19:14 AM: cutting.netCuttingTime
+n1.formatDateMMDDYYYY is not a function
+---------------------------------------------
+12/9/2021, 8:19:17 AM: cutting.netCuttingTime
+returnData is not defined
+---------------------------------------------
+12/9/2021, 8:21:16 AM: cutting.netCuttingTime
+returnData is not defined
+---------------------------------------------
+12/9/2021, 8:23:50 AM: cutting.netCuttingTime
+returnData is not defined
+---------------------------------------------
+12/9/2021, 8:24:31 AM: cutting.netCuttingTime
+n1.formatDateMMDDYYYY is not a function
+---------------------------------------------
+12/9/2021, 8:24:35 AM: cutting.netCuttingTime
+returnData is not defined
+---------------------------------------------

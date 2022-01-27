@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
+    <link rel="stylesheet" href="/Contents/libs/toggle-switch/toggle-switch.css">
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        .part-result {
+            border-bottom: 1px dashed yellowgreen;
+        }
+
+        .part-result:hover {
+            background: #7d7d80;
+            cursor: pointer;
+        }
+
+        .search-image {
+            margin: 10px 10px 10px 10px;
+            object-fit: contain;
+            border-radius: 5px;
+            align-self: flex-start;
+        }
+
+        .onscrollbar::-webkit-scrollbar {
+            width: 0px;
+            background-color: #7d7d80;
+        }
+
+        .table-scrollable {}
+
+        #processing-table-body i {
+            font-size: 32px;
+        }
+
+        .select2-container{
+            width: 100%!important;;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">INNOVATION</span>
+                <%- include ("../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="travel-area">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4 class="page-title text-center">
+                                    <strong class="text-uppercase"> Quản lý vật tư</strong>
+                                </h4>
+                            </div>
+                        </div>
+                        <div class="bg-white">
+                            <div class="d-sm-block">
+                                <div class="panel panel-default m-0">
+                                    <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                                       <div class="mdl-tabs__tab-bar" id="innovation-tab">
+                                            <a href="#processing-panel" class="mdl-tabs__tab is-active" onclick="getAllRequest()"><strong class="text-warning">Y/C vật tư <span id="processing-part-count"></strong></a>
+                                            <a href="#all-panel" class="mdl-tabs__tab" onclick="getAllPart()"><strong>Danh mục vật tư <span id="all-part-count"></span></strong></a>
+                                            <a href="#warning-panel" class="mdl-tabs__tab" onclick="getWarningPart()"><strong class="text-danger">Vật tư cảnh báo <span id="warning-part-count"></strong></a>
+                                        </div>
+
+                                        <div class="mdl-tabs__panel is-active" id="processing-panel">
+                                            <div class="panel-heading" style="background: white">
+                                                <div class="row">
+                                                    <div class="col-sm-12 col-md-8 float-left form-inline">
+                                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add </button>
+                                                        <div class="btn-group btn-filter">
+                                                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                                <span class="fa fa-search"></span> Filter
+                                                            </button>
+                                                            <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
+                                                                <form class="form-inline" id="formTRReport">
+                                                                    <div>
+                                                                        <div class="w-100">
+                                                                            <p class="mb-1"><strong>Thời gian</strong></p>
+                                                                            <select class="form-control w-100" name="" id="txtFilterTime" onchange="changeDateFilter()">
+
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="filterPickTime" style="display: none">
+                                                                        <div class="d-flex">
+                                                                            <div class="">
+                                                                                <p class="mb-1"><strong>Từ ngày</strong></p>
+                                                                                <input type="text" class="form-control w-100 isDate" id="txtFilterFrom" />
+                                                                            </div>
+                                                                            <div class="ml-2">
+                                                                                <p class="mb-1"><strong>Đến ngày</strong></p>
+                                                                                <input type="text" class="form-control w-100 isDate" id="txtFilterTo" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mt-2 d-flex">
+                                                                        <div class="w-100">
+                                                                            <label for="recipient-name" class="col-form-label">Trạng thái:</label>
+                                                                            <div class="input-group w-100">
+                                                                                <select class="form-control w-100" name="" id="txtStatus" onchange="getAllRequest()">
+                                                                                    <option value=""> Tất cả </option>
+                                                                                    <option value="0" selected> Chưa xử lý </option>
+                                                                                    <option value="1"> Đã duyệt </option>
+                                                                                    <option value="2"> Từ chối duyệt </option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mt-2 d-flex">
+                                                                        <div class="w-100">
+                                                                            <p class="mb-1"><strong>Zone</strong></p>
+                                                                            <select class="form-control w-100 list-zone" name="" id="txtFilterZone" onchange="getAllRequest()">
+                                                                                <option value="">Tất cả</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="justify-content-between align-items-center mt-3 text-right">
+                                                                        <button type="button" class="btn btn-success btn-sm" onclick="getAllRequest()">Search</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                        <div class="btn-group btn-filter">
+                                                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                                <span class="fa fa-download"></span> Report
+                                                            </button>
+                                                            <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
+                                                                <form class="form-inline" id="formTRReport">
+                                                                    <div>
+                                                                        <div class="w-100">
+                                                                            <p class="mb-1"><strong>Thời gian</strong></p>
+                                                                            <select class="form-control w-100" name="" id="txtTime" onchange="changeDateDownload()">
+
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div id="downloadPickTime" style="display: none">
+                                                                        <div class="d-flex">
+                                                                            <div class="">
+                                                                                <p class="mb-1"><strong>Từ ngày</strong></p>
+                                                                                <input type="text" class="form-control w-100 isDate" id="txtReportFrom" />
+                                                                            </div>
+                                                                            <div class="ml-2">
+                                                                                <p class="mb-1"><strong>Đến ngày</strong></p>
+                                                                                <input type="text" class="form-control w-100 isDate" id="txtReportTo" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mt-2 d-flex">
+                                                                        <div class="w-100">
+                                                                            <p class="mb-1"><strong>Zone</strong></p>
+                                                                            <select class="form-control w-100 list-zone" name="" id="txtDownloadZone">
+                                                                                <option value="">Tất cả</option>
+                                                                            
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="mt-2 d-flex">
+                                                                        <div class="w-100">
+                                                                            <p class="mb-1"><strong>Loại file</strong></p>
+                                                                            <select class="form-control w-100" name="" id="txtDownloadType">
+                                                                                <option value="0">Tất cả</option>
+                                                                                <option value="1">Chi phí xuất theo part</option>
+                                                                                <option value="2">Xuất bên kho</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!-- <div class="mt-2 d-flex">
+                                                                        <p class="mb-1 mr-5"><strong>Chi phí xuất theo part: </strong></p>
+                                                                        <input type="checkbox" class="mt-2" id="cbIncludeFee" style="transform: scale(1.5);" name="isIncludeFee" />
+                                                                    </div>
+                                                                    <div class="mt-2 d-flex">
+                                                                        <p class="mb-1 mr-5"><strong>Chi phí xuất theo part: </strong></p>
+                                                                        <input type="checkbox" class="mt-2" id="cbIncludeFee" style="transform: scale(1.5);" name="isIncludeFee" />
+                                                                    </div> -->
+                                                                    <div class="justify-content-between align-items-center mt-3 text-right">
+                                                                        <button type="button" class="btn btn-success btn-sm" onclick="report()">Download</button>
+                                                                    </div>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                        <button type="button" class="btn btn-light" onclick="refresh()"><i class="fa fa-refresh"></i></button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- <div class="d-flex pl-4 pr-4 pt-2">
+                                                <div class="p-0">
+                                                    <label for="recipient-name" class="col-form-label">Trạng thái:</label>
+                                                    <div class="input-group">
+                                                        <select class="form-control" name="" id="txtStatus" onchange="getAllRequest()">
+                                                            <option value=""> Tất cả </option>
+                                                            <option value="0" selected> Chưa xử lý </option>
+                                                            <option value="1"> Đã xử lý </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-6 col-md-2 col-lg-2 p-0 pl-2 mb-3">
+                                                    <label for="recipient-name" class="col-form-label">Ngày:</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-addon" id=""><span class="material-icons" style="font-size: 17px;">insert_invitation</span></span>
+                                                        <input type="text" class="form-control isDate" id="processing-date" placeholder="">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-success" type="button" onclick="getAllRequest()"><i class="fa fa-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div> -->
+                                            <div class="">
+                                                <table class="table table-hover table-bordered table-scrollable mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width='10%'>#</th>
+                                                            <th width='10%'>Loại phiếu</th>
+                                                            <th width='10%'>Zone</th>
+                                                            <th width='10%'>Tag máy</th>
+                                                            <th width='10%'>Thợ máy</th>
+                                                            <th width='10%'>Thời gian</th>
+                                                            <th width='10%'>Supervisor</th>
+                                                            <th width='10%'>Superintendant</th>
+                                                            <th width='10%'>Kho</th>
+                                                            <th width='10%'></th>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
+                                                <div class="onscrollbar onscrollbar-request" style="overflow: auto;">
+                                                    <table class="table table-hover table-bordered m-0">
+                                                        <tbody id="processing-table-body">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mdl-tabs__panel" id="all-panel">
+                                            <%- include ("Part/partTab.ejs"); -%>
+                                        </div>
+                                        <div class="mdl-tabs__panel" id="warning-panel">
+                                            <div class="d-flex pl-4 pr-4 mt-3 mb-3">
+                                                <div class="p-0">
+                                                    <div class="input-group">
+                                                        <button class="btn btn-light" onclick="downloadWarningPart()"><i class="fa fa-download"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="pl-2 input-sm-100">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control" id="txtWarningPart" placeholder="Tên vật tư">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-success" type="button" onclick="getWarningPart()"><i class="fa fa-search"></i></button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="">
+                                                <table class="table table-hover table-bordered table-scrollable mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width='10%'>#</th>
+                                                            <th width='20%'>Mã</th>
+                                                            <th width='30%'>Tên</th>
+                                                            <th width='20%'>SL</th>
+                                                            <th width='20%'>SL Min</th>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
+                                                <div class="onscrollbar onscrollbar-machine" style="overflow: auto;">
+                                                    <table class="table table-hover table-bordered m-0">
+                                                        <tbody id="warning-table-body">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <%- include ("Modal/modal.ejs"); -%>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/MEC/index.js"></script>
+</body>
+
+</html>
