@@ -58,8 +58,8 @@ $(document).ready(function () {
         clear: true
     });
 
-    // Load data from localstorage if those data has not submited
-    loadExistedData();
+    // get list marker data
+    getListMarkerData();
 })
 
 // Setup change time to 5 option
@@ -71,7 +71,7 @@ function changeDateFilter(){
         $("#filterTime").css("display", "none");
 }
 
-function getListTicket(){
+function getListMarkerData(){
     
 }
 
@@ -105,7 +105,82 @@ function loadExistedData(){
 }
 
 function getDetailTicket(){
-    console.log(1);
+    
+}
+
+function uploadExcel(){
+    var e = event;
+    var fileName = e.target.files[0].name;
+    $('.fileUploadName').text(fileName);
+
+    if (window.FormData !== undefined) {
+
+        var fileUpload = $("#fileFabricReceiveUpload").get(0);
+        var files = fileUpload.files;
+
+        // Create FormData object
+        var fileData = new FormData();
+
+        // Looping over all files and add it to FormData object
+        for (var i = 0; i < files.length; i++) {
+            fileData.append("file", files[i]);
+        }
+
+        $.ajax({
+            url: baseUrl + 'upload-fabric-file',
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            data: fileData,
+            success: function (result) {
+                result = JSON.parse(result);
+                if (result.rs) {
+                    var listSheet = result.data
+                    var options = "";
+                    for (var i = 0; i < listSheet.length; i++) {
+                        let item = listSheet[i];
+                        options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
+                    }
+
+                    $(".selected-sheet").html("").append(options);
+                    $(".selected-header").focus();
+                    console.log(result.msg);
+                }
+                else {
+                    toastr.error(result.msg);
+                }
+            },
+            error: function (err) {
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("FormData is not supported.");
+    }
+}
+
+function saveUploadData(){
+    // form data
+    let sheet = $("#selected-sheet").val();
+    let headerRow = $("#selected-header").val();
+    let fileName = $("#fileUploadName").text();
+
+    // send to server
+    let action = baseUrl + 'save-upload-data';
+    let datasend = {
+        sheet: sheet,
+        headerRow: headerRow,
+        fileName: fileName
+    };
+    PostDataAjax(action, datasend, function (response) {
+        if (response.rs) {
+            toastr.success(response.msg, "Thành công")
+            $("#modalUploadData").modal('hide');
+        }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
 }
 
 function addRecord(){
@@ -216,81 +291,6 @@ function loadHistory(){
     PostDataAjax(action, datasend, function (response) {
         if (response.rs) {
             
-        }
-        else {
-            toastr.error(response.msg, "Thất bại");
-        }
-    });
-}
-
-function uploadExcel(){
-    var e = event;
-    var fileName = e.target.files[0].name;
-    $('.fileUploadName').text(fileName);
-
-    if (window.FormData !== undefined) {
-
-        var fileUpload = $("#fileFabricReceiveUpload").get(0);
-        var files = fileUpload.files;
-
-        // Create FormData object
-        var fileData = new FormData();
-
-        // Looping over all files and add it to FormData object
-        for (var i = 0; i < files.length; i++) {
-            fileData.append("file", files[i]);
-        }
-
-        $.ajax({
-            url: baseUrl + 'upload-fabric-file',
-            method: 'POST',
-            contentType: false,
-            processData: false,
-            data: fileData,
-            success: function (result) {
-                result = JSON.parse(result);
-                if (result.rs) {
-                    var listSheet = result.data
-                    var options = "";
-                    for (var i = 0; i < listSheet.length; i++) {
-                        let item = listSheet[i];
-                        options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
-                    }
-
-                    $(".selected-sheet").html("").append(options);
-                    $(".selected-header").focus();
-                    console.log(result.msg);
-                }
-                else {
-                    toastr.error(result.msg);
-                }
-            },
-            error: function (err) {
-                toastr.error(err.statusText);
-            }
-        });
-    } else {
-        toastr.error("FormData is not supported.");
-    }
-}
-
-function saveUploadData(){
-    // form data
-    let sheet = $("#selected-sheet").val();
-    let headerRow = $("#selected-header").val();
-    let fileName = $("#fileUploadName").text();
-
-    // send to server
-    let action = baseUrl + 'save-upload-data';
-    let datasend = {
-        sheet: sheet,
-        headerRow: headerRow,
-        fileName: fileName
-    };
-    PostDataAjax(action, datasend, function (response) {
-        if (response.rs) {
-            toastr.success(response.msg, "Thành công")
-            $("#modalUploadData").modal('hide');
         }
         else {
             toastr.error(response.msg, "Thất bại");

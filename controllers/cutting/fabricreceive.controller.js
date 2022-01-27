@@ -73,6 +73,35 @@ module.exports.getHistory = async function (req, res) {
     }
 }
 
+// marker data
+module.exports.getMarkerData = async function (req, res) {
+    try {
+        // parameters
+        let currentPage = req.body.currentPage;
+        let itemPerPage = req.body.itemPerPage;
+
+        // execute
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (${currentPage}, ${itemPerPage})`, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                let resultData = result.data;
+                let totalPage = 0;
+                let totalRow = resultData.length == 0 ? 0 : resultData[0].totalRow;
+                if (totalRow % itemPerPage == 0)
+                    totalPage = totalRow == 0 ? 1 : totalRow / itemPerPage;
+                else
+                    totalPage = totalRow / itemPerPage + 1;
+
+                res.end(JSON.stringify({ rs: true, msg: "Thành công", data: { data: resultData, totalPage: Math.floor(totalPage), totalRow: totalRow} }));
+            }
+        });
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.getHistory", error);
+    }
+}
+
 module.exports.uploadFabricFile = function (req, res) {
     try {
         // parameters
