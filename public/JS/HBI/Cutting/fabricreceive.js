@@ -72,36 +72,38 @@ function changeDateFilter(){
 }
 
 function getListMarkerData(){
-    
-}
-
-function loadExistedData(){
-    let listData = JSON.parse(localStorage.getItem("listScannedData"));
-    if(listData && listData.length > 0) {
-        let html = "";
-        listData = sortArrayByKey(listData, "scannedTime", true);
-        for (let i = 0; i < listData.length; i++) {
-            let ele = listData[i];
-            html += `<tr id='tr-${ele.wo}-${ele.rollCode}'>
-                    <td></td>
-                    <td>${ele.wo}</td>
-                    <td>${ele.rollCode}</td>
-                    <td>${ele.scannedTime}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
+    let action = baseUrl + 'get-marker-data';
+    let datasend = {
+         
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if (response.rs) {
+            let data = response.data;
+            let html = "";
+            for (let i = 0; i < data.length; i++) {
+                let ele = data[i];
+                html += `<tr>
+                    <td>${ele.id}</td>
+                    <td>${ele.receive_date}</td>
+                    <td>${ele.receive_time}</td>
+                    <td>${ele._group}</td>
+                    <td>${ele.cut_date}</td>
                     <td>
-                        <button class='btn btn-sm btn-primary' onclick="getDetailTicket()"><i class='fa fa-pencil'></i></button>
-                        <button class='btn btn-sm btn-danger' onclick="deleteRow('${ele.wo}', '${ele.rollCode}')"><i class='fa fa-trash'></i></button>
+                        <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/marker-plan-detail?group=${ele.id}"><i class='fa fa-pencil'></i></a>
                     </td>
                 </tr>`;
+            }
+
+            $("#fabric-plan-table-body").html('');
+            $("#fabric-plan-table-body").append(html);
+
         }
-        $("#scanned-table-body").append(html);
-        $("#lbCounted").text(listData.length);
-    }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
 }
 
 function getDetailTicket(){
@@ -181,6 +183,35 @@ function saveUploadData(){
             toastr.error(response.msg, "Thất bại");
         }
     });
+}
+
+function loadExistedData(){
+    let listData = JSON.parse(localStorage.getItem("listScannedData"));
+    if(listData && listData.length > 0) {
+        let html = "";
+        listData = sortArrayByKey(listData, "scannedTime", true);
+        for (let i = 0; i < listData.length; i++) {
+            let ele = listData[i];
+            html += `<tr id='tr-${ele.wo}-${ele.rollCode}'>
+                    <td></td>
+                    <td>${ele.wo}</td>
+                    <td>${ele.rollCode}</td>
+                    <td>${ele.scannedTime}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <button class='btn btn-sm btn-primary' onclick="getDetailTicket()"><i class='fa fa-pencil'></i></button>
+                        <button class='btn btn-sm btn-danger' onclick="deleteRow('${ele.wo}', '${ele.rollCode}')"><i class='fa fa-trash'></i></button>
+                    </td>
+                </tr>`;
+        }
+        $("#scanned-table-body").append(html);
+        $("#lbCounted").text(listData.length);
+    }
 }
 
 function addRecord(){

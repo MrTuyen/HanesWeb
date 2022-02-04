@@ -25,14 +25,6 @@
             z-index: 9999 !important;
         }
 
-        #lbCounted {
-            font-size: 350px;
-            text-align: center;
-            align-items: center;
-            vertical-align: middle;
-            padding: 295px 0;
-        }
-
         .sticky-thead {
             position: sticky;
             background: whitesmoke;
@@ -142,36 +134,19 @@
                                             <form class="form-inline" id="formTRReport">
                                                 <div class="mt-2 d-flex">
                                                     <div class="w-100">
-                                                        <p class="mb-1"><strong>Zone</strong></p>
-                                                        <select class="form-control w-100 list-zone" name="" id="txtFilterSMZone" onchange="">
-                                                            <option value="">All</option>
-                                                        </select>
+                                                        <p class="mb-1"><strong>Unipack</strong></p>
+                                                        <input type="text" class="form-control w-100" id="txtUnipack">
                                                     </div>
                                                 </div>
                                                 <div class="mt-2 d-flex">
                                                     <div class="w-100">
-                                                        <p class="mb-1"><strong>Line</strong></p>
-                                                        <select class="form-control w-100 list-zone" name="" id="txtFilterSMLine" onchange="">
-                                                            <option value="">All</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="mt-2 d-flex">
-                                                    <div class="w-100">
-                                                        <label for="" class="col-form-label">Status:</label>
-                                                        <div class="input-group w-100">
-                                                            <select class="form-control w-100" name="" id="txtFilterSMStatus" onchange="">
-                                                                <option value=""> All </option>
-                                                                <option value="1"> Good </option>
-                                                                <option value="2"> Error </option>
-                                                                <option value="3"> Repairing </option>
-                                                            </select>
-                                                        </div>
+                                                        <p class="mb-1"><strong>Item color</strong></p>
+                                                        <input type="text" class="form-control w-100" id="txtItemColor">
                                                     </div>
                                                 </div>
                                                 <div class="justify-content-between align-items-center mt-3 text-right">
-                                                    <button type="button" class="btn btn-light btn-sm" onclick="downloadSewingMachine()">Download</button>
-                                                    <button type="button" class="btn btn-success btn-sm" onclick="getAllSewingMachine()">Search</button>
+                                                    <!-- <button type="button" class="btn btn-light btn-sm" onclick="">Download</button> -->
+                                                    <button type="button" class="btn btn-success btn-sm" onclick="getInventoryData(1)">Search</button>
                                                 </div>
                                             </form>
                                         </div>
@@ -183,6 +158,7 @@
                                 <table class="table table-hover table-bordered table-scrollable mb-0">
                                     <thead class="sticky-thead">
                                         <th>Id</th>
+                                        <th>Item Color</th>
                                         <th>Unipack</th>
                                         <th>Yard</th>
                                         <th></th>

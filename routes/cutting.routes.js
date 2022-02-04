@@ -19,6 +19,10 @@ router.post("/fabric-receive/add-record", fabricReceiveController.addScannedReco
 router.post("/fabric-receive/get-history", fabricReceiveController.getHistory)
 router.post("/fabric-receive/upload-fabric-file", fabricReceiveController.uploadFabricFile)
 router.post("/fabric-receive/save-upload-data", fabricReceiveController.saveUploadData)
+router.post("/fabric-receive/get-marker-data", fabricReceiveController.getMarkerData)
+router.get("/fabric-receive/marker-plan-detail", fabricReceiveController.getIndexMarkerDataDetail)
+router.post("/fabric-receive/get-marker-plan-detail", fabricReceiveController.getMarkerDataDetail)
+
 
 router.get("/fabric-receive/inventory-data", fabricReceiveController.getIndexInventoryData)
 router.post("/fabric-receive/upload-fabric-inventory-file", fabricReceiveController.uploadFabricInventoryDataFile)

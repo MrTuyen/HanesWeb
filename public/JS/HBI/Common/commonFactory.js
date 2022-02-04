@@ -363,3 +363,16 @@ function sortArrayByKey(listData, key, ascending) {
 }
 
 // #endregion
+
+// #region Url
+function getUrlVars(url) {
+    var vars = [], hash;
+    var hashes = url.slice(url.indexOf('?') + 1).split('&');
+    for (var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        vars.push(hash[1]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+// #endregion

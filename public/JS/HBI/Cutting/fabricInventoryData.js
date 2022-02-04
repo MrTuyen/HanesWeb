@@ -74,11 +74,15 @@ function getInventoryData(intPage){
 
     currentPage = intPage;
 
+    let unipack = $("#txtUnipack").val();
+    let itemColor = $("#txtItemColor").val();
     // send to server
     let action = baseUrl + 'get-inventory-data';
     let datasend = {
         currentPage: currentPage,
-        itemPerPage: itemPerPage
+        itemPerPage: itemPerPage,
+        unipack: unipack,
+        itemColor: itemColor
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
@@ -90,6 +94,7 @@ function getInventoryData(intPage){
                 let ele = data[i];
                 html += `<tr>
                     <td>${ele.id}</td>
+                    <td>${ele.item_color}</td>
                     <td>${ele.unipack2}</td>
                     <td>${ele.yard}</td>
                     <td></td>
