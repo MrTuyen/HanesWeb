@@ -59,6 +59,7 @@ $(document).ready(function () {
     });
 
     // Load data from localstorage if those data has not submited
+    getMarkerPlanDetail();
 })
 
 function getMarkerPlanDetail(){

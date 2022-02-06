@@ -39,13 +39,13 @@
             top: 0;
         }
 
-        .scanned-table {
-            height: 540px;
+        .sticky-table {
+            height: 340px;
             overflow: auto;
             border: 1px solid #dddddd;
         }
 
-        .scanned-table::-webkit-scrollbar {
+        .sticky-table::-webkit-scrollbar {
             width: 3px;
             height: 3px;
             background-color: whitesmoke;
@@ -130,8 +130,8 @@
                                                 <button class="btn btn-success" onclick="addRow()"><i class="fa fa-plus"></i>&nbsp; Thêm vật tư</button>
                                             </div>
                                         </div>
-                                        <div class="panel-body p-0" style="height: 360px; overflow-y: auto;">
-                                            <div class="col-sm-12 col-md-12 pl-0 pr-0 scanned-table">
+                                        <div class="panel-body p-0">
+                                            <div class="col-sm-12 col-md-12 pl-0 pr-0 sticky-table">
                                                 <table class="table table-hover table-bordered table-scrollable mb-0">
                                                     <thead class="sticky-thead">
                                                         <th>#</th>

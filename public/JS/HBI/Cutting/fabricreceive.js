@@ -91,7 +91,7 @@ function getListMarkerData(){
                     <td>${ele._group}</td>
                     <td>${ele.cut_date}</td>
                     <td>
-                        <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/marker-plan-detail?group=${ele.id}"><i class='fa fa-pencil'></i></a>
+                        <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}"><i class='fa fa-pencil'></i></a>
                     </td>
                 </tr>`;
             }
