@@ -16,7 +16,7 @@ const db = new Database();
 // service
 const cuttingService = require("../../services/Cutting/cutting.service");
 
-// model 
+// model
 
 // logic
 module.exports.getIndex = function (req, res) {
@@ -79,15 +79,13 @@ module.exports.uploadFabricFile = function (req, res) {
         let form = new formidable.IncomingForm();
 
         form.parse(req, function (err, fields, file) {
-            if (err)
-            {
+            if (err) {
                 logHelper.writeLog("fabric_receive.uploadFabricFile", err);
                 return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
             }
 
             fs.rename(file.file.path, "templates/cutting/" + file.file.name, async function (err) {
-                if (err)
-                { 
+                if (err) { 
                     logHelper.writeLog("fabric_receive.uploadFabricFile", err);
                     return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
                 }
@@ -129,7 +127,7 @@ module.exports.saveUploadData = async function (req, res) {
 
         // insert to master table: only have group => take group, receive data, time, cut date, marker name, dozen value of first row
         let fr = masterData[0];
-        let query = `INSERT INTO cutting_scan_data_plan (receive_date, receive_time, _group, cut_date, note, user_update, date_update)
+        let query = `INSERT INTO cutting_fr_marker_data_plan (receive_date, receive_time, _group, cut_date, note, user_update, date_update)
                     VALUES ('${new Date(fr[1]).toLocaleDateString()}', '${fr[2]}', '${fr[3]}', '${new Date(fr[8]).toLocaleDateString()}', '${fr[9]}', '${user}', '${datetime}')`;
         let isInsertMasterSuccess = await db.excuteQueryAsync(query);
         if(isInsertMasterSuccess.affectedRows < 0){
@@ -141,9 +139,9 @@ module.exports.saveUploadData = async function (req, res) {
         let detailData = [];
         for (let i = 0; i < masterData.length; i++){
             let rowData = masterData[i];
-            let detailObj = [];
+            let detailObj = []; 
 
-            if(typeof(rowData[6]) != 'object' && typeof(rowData[6]) != 'Object'){
+            if(typeof(rowData[6]) != 'object' && typeof(rowData[6]) != 'Object' && rowData[6] != undefined && rowData[6].length > 5){
                 detailObj.push(idMaster);
                 detailObj.push(rowData[4]);
                 detailObj.push(rowData[5]);
@@ -155,7 +153,7 @@ module.exports.saveUploadData = async function (req, res) {
                 detailData.push(detailObj);
             }
         } 
-        query = `INSERT INTO cutting_scan_data_plan_detail (plan_id, wo, ass, item_color, yard, marker_name, dozen) 
+        query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard, marker_name, dozen) 
         VALUES ?`;
         let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
 
@@ -206,15 +204,13 @@ module.exports.uploadFabricInventoryDataFile = function (req, res) {
         let form = new formidable.IncomingForm();
 
         form.parse(req, function (err, fields, file) {
-            if (err)
-            {
+            if (err){
                 logHelper.writeLog("fabric_receive.uploadFabricInventoryDataFile", err);
                 return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
             }
 
             fs.rename(file.file.path, "templates/cutting/" + file.file.name, async function (err) {
-                if (err)
-                { 
+                if (err){ 
                     logHelper.writeLog("fabric_receive.uploadFabricInventoryDataFile", err);
                     return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
                 }
@@ -246,12 +242,42 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
         // insert data into database
         let savedData = [];
         for (let i = 0; i < arrExcelData.length; i++){
-            let row = arrExcelData[i];
+            let rowData = arrExcelData[i];
+            let row = [];
+
+            row.push(rowData[0]);
+            row.push(rowData[1]);
+            row.push(rowData[2]);
+            row.push(rowData[3]);
+            row.push(rowData[4]);
+            row.push(rowData[5]);
+            row.push(rowData[6]);
+            row.push(rowData[7]);
+            row.push(rowData[8]);
+            row.push(rowData[9]);
+            row.push(rowData[10]);
+            row.push(rowData[11]);
+            row.push(rowData[12]);
+            row.push(rowData[13]);
+            row.push(rowData[14]);
+            row.push(rowData[15]);
+            row.push(rowData[16]);
+            row.push(rowData[17]);
+            row.push(rowData[18]);
+            row.push(rowData[19]);
+            row.push(rowData[20]);
+            row.push(rowData[21]);
+            row.push(rowData[22]);
+            row.push(rowData[23]);
+            row.push(rowData[24]);
+            row.push(rowData[25]);
+            row.push(rowData[26]);
+
             savedData.push(row);
         }
         
         // delete all data before update latest data from Inventory6
-        let query = `TRUNCATE TABLE cutting_wh_fabric_inventory`;
+        let query = `TRUNCATE TABLE cutting_fr_wh_fabric_inventory`;
         let isDeleteOldData = await db.excuteQueryAsync(query);
 
         let isUploadSuccess = cuttingService.addFabricInventoryData(savedData);

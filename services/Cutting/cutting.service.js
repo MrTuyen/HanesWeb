@@ -30,7 +30,7 @@ CuttingService.addScannedRecord = async function(objDTO){
 // Add fabric receive plan 
 CuttingService.addFabricReceivePlan = async function(objDTO){
     try {
-        let query = `INSERT INTO cutting_scan_data_plan (_no, receive_date, receive_time, _group, wo, ass, fabric_request, yards, cut_date, note, user_update, date_update) 
+        let query = `INSERT INTO cutting_fr_marker_data_plan (_no, receive_date, receive_time, _group, cut_date, note, user_update, date_update) 
         VALUES ?`;
 
         return await db.excuteInsertWithParametersAsync(query, objDTO);
@@ -42,7 +42,7 @@ CuttingService.addFabricReceivePlan = async function(objDTO){
 // Add warehouse fabric inventory data
 CuttingService.addFabricInventoryData = async function(objDTO){
     try {
-        let query = `INSERT INTO cutting_wh_fabric_inventory (
+        let query = `INSERT INTO cutting_fr_wh_fabric_inventory (
             runip,
             unipack2,
             rcutwo,

@@ -146,13 +146,15 @@ helper.getDataFromExcel = async function (fileName, sheet, rowHeader) {
                 if (rowNumber > parseInt(rowHeader)) {
                     let tempArr = [];
                     row.eachCell({ includeEmpty: true }, function (cell, colNumber) {
-                        let ele = cell.value;
-                        if (ele && ele != null & ele.formula != undefined) {
-                            tempArr.push(ele.result);
-                        }
-                        else {
-                            tempArr.push(ele);
-                        }
+                        // let ele = cell.value;
+                        // if (ele && ele != null & ele.formula != undefined) {
+                        //     tempArr.push(ele.result);
+                        // }
+                        // else {
+                        //     tempArr.push(ele);
+                        // }
+
+                        tempArr.push(cell.text);
                     });
 
                     arr.push(tempArr);
