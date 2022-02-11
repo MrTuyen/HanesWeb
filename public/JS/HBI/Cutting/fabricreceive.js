@@ -6,13 +6,22 @@
 // #region System variable
 const baseUrl = "/cutting/fabric-receive/";
 
+// Action enum
+var Enum_Action = {
+    Cancel: 1,
+    Call: 2,
+    CCDSend: 3,
+    WHSend: 4,
+    Complete: 5
+}
+
 // #endregion
 
 // #region System Method
 
 // Refresh data
-function refresh() {
-    window.location.href = '/innovation';
+function Refresh() {
+    window.location.href = '/';
 }
 
 // Configure some plugin to work properly
@@ -82,16 +91,43 @@ function getListMarkerData(){
         if (response.rs) {
             let data = response.data;
             let html = "";
+
             for (let i = 0; i < data.length; i++) {
                 let ele = data[i];
-                html += `<tr>
+        
+                // add row to table
+                html += `<tr class='tr-${ele.id}'>
                     <td>${ele.id}</td>
                     <td>${ele.receive_date}</td>
                     <td>${ele.receive_time}</td>
                     <td>${ele._group}</td>
                     <td>${ele.cut_date}</td>
+                    <td id="call-date-${ele.id}">
+                        ${ele.ccd_call_date == undefined ? "" : ele.ccd_call_date}
+                    </td>
+                    <td style="vertical-align: middle">
+                        <span class="txtTime" id="action-time-${ele.id}">0</span>
+                    </td>
                     <td>
-                        <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}"><i class='fa fa-pencil'></i></a>
+                        ${
+                            ele.ccd_call_by == undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
+                            : ele.ccd_confirm_by == undefined ? `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
+                            : `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
+                        }  
+                    </td>
+                    <td>
+                        ${
+                            ele.ccd_call_by == undefined ?  `<div class='rounded-circle white' id='wh-circle-${ele.id}'></div>`
+                            : ele.wh_confirm_by == undefined ? `<div class='rounded-circle red' id='wh-circle-${ele.id}'></div>`
+                            : `<div class='rounded-circle yellow' id='wh-circle-${ele.id}'></div>`
+                        }
+                    </td>
+                    <td></td>
+                    <td>
+                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='Action(${Enum_Action.Call})'>CCD call</button>
+                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
+                        <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">CCD scan</a>
+                        <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
                     </td>
                 </tr>`;
             }
@@ -99,15 +135,43 @@ function getListMarkerData(){
             $("#fabric-plan-table-body").html('');
             $("#fabric-plan-table-body").append(html);
 
+            for (let i = 0; i < data.length; i++) {
+                let ele = data[i];
+                // checking marker was called then continue counting if called
+                let totalMinutes = 0;
+                let now = new Date();
+                if (ele.ccd_call_date != undefined)
+                {
+                    var callDate = new Date(formatDDMMYYHHMMSS(ele.ccd_call_date));
+                    var nextDay = callDate.addDays(1); // 6:00 next day from call day
+                    if (now > nextDay)
+                    {
+                        var days = now.getDate() - callDate.getDate();
+                        var counterTime = now - callDate;
+                        totalMinutes = Math.round(counterTime / (1000 * 60)) - 480 * days; // 480 = 8 * 60 from 22h previous day to 06h next day
+                    }
+                    else
+                    {
+                        var maxCallDate = new Date(callDate.formatDateMMDDYYYY() + " 22:00:00"); // 22:00
+                        if (now > maxCallDate)
+                        {
+                            var counterTime = maxCallDate - callDate;
+                            totalMinutes = Math.round(counterTime / (1000 * 60));
+                        }
+                        else
+                        {
+                            var counterTime = now - callDate;
+                            totalMinutes = Math.round(counterTime / (1000 * 60));
+                        }
+                    }
+                    RunTime(ele.id, totalMinutes);
+                }
+            }
         }
         else {
             toastr.error(response.msg, "Thất bại");
         }
     });
-}
-
-function getDetailTicket(){
-    
 }
 
 function uploadExcel(){
@@ -185,152 +249,181 @@ function saveUploadData(){
     });
 }
 
-function loadExistedData(){
-    let listData = JSON.parse(localStorage.getItem("listScannedData"));
-    if(listData && listData.length > 0) {
-        let html = "";
-        listData = sortArrayByKey(listData, "scannedTime", true);
-        for (let i = 0; i < listData.length; i++) {
-            let ele = listData[i];
-            html += `<tr id='tr-${ele.wo}-${ele.rollCode}'>
-                    <td></td>
-                    <td>${ele.wo}</td>
-                    <td>${ele.rollCode}</td>
-                    <td>${ele.scannedTime}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        <button class='btn btn-sm btn-primary' onclick="getDetailTicket()"><i class='fa fa-pencil'></i></button>
-                        <button class='btn btn-sm btn-danger' onclick="deleteRow('${ele.wo}', '${ele.rollCode}')"><i class='fa fa-trash'></i></button>
-                    </td>
-                </tr>`;
-        }
-        $("#scanned-table-body").append(html);
-        $("#lbCounted").text(listData.length);
+// Interval array
+var arrInterval = [];
+
+// Action
+function Action(actionType){
+    var ele = $(event.target);
+    var groupId = "";
+    var cancelReason = "";
+    if (actionType == Enum_Action.Cancel) {
+        groupId = $("#txtGroupId").val();
+        cancelReason = $("#txtReason").val();
     }
-}
-
-function addRecord(){
-    // form data
-    let tempData = localStorage.getItem("listScannedData");
-    let listScannedData = JSON.parse(tempData) ? JSON.parse(tempData) : [];
-
-    if(listScannedData.length <= 0){
-        toastr.error("Không có dữ liệu để lưu.");
-        return false;
+    else {
+        groupId = ele.attr("data-groupId");
     }
+    var actionTime = $("#action-time-" + groupId).text();
 
-    // send to server
-    let action = baseUrl + 'add-record';
-    let datasend = {
-        data: listScannedData
+    // Call to server
+    LoadingShow();
+    var action = baseUrl + 'action';
+    var datasend = {
+        groupId: groupId,
+        action: actionType,
+        actionTime: actionTime,
+        cancelReason: cancelReason
     };
+
     PostDataAjax(action, datasend, function (response) {
         if (response.rs) {
-            toastr.success(response.msg, "Thành công");
+            LoadingHide();
+            toastr.success(response.msg);
 
-            localStorage.setItem("listScannedData", null);
-            $("#lbCounted").text("0");
-            $("#scanned-table-body").html("");
+            switch (actionType) {
+                case Enum_Action.Cancel: {
+                    $("#modalReason").modal('hide');
+                    $("#txtWo").val('');
+                    $("#txtReason").val('');
+                } break;
+                case Enum_Action.CCDSend: {
+                    $("#tr-" + groupId).remove();
+                } break;
+                case Enum_Action.WHSend: {
+                    $("#tr-" + groupId).remove();
+                } break;
+            }
         }
         else {
-            toastr.error(response.msg, "Thất bại");
+            LoadingHide();
+            toastr.error(response.msg);
         }
     });
 }
 
-function scanBarcode() {
-    if (event.which === 13 || event.key == 'Enter') {
-        let rollCode = $("#txtRollCode");
-        let wo = $("#txtWo").val();
-        if (rollCode.val().length > 0) {
-            let code = rollCode.val();
-            rollCode.val('');
+//
+function OpenCancelModal(groupId) {
+    $("#txtGroupId").val(groupId);
+    $("#modalReason").modal('show');
+}
 
-            addRow({wo: wo, rollCode: code, scannedTime: formatDDMMYYHHMMSS(new Date())});
+// Call click: Change CP and SP to red
+function Call(groupId, message) {
+    // var row = document.getElementById("tr-" + groupId); // find row to copy
+    // var table = document.getElementById("table-kanban-body"); // find table to append to
+    // var clone = row.cloneNode(true); // copy children too
+    // $("#tr-" + groupId).remove();
+    // if (message.newestAssWo.length > 0) {
+    //     $(clone).insertAfter("#tr-" + message.newestAssWo);
+    // }
+    // else {
+    //     table.prepend(clone);
+    // }
 
-            let count = parseInt($("#lbCounted").text()) + 1;
-            $("#lbCounted").text(count);
-        }
-        else {
-            toastr.error("Bạn chưa nhập mã cuộn vải /Roll code can not blank.");
+    $("#call-date-" + groupId).text(message.callDate);
+    ClearTime(groupId);
+    RunTime(groupId, 0);
+    CCDChange(groupId, "red");
+    WHChange(groupId, "red");
+}
+
+// CP click: Change CCD to yellow
+function CCDSend(groupId){
+    CCDChange(groupId, "yellow");
+}
+
+// SP click: Change WH to yellow
+function WHSend(groupId) {
+    WHChange(groupId, "yellow");
+}
+
+// Cancel click: Change both CCD and WH to white
+function Cancel(groupId) {
+    $("#call-date-" + groupId).text("");
+    ClearTime(groupId);
+    CCDChange(groupId, "white");
+    WHChange(groupId, "white");
+}
+
+// Complete click: Save data row to TBL_KANBAN_DATA
+function Complete(groupId) {
+    $("#tr-" + groupId).remove();
+}
+
+// CP change color
+function CCDChange(groupId, color) {
+    $("#ccd-circle-" + groupId).css("background", color);
+}
+
+// SP change color
+function WHChange(groupId, color) {
+    $("#wh-circle-" + groupId).css("background", color);
+}
+
+// Count time run every 1 minute
+function RunTime(groupId, clickTime) {
+    var actionTime = $("#action-time-" + groupId);
+    var time = clickTime;
+    actionTime.text(time);
+    if (time > 240) {
+        actionTime.addClass("text-danger");
+    }
+    function Timer() {
+        time++;
+        actionTime.text(time);
+        if (time > 240) {
+            actionTime.addClass("text-danger");
         }
     }
+
+    var myInterval = setInterval(Timer, 1000 * 60);
+    arrInterval.push({ groupId: groupId, id : myInterval });
 }
 
-function addRow(ele){
-    // get existed data
-    let listData = localStorage.getItem("listScannedData");
-    listData = JSON.parse(listData) ? JSON.parse(listData) : [];
-    
-    // add data
-    listData.push(ele);
+// Clear interval
+function ClearTime(groupId) {
+    var actionTime = $("#action-time-" + groupId);
+    actionTime.text(0);
+    actionTime.removeClass("text-danger");
+    if (arrInterval.length > 0) {
+        let intervalId = arrInterval.filter(function (x) {
+            return x.groupId.toString() === groupId;
+        });
 
-    // re-assign data to storage
-    localStorage.setItem("listScannedData", JSON.stringify(listData));
-
-    // change UI
-    let html = `<tr id='tr-${ele.wo}-${ele.rollCode}'>
-                            <td width='10%'></td>
-                            <td width='25%'>${ele.wo}</td>
-                            <td width='25%'>${ele.rollCode}</td>
-                            <td width='30%'>${ele.scannedTime}</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td width='10%'><button class='btn btn-danger' onclick="deleteRow('${ele.wo}', '${ele.rollCode}')"><i class='fa fa-trash'></i></button></td>
-                        </tr>`;
-    $("#scanned-table-body").prepend(html);
-}
-
-function deleteRow(wo, rollCode){
-    // get existed data
-    let listData = localStorage.getItem("listScannedData");
-    listData = JSON.parse(listData) ? JSON.parse(listData) : [];
-
-    // find object then delete
-    listData.splice(listData.findIndex(item => item.wo == wo && item.rollCode == rollCode), 1);
-
-    // re-assign data to storage
-    localStorage.setItem("listScannedData", JSON.stringify(listData));
-
-    // change UI
-    $(`#tr-${wo}-${rollCode}`).remove();
-    let count = parseInt($("#lbCounted").text()) - 1;
-    $("#lbCounted").text(count);
-}
-
-function loadHistory(){
-    // form data
-    let filterDate = $("#txtFilterTime").val();
-    if (filterDate.toString() == "5") {
-        filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+        if (intervalId.length > 0) {
+            clearInterval(intervalId[0].id);
+        }
     }
-
-    // send to server
-    let action = baseUrl + 'get-history';
-    let datasend = {
-        filterDate: filterDate
-    };
-    PostDataAjax(action, datasend, function (response) {
-        if (response.rs) {
-            
-        }
-        else {
-            toastr.error(response.msg, "Thất bại");
-        }
-    });
 }
 
 // #endregion
 
 // #region Socket
- 
+
+const socket = io();
+
+socket.on('ccd-fabric-receive-action', (data) => {
+    let message = data.message;
+    let groupId = message.groupId;
+    switch (message.actionType) {
+        case Enum_Action.Cancel:
+            Cancel(groupId);  
+            break;
+        case Enum_Action.Call:                
+            Call(groupId, message);
+            break;
+        case Enum_Action.CCDSend:
+            CCDSend(groupId);
+            break;
+        case Enum_Action.WHSend:
+            WHSend(groupId);
+            break;
+        case Enum_Action.Complete:
+            Complete(groupId);
+            break;
+        default: Refresh(); break;
+    }
+});
+
 // #endregion

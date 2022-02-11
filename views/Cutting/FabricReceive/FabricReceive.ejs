@@ -45,6 +45,10 @@
             border: 1px solid #dddddd;
         }
 
+        .table-kanban tr, .table-kanban th, .table-kanban td {
+            text-align: -webkit-center;
+        }
+
         .scanned-table::-webkit-scrollbar {
             width: 3px;
             height: 3px;
@@ -66,6 +70,30 @@
             left: 0;
             top: 0;
             opacity: 0;
+        }
+
+        .rounded-circle {
+            width: 32px;
+            height: 32px;
+            border: 1px solid grey;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .txtTime {
+            font-size: 20px;
+        }
+
+        .red {
+            background: red;
+        }
+
+        .yellow {
+            background: yellow;
+        }
+
+        .white {
+            background: white;
         }
 
     </style>
@@ -117,12 +145,12 @@
                                 <div class="d-flex pr-4 mt-1">
                                     <div class="p-0">
                                         <div class="input-group">
-                                            <button class="btn btn-success" data-target="#modalUploadData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu xuất vải</button>
+                                            <button class="btn btn-success btn-sm" data-target="#modalUploadData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu xuất vải</button>
                                         </div>
                                     </div>
                                     <div class="p-0 pl-2 mb-3">
                                         <div class="btn-group btn-filter">
-                                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                            <button type="button" class="btn btn-light dropdown-toggle btn-sm" data-toggle="dropdown">
                                                 <span class="fa fa-search"></span> Filter
                                             </button>
                                             <div class="dropdown-menu p-3" style="width: 300px;">
@@ -167,13 +195,18 @@
                                 </div>
                                 <label class="">Danh sách phiếu xuất vải</label>
                                 <div class="col-sm-12 col-md-12 pl-0 pr-0 scanned-table">
-                                    <table class="table table-hover table-bordered table-scrollable mb-0">
+                                    <table class="table table-hover table-bordered table-scrollable mb-0 table-kanban">
                                         <thead class="sticky-thead">
                                             <th>#</th>
                                             <th>Received Date</th>
                                             <th>Received Time</th>
                                             <th>Group</th>
                                             <th>Cut Date</th>
+                                            <th>Call Date</th>
+                                            <th>Call Time</th>
+                                            <th>CCD Status</th>
+                                            <th>WH Status</th>
+                                            <th>Note</th>
                                             <th></th>
                                         </thead>
                                         <tbody id="fabric-plan-table-body">
@@ -189,6 +222,7 @@
     </main>
     </div>
 
+    <!-- Modal upload excel -->
     <div class="modal fade" id="modalUploadData" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -198,6 +232,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+                <div class="" style="background-color: #28a745; height: 3px"></div>
                 <div class="modal-body">
                     <table class="w-100">
                         <tbody>
@@ -257,6 +292,30 @@
         </div>
     </div>
 
+     <!-- Modal add reason -->
+     <div id="modalReason" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close mt-0" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"><b>Reason</b></h4>
+                </div>
+                <div class="" style="background-color: #28a745; height: 3px"></div>
+                <div class="modal-body">
+                    <input type="hidden" id="txtGroupId" name="name" value=" " />
+                    <div class="form-row">
+                        <input type="text" class="form-control" id="txtReason" placeholder="Reason" autofocus autocomplete="off">
+                    </div>
+                </div>
+                <div class="modal-footer mt-0">
+                    <button type="button" class="btn btn-light btn-sm" data-dismiss="modal">Close</button>
+                    <button class="btn btn-success btn-sm" onclick="Action(Enum_Action.Cancel)">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
     <script src="/Contents/libs/download.min.js"></script>
     <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
     <script src="/JS/HBI/Common/commonFactory.js"></script>

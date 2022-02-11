@@ -76,13 +76,15 @@ function getInventoryData(intPage){
 
     let unipack = $("#txtUnipack").val();
     let itemColor = $("#txtItemColor").val();
+    let status = $("#txtFilterStatus").val();
     // send to server
     let action = baseUrl + 'get-inventory-data';
     let datasend = {
         currentPage: currentPage,
         itemPerPage: itemPerPage,
         unipack: unipack,
-        itemColor: itemColor
+        itemColor: itemColor,
+        status: status
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
@@ -93,6 +95,7 @@ function getInventoryData(intPage){
             for (let i = 0; i < data.length; i++) {
                 let ele = data[i];
                 html += `<tr>
+                    <td>${ele.status == null ? "" : "Đã sử dụng"}</td>
                     <td>${ele.id}</td>
                     <td>${ele.item_color}</td>
                     <td>${ele.unipack2}</td>

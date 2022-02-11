@@ -188,4 +188,61 @@ helper.getListSheetFromExcel = async function (fileName) {
 
 // #endregion
 
+// #region String
+helper.stringToSlug = function(str) {
+	// remove accents
+	var from = "àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷ",
+		to = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeduuuuuuuuuuuoooooooooooooooooiiiiiaeiiouuncyyyyy";
+	for (var i = 0, l = from.length; i < l; i++) {
+		str = str.replace(RegExp(from[i], "gi"), to[i]);
+	}
+
+	// str = str.toLowerCase()
+	// 	  .trim()
+	// 	  .replace(/[^a-z0-9\-]/g, '-')
+	// 	  .replace(/-+/g, '-');
+	str = str.toLowerCase()
+		.trim()
+
+	return str;
+}
+
+// #endregion
+
+// #region Array
+// get all duplicate property of objects in an array
+helper.getDuplicatePropertyArray = function(arr, property) {
+	const lookup = arr.reduce((a, e) => {
+		a[e[property]] = ++a[e[property]] || 0;
+		return a;
+	}, {});
+
+	return arr.filter(e => lookup[e[property]]);
+}
+
+/*
+	Distinct duplicate object in array
+	Ex: unique(array, ['class', 'fare'])
+*/
+helper.unique = function(arr, keyProps) {
+	const kvArray = arr.map(entry => {
+		const key = keyProps.map(k => entry[k]).join('|');
+		return [key, entry];
+	});
+	const map = new Map(kvArray);
+	return Array.from(map.values());
+}
+
+/*
+	Sorting object in array by key
+	Ex: sortArrayByKey(array, "key", true)
+*/
+helper.sortArrayByKey = function(listData, key, ascending) {
+    if(ascending == true)
+        return listData.sort((a, b) => (a[key] > b[key]) ? -1 : 1)
+    return listData.sort((a, b) => (a[key] > b[key]) ? 1 : -1)
+}
+
+// #endregion
+
 module.exports = helper;

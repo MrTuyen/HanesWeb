@@ -122,12 +122,12 @@
                             <div class="d-flex pr-4 mt-1">
                                 <div class="p-0">
                                     <div class="input-group">
-                                        <button class="btn btn-success" data-target="#modalUploadInventoryData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu tồn kho</button>
+                                        <button class="btn btn-success btn-sm" data-target="#modalUploadInventoryData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu tồn kho</button>
                                     </div>
                                 </div>
                                 <div class="p-0 pl-2 mb-3">
                                     <div class="btn-group btn-filter">
-                                        <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                        <button type="button" class="btn btn-light dropdown-toggle btn-sm" data-toggle="dropdown">
                                             <span class="fa fa-search"></span> Filter
                                         </button>
                                         <div class="dropdown-menu p-3" style="width: 300px;">
@@ -144,6 +144,18 @@
                                                         <input type="text" class="form-control w-100" id="txtItemColor">
                                                     </div>
                                                 </div>
+                                                <div class="mt-2 d-flex">
+                                                    <div class="w-100">
+                                                        <label for="" class="col-form-label">Status:</label>
+                                                        <div class="input-group w-100">
+                                                            <select class="form-control w-100" name="" id="txtFilterStatus" onchange="">
+                                                                <option value=""> All </option>
+                                                                <option value="0"> Not Used </option>
+                                                                <option value="1"> Used </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <div class="justify-content-between align-items-center mt-3 text-right">
                                                     <!-- <button type="button" class="btn btn-light btn-sm" onclick="">Download</button> -->
                                                     <button type="button" class="btn btn-success btn-sm" onclick="getInventoryData(1)">Search</button>
@@ -157,6 +169,7 @@
                             <div class="col-sm-12 col-md-12 pl-0 pr-0 fabric-inventory-table">
                                 <table class="table table-hover table-bordered table-scrollable mb-0">
                                     <thead class="sticky-thead">
+                                        <th>Status</th>
                                         <th>Id</th>
                                         <th>Item Color</th>
                                         <th>Unipack</th>

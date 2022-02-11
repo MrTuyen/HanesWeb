@@ -27,7 +27,7 @@
         </li>
         <!-- END USER LOGIN DROPDOWN -->
     </ul>
-    <button class="mr-3 btn btn-success pull-right" data-toggle="modal" data-target="#modalContribution">
+    <button class="mr-3 btn btn-success btn-sm pull-right" data-toggle="modal" data-target="#modalContribution">
         <i class="fa fa-envelope"></i>
         <b class="">GÓP Ý</b>
     </button>
@@ -35,38 +35,35 @@
 
 <div class="modal fade" id="modalContribution">
     <div class="modal-dialog modal-md">
-        <div class="modal-content pl-4 pr-4">
-            <div class="modal-header pl-0">
+        <div class="modal-content">
+            <div class="modal-header">
                 <h4 class="modal-title"><strong>Feedback đóng góp, xây dựng phần mềm</strong></h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body p-0 pt-3">
-                <div class="form-row">
-                    <div class="form-group col-sm-12 col-md-6 p-0">
+            <div class="" style="background-color: #28a745; height: 3px"></div>
+            <div class="modal-body">
+                <div class="form-group">
                         <label for="">Tên nhân sự</label>
                         <div class="">
                             <input type="text" class="form-control" id="" autofocus>
                         </div>
                     </div>
-                    <div class="form-group col-sm-12 col-md-6 pr-0">
+                    <div class="form-group">
                         <label for="">Email nhân sự</label>
                         <div class="">
                             <input type="text" class="form-control" id="">
                         </div>
                     </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-sm-12 col-md-12 p-0">
+                <div class="form-group">
                         <label for="">Mô tả</label>
                         <div class="">
                             <textarea type="text" class="form-control" id=""></textarea>
                         </div>
                     </div>
-                </div>
             </div>
-            <div class="modal-footer m-0 pr-0 pt-0 pb-3">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" style="background-color: #efefef;color: rgba(0, 0, 0, 0.5) !important" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success mr-0" onclick="">Submit</button>
             </div>
@@ -76,45 +73,44 @@
 
 <div class="modal fade" id="modal-change-password">
     <div class="modal-dialog modal-md">
-        <div class="modal-content pl-4 pr-4">
-            <div class="modal-header pl-0">
+        <div class="modal-content">
+            <div class="modal-header">
                 <h4 class="modal-title"><strong>Thay đổi mật khẩu</strong></h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body p-0 pt-3">
-                <div class="form-row">
-                    <div class="form-group col-sm-12 col-md-12 p-0">
-                        <label>Mật khẩu hiện tại</label>
-                        <div class="input-group eye-password">
-                            <input class="form-control" type="password" id="txtCurrentPassword" autofocus>
-                            <div class="input-group-addon">
-                                <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
-                            </div>
+            <div class="" style="background-color: #28a745; height: 3px"></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Mật khẩu hiện tại</label>
+                    <div class="input-group eye-password">
+                        <input class="form-control" type="password" id="txtCurrentPassword" autofocus>
+                        <div class="input-group-addon">
+                            <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
                         </div>
                     </div>
-                    <div class="form-group col-sm-12 col-md-12 p-0">
-                        <label for="">Mật khẩu mới</label>
-                        <div class="input-group eye-password">
-                            <input class="form-control" type="password" id="txtNewPassword">
-                            <div class="input-group-addon">
-                                <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
-                            </div>
+                </div>
+                <div class="form-group">
+                    <label for="">Mật khẩu mới</label>
+                    <div class="input-group eye-password">
+                        <input class="form-control" type="password" id="txtNewPassword">
+                        <div class="input-group-addon">
+                            <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
                         </div>
                     </div>
-                    <div class="form-group col-sm-12 col-md-12 p-0">
-                        <label for="">Nhập lại mật khẩu mới</label>
-                        <div class="input-group eye-password">
-                            <input class="form-control" type="password" id="txtRepeatNewPassword">
-                            <div class="input-group-addon">
-                                <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
-                            </div>
+                </div>
+                <div class="form-group">
+                    <label for="">Nhập lại mật khẩu mới</label>
+                    <div class="input-group eye-password">
+                        <input class="form-control" type="password" id="txtRepeatNewPassword">
+                        <div class="input-group-addon">
+                            <a href=""><i class="fa fa-eye-slash" aria-hidden="true"></i></a>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer m-0 pr-0 pt-0 pb-3">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" style="background-color: #efefef;color: rgba(0, 0, 0, 0.5) !important" data-dismiss="modal">Đóng</button>
                 <button type="button" class="btn btn-success mr-0" onclick="changePassword()">Cập nhật</button>
             </div>

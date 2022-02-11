@@ -8,7 +8,6 @@ const config = require('../../config.js');
 const constant = require('../../common/constant');
 const excel = require('exceljs');
 
-
 // database
 var Database = require("../../database/db_cutting.js")
 const db = new Database();
@@ -57,19 +56,28 @@ module.exports.getMarkerDataDetail = async function (req, res) {
         let groupId = req.body.groupId;
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${groupId})`, function (result) {
-            if (!result.rs) {
-                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+        // master data info
+        let masterInfo = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan WHERE id = ${groupId}`);
+        
+        // item-color detail info
+        let detailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${groupId})`);
+
+        // fabric roll info follow item-color
+        let itemColorList = [];
+        let farbicRollList = [];
+        if(detailInfo[0] != undefined && detailInfo[0].length > 1) {
+            itemColorList = [...new Set(detailInfo[0].map(x => x.item_color))]; // distinct array
+
+            for (let i = 0; i < itemColorList.length; i++) {
+                let ele = itemColorList[i];
+                let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 10000, '', '${ele}', '')`);
+                farbicRollList.push({itemColor: ele, rollList: result[0]})
             }
-            else {
-                let data = result.data;
-                // get all unipack for each item color
-                
-                res.end(JSON.stringify({ rs: true, msg: "Thành công", data: data }));
-            }
-        });
+
+            res.end(JSON.stringify({ rs: true, msg: "Thành công", data: {master: masterInfo[0], detail: detailInfo[0], fabricRoll: farbicRollList}}));
+        }
     } catch (error) {
-        logHelper.writeLog("fabric_receive.getHistory", error);
+        logHelper.writeLog("fabric_receive.getMarkerDataDetail", error);
     }
 }
 
@@ -153,13 +161,85 @@ module.exports.saveUploadData = async function (req, res) {
                 detailData.push(detailObj);
             }
         } 
-        query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard, marker_name, dozen) 
+        query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen) 
         VALUES ?`;
         let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
 
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.saveUploadData", error);
+    }
+}
+
+module.exports.action = function(req, res){
+    try {
+        // parameters
+        let groupId = req.body.groupId;
+        let action = req.body.action;
+        let actionTime = req.body.actionTime;
+        let cancelReason = req.body.cancelReason;
+
+        // execute
+        switch (parseInt(action))
+        {
+            case constant.Enum_Action.Cancel: 
+                {
+                    //return Cancel(assWo, cancelReason);
+                }
+            case constant.Enum_Action.Call:
+                {
+                    return ccdCall(req, res, groupId);
+                }
+            case constant.Enum_Action.CCDSend:
+                {
+                    //return CPSend(assWo, actionTime);
+                }
+            case constant.Enum_Action.WHSend:
+                {
+                    //return SPSend(assWo, actionTime);
+                }
+            case constant.Enum_Action.Complete:
+                {
+                   //return Complete(assWo);
+                }
+        }
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.action", error);
+    }
+}
+
+async function ccdCall(req, res, groupId){
+    try {
+        // parameters
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNow();
+
+        // execute
+        let query = `SELECT * FROM cutting_fr_marker_data_plan WHERE id=${groupId}`;
+        let objMarker = await db.excuteQueryAsync(query);
+
+        if(objMarker[0].ccd_call_by != undefined && objMarker[0].ccd_call_date != undefined){
+            return res.end(JSON.stringify({ rs: false, msg: "Biên bản này đã được ccd gọi" }));
+        }
+        else{
+            query = `UPDATE cutting_fr_marker_data_plan 
+            SET ccd_call_date = '${datetime}', ccd_call_by = '${user}'
+            WHERE id = ${groupId}`;
+            let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        }
+
+        testIo.emit('ccd-fabric-receive-action', {
+            username: user,
+            message: {
+                groupId: groupId, 
+                callDate: datetime,
+                actionType: constant.Enum_Action.Call
+            }
+        });
+
+        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.ccdCall", error);
     }
 }
 
@@ -175,9 +255,10 @@ module.exports.getInventoryData = async function (req, res) {
         let itemPerPage = req.body.itemPerPage;
         let unipack = req.body.unipack;
         let itemColor = req.body.itemColor;
+        let itemStatus = req.body.status;
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (${currentPage}, ${itemPerPage}, '${unipack}', '${itemColor}')`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (${currentPage}, ${itemPerPage}, '${unipack}', '${itemColor}', '${itemStatus}')`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }

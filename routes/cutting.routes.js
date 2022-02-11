@@ -14,6 +14,7 @@ router.post("/dashboard/download-machine-data", dashboardController.downloadMach
 router.post("/get-machines", dashboardController.getMachines)
 
 // Fabric Receive
+// Fabric Receive: Marker data
 router.get("/fabric-receive/", fabricReceiveController.getIndex)
 router.post("/fabric-receive/add-record", fabricReceiveController.addScannedRecord)
 router.post("/fabric-receive/get-history", fabricReceiveController.getHistory)
@@ -23,7 +24,9 @@ router.post("/fabric-receive/get-marker-data", fabricReceiveController.getMarker
 router.get("/fabric-receive/marker-data-detail", fabricReceiveController.getIndexMarkerDataDetail)
 router.post("/fabric-receive/get-marker-data-detail", fabricReceiveController.getMarkerDataDetail)
 
+router.post("/fabric-receive/action", fabricReceiveController.action)
 
+// Fabric Receive: Inventory data
 router.get("/fabric-receive/inventory-data", fabricReceiveController.getIndexInventoryData)
 router.post("/fabric-receive/upload-fabric-inventory-file", fabricReceiveController.uploadFabricInventoryDataFile)
 router.post("/fabric-receive/save-upload-fabric-inventory-data", fabricReceiveController.saveUploadFabricInventoryDataFile)

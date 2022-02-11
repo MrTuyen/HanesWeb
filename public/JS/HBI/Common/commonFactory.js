@@ -274,6 +274,18 @@ function formatDDMMYYHHMMSS(val) {
 	var hh = val.getHours();
 	var MM = val.getMinutes();
 	var ss = val.getSeconds();
+	return dd + '/' + mm + '/' + yyyy + ' ' + hh + ':' + MM + ':' + ss;
+}
+
+function formatMMDDYYHHMMSS(val) {
+	var val = new Date(val);
+	var dd = String(val.getDate()).padStart(2, '0');
+	var mm = String(val.getMonth() + 1).padStart(2, '0'); //January is 0!
+	var yyyy = val.getFullYear();
+
+	var hh = val.getHours();
+	var MM = val.getMinutes();
+	var ss = val.getSeconds();
 	return mm + '/' + dd + '/' + yyyy + ' ' + hh + ':' + MM + ':' + ss;
 }
 

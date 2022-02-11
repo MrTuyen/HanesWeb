@@ -106,6 +106,7 @@ app.use(express.json())
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 app.set("socketio", io);    // <== this line
+global.testIo = io;
 
 server.listen(8000, '10.113.99.3', function () {
     console.log('Server Start Running');
@@ -131,15 +132,6 @@ io.on('connection', (socket) => {
         });
     });
 
-    // realtime
-    // socket.on('realtime', (data) => {
-    //     console.log(socket.id + " Connected!");
-
-    //     io.emit('realtime', {
-    //         username: socket.username,
-    //         message: data
-    //     });
-    // });
 });
 
 const constant = require('./common/constant');

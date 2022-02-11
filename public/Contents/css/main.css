@@ -1,3 +1,8 @@
+@font-face {
+    font-family: OpenSans;
+    src: url(/Contents/fonts/OpenSans/OpenSans-Regular.ttf);
+}
+
 .developer{
     position: -webkit-sticky;
     position: sticky;
@@ -72,6 +77,11 @@ textarea {
     margin: 50px auto;
 }
 
+.modal-100-margin-top {
+    width: 100%;
+    margin: 50px auto;
+}
+
 .mdl-tabs__tab-bar a {
     text-decoration: none;
 }
@@ -97,7 +107,25 @@ textarea {
     align-self: flex-start;
 }
 
+input[type="checkbox"]{
+    cursor: pointer;
+}
+
 .table-scrollable {}
+
+.modal{
+    font-family: "OpenSans";
+}
+
+.modal-body{
+    padding: 1rem;
+}
+
+.modal-footer{
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+    margin-top: 0;
+}
 
 @media (max-width: 575.98px) {
     .part-img {

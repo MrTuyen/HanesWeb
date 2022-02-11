@@ -34,4 +34,12 @@ constant.Part_Request_Type = {
     Exchange: 1
 }
 
+constant.Enum_Action = {
+    Cancel: 1,
+    Call: 2,
+    CCDSend: 3,
+    WHSend: 4,
+    Complete: 5
+}
+
 module.exports = constant;

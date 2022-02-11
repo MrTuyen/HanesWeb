@@ -62,6 +62,7 @@ $(document).ready(function () {
     getMarkerPlanDetail();
 })
 
+var fabricRollList = [];
 function getMarkerPlanDetail(){
     var queryStr = getUrlVars(window.location.href);
     let groupId = queryStr.group;
@@ -74,12 +75,105 @@ function getMarkerPlanDetail(){
     PostDataAjax(action, datasend, function (response) {
         LoadingHide();
         if (response.rs) {
+            let master = response.data.master;
+            let detail = response.data.detail;
+            fabricRollList = response.data.fabricRoll;
+
+            $("#txtReceiveDate").val(master.receive_date);
+            $("#txtReceiveTime").val(master.receive_time);
+            $("#txtGroup").val(master._group);
+            $("#txtCutDate").val(master.cut_date);
+            $("#txtCreatedDate").val(master.date_update);
+            $("#txtWeek").val(new Date(new Date(master.date_update).formatDateDDMMYYYY()).getWeekNumber());
+            $("#txtNote").val(master.note);
+
             $("#fabric-table-body").html('');
+            let html = '';
+            for (let i = 0; i < detail.length; i++) {
+                let ele = detail[i];
+                html += `<tr id='tr-${ele.id}'>
+                    <td></td>
+                    <td>${ele.wo}</td>
+                    <td>${ele.ass}</td>
+                    <td>${ele.item_color}</td>
+                    <td>${ele.yard_demand}</td>
+                    <td>
+                        <a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Xem</a>
+                    </td>
+                </tr>`;
+            }
+
+            $("#fabric-table-body").append(html);
         }
         else {
             toastr.error(response.msg, "Thất bại");
         }
     });
+}
+
+var currentFabricRollList = [];
+var selectedFabricRollList = [];
+var sum = 0;
+function OpenModalMarkerDetail(markerDetail){
+    sum = 0;
+    // open modal to fill-up data
+    $("#modalFabricRoll").modal("show");
+
+    let itemColor = markerDetail.item_color;
+
+    $("#txtWo").text(markerDetail.wo);
+    $("#txtAss").text(markerDetail.ass);
+    $("#txtItemColor").text(markerDetail.item_color);
+    $("#txtDemandYard").text(markerDetail.yard);
+    $("#txtFabricRollYard").text(0);
+
+
+    let tempList = fabricRollList.filter(x => x.itemColor === itemColor)[0].rollList;
+    tempList = sortArrayByKey(tempList, 'unipack2', false);
+    currentFabricRollList = tempList;
+
+    $("#fabric-roll-table-body").html('');
+    let html = '';
+    for (let i = 0; i < tempList.length; i++) {
+        let ele = tempList[i];
+        html += `<tr id='tr-${ele.id}'>
+            <td>
+                <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' onchange="selectMarker()" style='transform: scale(1.5)' />
+            </td>
+            <td>${ele.unipack2}</td>
+            <td>${ele.rffsty}</td>
+            <td>${ele.item_color}</td>
+            <td>${ele.rcutwd}</td>
+            <td>${ele.rfinwt}</td>
+            <td>
+                <div class="input-group eye-password">
+                    <input type="number" class="form-control" data-id='${ele.id}' value="${ele.yard}" id="used-qty-${ele.id}" onchange="selectMarker()">
+                    <div class="input-group-addon">
+                        <span class="" id="inventory-qty-${ele.id}">${ele.yard}</span>
+                    </div>
+                </div>
+            </td>
+            <td>${ele.rlocbr}</td>
+            <td>${ele.rgrade}</td>
+            <td>${ele.shade}</td>
+        </tr>`;
+    }
+
+    $("#fabric-roll-table-body").append(html);
+}
+
+function selectMarker(){
+    let currentEle = $(event.target);
+    let id = currentEle.attr('data-id');
+    let isCheck = $(`#cb-${id}`).is(":checked");
+    let usedQty = $(`#used-qty-${id}`).val();
+    if(isCheck){
+        sum += parseFloat(usedQty);
+    }
+    else{
+        sum -= parseFloat(usedQty);
+    }
+    $("#txtFabricRollYard").text(sum);
 }
 
 // #endregion
