@@ -21,22 +21,11 @@
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
-        .datepicker {
-            z-index: 9999 !important;
-        }
-
-        #lbCounted {
-            font-size: 350px;
-            text-align: center;
-            align-items: center;
-            vertical-align: middle;
-            padding: 295px 0;
-        }
-
         .sticky-thead {
             position: sticky;
             background: whitesmoke;
             top: 0;
+            z-index: 10000;
         }
 
         .sticky-table {
@@ -45,7 +34,7 @@
             border: 1px solid #dddddd;
         }
 
-        .sticky-table::-webkit-scrollbar {
+        ::-webkit-scrollbar {
             width: 7px;
             height: 7px;
             background-color: whitesmoke;
@@ -58,14 +47,6 @@
         /* Track */
         ::-webkit-scrollbar-track {
             background: white;
-        }
-
-        .upload-btn-wrapper input[type=file] {
-            font-size: 100px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
         }
 
         .sticky-table tr, .sticky-table th, .sticky-table td {
@@ -247,7 +228,7 @@
                 </div>
                 <div class="modal-footer mt-0">
                     <button type="button" class="btn btn-light btn-sm" data-dismiss="modal">Close</button>
-                    <button class="btn btn-success btn-sm" >Submit</button>
+                    <button class="btn btn-success btn-sm" onclick="confirmSelectedMarker()">Confirm</button>
                 </div>
             </div>
         </div>
