@@ -23,8 +23,8 @@ router.post("/fabric-receive/save-upload-data", fabricReceiveController.saveUplo
 router.post("/fabric-receive/get-marker-data", fabricReceiveController.getMarkerData)
 router.get("/fabric-receive/marker-data-detail", fabricReceiveController.getIndexMarkerDataDetail)
 router.post("/fabric-receive/get-marker-data-detail", fabricReceiveController.getMarkerDataDetail)
-
 router.post("/fabric-receive/action", fabricReceiveController.action)
+router.get("/fabric-receive/scan-marker-data-detail", fabricReceiveController.getIndexScanMarkerDataDetail)
 
 // Fabric Receive: Inventory data
 router.get("/fabric-receive/inventory-data", fabricReceiveController.getIndexInventoryData)

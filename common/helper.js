@@ -11,8 +11,20 @@ const transporter = nodemailer.createTransport({
 var helper = {};
 
 // #region DateTime
+// ĐỊnh dạng theo format VIệt Nam dd/mm/yyyy
 helper.getDateTimeNow = function () {
     let date = new Date().toLocaleDateString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    });
+    let time = new Date().toLocaleTimeString("vi-VN");
+    return date + " " + time;
+}
+
+// ĐỊnh dạng theo format mm/dd/yyyy
+helper.getDateTimeNowMMDDYYHHMMSS = function () {
+    let date = new Date().toLocaleDateString("en-US", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",

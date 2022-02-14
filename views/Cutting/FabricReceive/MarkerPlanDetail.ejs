@@ -34,23 +34,18 @@
             border: 1px solid #dddddd;
         }
 
-        ::-webkit-scrollbar {
-            width: 7px;
-            height: 7px;
-            background-color: whitesmoke;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #888;
-        }
-
-        /* Track */
-        ::-webkit-scrollbar-track {
-            background: white;
-        }
-
-        .sticky-table tr, .sticky-table th, .sticky-table td {
+        .fabric-roll-table td, .fabric-roll-table th, .sticky-table tr, .sticky-table th, .sticky-table td {
             text-align: -webkit-center;
+        }
+
+        .fabric-roll-table td, .fabric-roll-table th, .sticky-table td, .sticky-table th {
+            padding: 1px!important;
+        }
+
+        .fabric-roll-table {
+            height: 350px;
+            overflow: auto;
+            border: 1px solid #dddddd;
         }
 
     </style>
@@ -131,10 +126,11 @@
                                     <div class="panel panel-default mt-3">
                                         <div class="panel-heading d-flex p-0">
                                             <div class="col-md-6 pt-2">
-                                                <b>Danh sách vật tư yêu cầu</b>
+                                                <b>Danh sách mã vải yêu cầu</b>
                                             </div>
                                             <div class="col-md-6 text-right pr-0">
-                                                <button class="btn btn-success btn-sm" onclick="addRow()"><i class="fa fa-plus"></i>&nbsp; Submit</button>
+                                                <button class="btn btn-default btn-sm" onclick="openPreviewTicket()">Preview</button>
+                                                <button class="btn btn-success btn-sm" onclick="whSubmitData()">Submit</button>
                                             </div>
                                         </div>
                                         <div class="panel-body p-0">
@@ -160,8 +156,8 @@
                         </div>
                     </div>
                 </div>
-    </div>
-    </main>
+            </div>
+        </main>
     </div>
 
     <div class="modal fade" id="modalFabricRoll" tabindex="-1" aria-hidden="false">
@@ -229,6 +225,102 @@
                 <div class="modal-footer mt-0">
                     <button type="button" class="btn btn-light btn-sm" data-dismiss="modal">Close</button>
                     <button class="btn btn-success btn-sm" onclick="confirmSelectedMarker()">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalPreviewTicket" tabindex="-1" aria-hidden="false">
+        <div class="modal-dialog modal-xlg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Xem trước phiếu xuất vải</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="" style="background-color: #28a745; height: 3px"></div>
+                <div class="modal-body p-0">
+                    <div class="panel panel-default mb-0">
+                        <div class="panel-heading text-center p-1"><b>Thông tin phiếu</b></div>
+                        <div class="panel-body pr-0 pl-0">
+                            <div class="form-row">
+                                <div class="col-md-3">
+                                    <label for="">Received Date</label>
+                                    <div class="">
+                                        <input type="text" class="form-control" id="txtPReceiveDate" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="">Received Time</label>
+                                    <div class="">
+                                        <input type="text" class="form-control" id="txtPReceiveTime" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="">Group</label>
+                                    <div class="">
+                                        <input type="text" class="form-control" id="txtPGroup" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="">Cut Date</label>
+                                    <div class="">
+                                        <input type="text" class="form-control" id="txtPCutDate" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="">Created Date</label>
+                                    <div class="">
+                                        <input type="text" class="form-control" id="txtPCreatedDate" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="">Week</label>
+                                    <div class="">
+                                        <input type="text" class="form-control" id="txtPWeek" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="">Note</label>
+                                    <div class="">
+                                        <input type="text" class="form-control" id="txtPNote">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default mt-3 mb-0">
+                        <div class="panel-heading d-flex p-0">
+                            <div class="col-md-6 pt-2">
+                                <b>Danh sách mã vải yêu cầu</b>
+                            </div>
+                        </div>
+                        <div class="panel-body p-0">
+                            <div class="col-sm-12 col-md-12 pl-0 pr-0 fabric-roll-table">
+                                <table class="table table-hover table-bordered table-scrollable mb-0">
+                                    <thead class="sticky-thead">
+                                        <th>#</th>
+                                        <th>Mã hàng</th>
+                                        <th>WO</th>
+                                        <th>Ass</th>
+                                        <th>Unipacks</th>
+                                        <th>Yard</th>
+                                        <th>Lbs</th>
+                                        <th>Grade</th>
+                                        <th>Location</th>
+                                        <th>Shade</th>
+                                    </thead>
+                                    <tbody id="preview-fabric-table-body">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer mt-0">
+                    <button type="button" class="btn btn-light btn-sm" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

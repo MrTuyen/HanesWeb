@@ -106,7 +106,7 @@ function getListMarkerData(){
                         ${ele.ccd_call_date == undefined ? "" : ele.ccd_call_date}
                     </td>
                     <td style="vertical-align: middle">
-                        <span class="txtTime" id="action-time-${ele.id}">0</span>
+                        <span class="txtTime" id="action-time-${ele.id}"></span>
                     </td>
                     <td>
                         ${
@@ -122,11 +122,13 @@ function getListMarkerData(){
                             : `<div class='rounded-circle yellow' id='wh-circle-${ele.id}'></div>`
                         }
                     </td>
-                    <td></td>
+                    <td>
+                        ${ele.note}
+                    </td>
                     <td>
                         <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='Action(${Enum_Action.Call})'>CCD call</button>
                         <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
-                        <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">CCD scan</a>
+                        <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD scan</a>
                         <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
                     </td>
                 </tr>`;
@@ -142,7 +144,7 @@ function getListMarkerData(){
                 let now = new Date();
                 if (ele.ccd_call_date != undefined)
                 {
-                    var callDate = new Date(formatDDMMYYHHMMSS(ele.ccd_call_date));
+                    var callDate = new Date(ele.ccd_call_date);
                     var nextDay = callDate.addDays(1); // 6:00 next day from call day
                     if (now > nextDay)
                     {
@@ -192,6 +194,7 @@ function uploadExcel(){
             fileData.append("file", files[i]);
         }
 
+        LoadingShow();
         $.ajax({
             url: baseUrl + 'upload-fabric-file',
             method: 'POST',
@@ -199,6 +202,7 @@ function uploadExcel(){
             processData: false,
             data: fileData,
             success: function (result) {
+                LoadingHide();
                 result = JSON.parse(result);
                 if (result.rs) {
                     var listSheet = result.data
@@ -217,6 +221,7 @@ function uploadExcel(){
                 }
             },
             error: function (err) {
+                LoadingHide();
                 toastr.error(err.statusText);
             }
         });
@@ -238,10 +243,13 @@ function saveUploadData(){
         headerRow: headerRow,
         fileName: fileName
     };
+    LoadingShow();
     PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
         if (response.rs) {
             toastr.success(response.msg, "Thành công")
             $("#modalUploadData").modal('hide');
+            getListMarkerData();
         }
         else {
             toastr.error(response.msg, "Thất bại");
@@ -284,8 +292,10 @@ function Action(actionType){
             switch (actionType) {
                 case Enum_Action.Cancel: {
                     $("#modalReason").modal('hide');
-                    $("#txtWo").val('');
                     $("#txtReason").val('');
+                    ClearTime(groupId);
+                    CCDChange(groupId, "white");
+                    WHChange(groupId, "white");
                 } break;
                 case Enum_Action.CCDSend: {
                     $("#tr-" + groupId).remove();

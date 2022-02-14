@@ -127,6 +127,35 @@ input[type="checkbox"]{
     margin-top: 0;
 }
 
+.sticky-thead {
+    position: sticky;
+    background: whitesmoke;
+    top: 0;
+}
+
+::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+    background-color: whitesmoke;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: white;
+}
+
+.upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+
 @media (max-width: 575.98px) {
     .part-img {
         width: 100%;

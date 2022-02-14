@@ -43,11 +43,7 @@ module.exports.getMarkerData = async function (req, res) {
 }
 
 module.exports.getIndexMarkerDataDetail = async function (req, res) {
-    try {
-        res.render('Cutting/FabricReceive/MarkerPlanDetail');
-    } catch (error) {
-        logHelper.writeLog("fabric_receive.getIndexMarkerDataDetail", error);
-    }
+    res.render('Cutting/FabricReceive/MarkerPlanDetail');
 }
 
 module.exports.getMarkerDataDetail = async function (req, res) {
@@ -117,7 +113,7 @@ module.exports.saveUploadData = async function (req, res) {
         let fileName = req.body.fileName;
 
         let user = req.user.username;
-        let datetime = helper.getDateTimeNow();
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
 
         // get data from excel file
         let arrExcelData = await helper.getDataFromExcel("templates/cutting/" + fileName, sheet, headerRow);
@@ -184,7 +180,7 @@ module.exports.action = function(req, res){
         {
             case constant.Enum_Action.Cancel: 
                 {
-                    //return Cancel(assWo, cancelReason);
+                    return cancel(req, res, groupId, cancelReason);
                 }
             case constant.Enum_Action.Call:
                 {
@@ -196,7 +192,7 @@ module.exports.action = function(req, res){
                 }
             case constant.Enum_Action.WHSend:
                 {
-                    //return SPSend(assWo, actionTime);
+                    return whSend(req, res, groupId, actionTime);
                 }
             case constant.Enum_Action.Complete:
                 {
@@ -212,34 +208,111 @@ async function ccdCall(req, res, groupId){
     try {
         // parameters
         let user = req.user.username;
-        let datetime = helper.getDateTimeNow();
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
 
         // execute
         let query = `SELECT * FROM cutting_fr_marker_data_plan WHERE id=${groupId}`;
         let objMarker = await db.excuteQueryAsync(query);
 
+        // check the ticket has been called or not
         if(objMarker[0].ccd_call_by != undefined && objMarker[0].ccd_call_date != undefined){
-            return res.end(JSON.stringify({ rs: false, msg: "Biên bản này đã được ccd gọi" }));
+            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được ccd gọi/ This ticket has been called" }));
         }
         else{
             query = `UPDATE cutting_fr_marker_data_plan 
-            SET ccd_call_date = '${datetime}', ccd_call_by = '${user}'
-            WHERE id = ${groupId}`;
+                    SET ccd_call_date = '${datetime}', ccd_call_by = '${user}'
+                    WHERE id = ${groupId}`;
             let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+            if(isUpdateSuccess <= 0){
+                return res.end(JSON.stringify({ rs: false, msg: "Gọi phiếu xảy ra lỗi/ Calling ticket occured error" }));
+            }
+            else{
+                testIo.emit('ccd-fabric-receive-action', {
+                    username: user,
+                    message: {
+                        groupId: groupId, 
+                        callDate: datetime,
+                        actionType: constant.Enum_Action.Call
+                    }
+                });
+        
+                return res.end(JSON.stringify({ rs: true, msg: "Gọi phiếu thành công/ The ticket has been called successful" }));
+            }
         }
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.ccdCall", error);
+    }
+}
+
+async function cancel(req, res, groupId, cancelReason){
+    try {
+        // parameters
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
+
+        // execute
+        let query = `UPDATE cutting_fr_marker_data_plan 
+                    SET cancel_reason = '${cancelReason}',  cancel_date = '${datetime}', cancel_by = '${user}'
+                    WHERE id=${groupId}`;
+
+        let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        if(isUpdateSuccess <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Hủy phiếu cấp vải không thành công." }));
 
         testIo.emit('ccd-fabric-receive-action', {
             username: user,
             message: {
                 groupId: groupId, 
-                callDate: datetime,
-                actionType: constant.Enum_Action.Call
+                actionType: constant.Enum_Action.Cancel
             }
         });
-
-        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+        return res.end(JSON.stringify({ rs: true, msg: "Hủy thành công" }));
     } catch (error) {
-        logHelper.writeLog("fabric_receive.ccdCall", error);
+        logHelper.writeLog("fabric_receive.cancel", error);
+    }
+}
+
+async function whSend(req, res, groupId, actionTime){
+    try {
+        // parameters
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
+
+        // execute
+        let query = `SELECT * FROM cutting_fr_marker_data_plan WHERE id=${groupId}`;
+        let objMarker = await db.excuteQueryAsync(query);
+
+        // check the ticket has been called or not
+        if(objMarker[0].ccd_call_by == undefined && objMarker[0].ccd_call_date == undefined){
+            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này chưa được ccd gọi/ This ticket has not been called by CCD" }));
+        }
+
+        // check the ticket has been send by WH or not
+        if(objMarker[0].wh_confirm_by != undefined && objMarker[0].wh_confirm_date != undefined){
+            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được WH gửi/ This ticket has been sent by warehouse" }));
+        }
+        else{
+            query = `UPDATE cutting_fr_marker_data_plan 
+                    SET wh_confirm_date = '${datetime}', wh_confirm_by = '${user}', wh_confirm_time = ${actionTime}
+                    WHERE id = ${groupId}`;
+            let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+            if(isUpdateSuccess <= 0){
+                return res.end(JSON.stringify({ rs: false, msg: "Warehouse gửi phiếu lỗi/ Warehouse send failed." }));
+            }
+            else{
+                testIo.emit('ccd-fabric-receive-action', {
+                    username: user,
+                    message: {
+                        groupId: groupId, 
+                        actionType: constant.Enum_Action.WHSend
+                    }
+                });
+        
+                return res.end(JSON.stringify({ rs: true, msg: "Warehouse gửi thành công/ Warehouse send successful" }));
+            }
+        }
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.whSend", error);
     }
 }
 
@@ -370,6 +443,10 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
 }
 
 // cutting scan
+module.exports.getIndexScanMarkerDataDetail = async function (req, res) {
+    res.render('Cutting/FabricReceive/ScanFabric');
+}
+
 module.exports.addScannedRecord = async function (req, res) {
     try {
         // parameters

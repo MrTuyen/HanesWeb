@@ -6,6 +6,15 @@
 // #region System variable
 const baseUrl = "/cutting/fabric-receive/";
 
+// Action enum
+var Enum_Action = {
+    Cancel: 1,
+    Call: 2,
+    CCDSend: 3,
+    WHSend: 4,
+    Complete: 5
+}
+
 // #endregion
 
 // #region System Method
@@ -63,6 +72,8 @@ $(document).ready(function () {
 })
 
 var fabricRollList = []; // danh sách dạng key value lưu trữ key là item color. value là danh sách các cuộn vải theo item color
+var markerDetailList = []; // danh sách lưu trữ danh sách các mã vải
+var markerData = {};
 function getMarkerPlanDetail(){
     var queryStr = getUrlVars(window.location.href);
     let groupId = queryStr.group;
@@ -76,7 +87,9 @@ function getMarkerPlanDetail(){
         LoadingHide();
         if (response.rs) {
             let master = response.data.master;
+            markerData = Object.assign({}, master);
             let detail = response.data.detail;
+            markerDetailList = detail;
             fabricRollList = response.data.fabricRoll;
 
             $("#txtReceiveDate").val(master.receive_date);
@@ -84,7 +97,7 @@ function getMarkerPlanDetail(){
             $("#txtGroup").val(master._group);
             $("#txtCutDate").val(master.cut_date);
             $("#txtCreatedDate").val(master.date_update);
-            $("#txtWeek").val(new Date(new Date(master.date_update).formatDateDDMMYYYY()).getWeekNumber());
+            $("#txtWeek").val(new Date(master.date_update).getWeekNumber());
             $("#txtNote").val(master.note);
 
             $("#fabric-table-body").html('');
@@ -97,8 +110,8 @@ function getMarkerPlanDetail(){
                     <td>${ele.ass}</td>
                     <td>${ele.item_color}</td>
                     <td>${ele.yard_demand}</td>
-                    <td>
-                        <a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Xem</a>
+                    <td style='text-align: -webkit-right'>
+                        <a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Chọn</a>
                     </td>
                 </tr>`;
             }
@@ -254,9 +267,113 @@ function yardChange(){
     $("#txtFabricRollYard").text(selectedFabricRollList.filter(x => x.markerDetailId == currentMarkerDetail.id).reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
 }
 
+// change color of ....
 function confirmSelectedMarker(){
     $(`#tr-${currentMarkerDetail.id}`).css("background", "#b5d7b5");
     $("#modalFabricRoll").modal("hide");
+}
+
+function whSubmitData(){
+    var queryStr = getUrlVars(window.location.href);
+    let groupId = queryStr.group;
+
+    Action(groupId);
+    // send to server
+    // let action = baseUrl + 'get-marker-data-detail';
+    // let datasend = {
+    //     groupId: groupId,
+    // };
+    // LoadingShow();
+    // PostDataAjax(action, datasend, function (response) {
+    //     LoadingHide();
+    //     if (response.rs) {
+            
+    //     }
+    //     else {
+    //         toastr.error(response.msg, "Thất bại");
+    //     }
+    // });
+}
+
+function openPreviewTicket(){
+    $("#modalPreviewTicket").modal("show");
+    getMarkerPlanDetailPreview();
+}
+
+function getMarkerPlanDetailPreview(){
+     
+    $("#txtPReceiveDate").val(markerData.receive_date);
+    $("#txtPReceiveTime").val(markerData.receive_time);
+    $("#txtPGroup").val(markerData._group);
+    $("#txtPCutDate").val(markerData.cut_date);
+    $("#txtPCreatedDate").val(markerData.date_update);
+    $("#txtPWeek").val(new Date(markerData.date_update).getWeekNumber());
+    $("#txtPNote").val(markerData.note);
+
+    let html = '';
+    for (let i = 0; i < markerDetailList.length; i++) {
+        let eleMarkerDetail = markerDetailList[i];
+        let selectedRollList = selectedFabricRollList.filter(x => x.markerDetailId == eleMarkerDetail.id);
+        let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0);
+        let rollCount = selectedRollList.length;
+        let str = `<tr style='background: #ced6dd'>
+            <td>${i + 1}</td>
+            <td>${eleMarkerDetail.item_color}</td>
+            <td>${eleMarkerDetail.wo}</td>
+            <td>${eleMarkerDetail.ass}</td>
+            <td>${rollCount} cuộn</td>
+            <td><span class='text-danger'>${sumYard}</span> / ${eleMarkerDetail.yard_demand}</td>
+            <td colspan='4'></td>
+        </tr>`;
+        for (let j = 0; j < selectedRollList.length; j++) {
+            let eleRoll = selectedRollList[j];
+            str += `<tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>${eleRoll.unipack2}</td>
+                <td>${eleRoll.usedYard}</td>
+                <td>${eleRoll.rfinwt}</td>
+                <td>${eleRoll.rgrade}</td>
+                <td>${eleRoll.rlocbr}</td>
+                <td>${eleRoll.shade}</td>
+            </tr>`;
+        }
+        str += '<tr><td colspan="20">&nbsp;</td></tr>';
+
+        html += str;
+    }
+    
+    $("#preview-fabric-table-body").html('');
+    $("#preview-fabric-table-body").append(html);
+}
+
+// Action
+function Action(groupId){
+    // Call to server
+    LoadingShow();
+    var action = baseUrl + 'action';
+    var datasend = {
+        groupId: groupId,
+        action: Enum_Action.WHSend,
+        actionTime: 0,
+        cancelReason: ''
+    };
+
+    PostDataAjax(action, datasend, function (response) {
+        if (response.rs) {
+            LoadingHide();
+            setTimeout(function () {
+                toastr.success(response.msg);
+            }, 1000)
+            window.location.href = "/cutting/fabric-receive";
+        }
+        else {
+            LoadingHide();
+            toastr.error(response.msg);
+        }
+    });
 }
 
 // cal sum yard from selected fabric roll list
@@ -267,5 +384,5 @@ function calSumYard(arr){
 // #endregion
 
 // #region Socket
- 
+
 // #endregion
