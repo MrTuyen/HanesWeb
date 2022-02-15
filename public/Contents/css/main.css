@@ -42,6 +42,14 @@
     display: inline-block;
 }
 
+.upload-btn-wrapper input[type=file] {
+    font-size: 100px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+}
+
 textarea {
     resize: vertical;
 }
@@ -60,7 +68,22 @@ textarea {
     z-index: 99999;
 }
 
-.modal-footer {
+.modal{
+    font-family: "OpenSans";
+}
+
+.modal-header{
+    padding: 1rem;
+}
+
+.modal-body{
+    padding: 1rem;
+}
+
+.modal-footer{
+    padding: 1rem;
+    border-top: 1px solid #dee2e6;
+    margin-top: 0;
     border-top: 0;
 }
 
@@ -113,20 +136,6 @@ input[type="checkbox"]{
 
 .table-scrollable {}
 
-.modal{
-    font-family: "OpenSans";
-}
-
-.modal-body{
-    padding: 1rem;
-}
-
-.modal-footer{
-    padding: 1rem;
-    border-top: 1px solid #dee2e6;
-    margin-top: 0;
-}
-
 .sticky-thead {
     position: sticky;
     background: whitesmoke;
@@ -146,14 +155,6 @@ input[type="checkbox"]{
 /* Track */
 ::-webkit-scrollbar-track {
     background: white;
-}
-
-.upload-btn-wrapper input[type=file] {
-    font-size: 100px;
-    position: absolute;
-    left: 0;
-    top: 0;
-    opacity: 0;
 }
 
 @media (max-width: 575.98px) {

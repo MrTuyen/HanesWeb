@@ -131,8 +131,8 @@ module.exports.saveUploadData = async function (req, res) {
 
         // insert to master table: only have group => take group, receive data, time, cut date, marker name, dozen value of first row
         let fr = masterData[0];
-        let query = `INSERT INTO cutting_fr_marker_data_plan (receive_date, receive_time, _group, cut_date, note, user_update, date_update)
-                    VALUES ('${new Date(fr[1]).toLocaleDateString()}', '${fr[2]}', '${fr[3]}', '${new Date(fr[8]).toLocaleDateString()}', '${fr[9]}', '${user}', '${datetime}')`;
+        let query = `INSERT INTO cutting_fr_marker_data_plan (plant, work_center, receive_date, receive_time, _group, cut_date, note, marker_call_by, marker_call_date, user_update, date_update)
+                    VALUES ('${fr[12]}', '${fr[13]}', '${new Date(fr[1]).toLocaleDateString()}', '${fr[2]}', '${fr[3]}', '${new Date(fr[8]).toLocaleDateString()}', '${fr[9]}', '${user}', '${datetime}', '${user}', '${datetime}')`;
         let isInsertMasterSuccess = await db.excuteQueryAsync(query);
         if(isInsertMasterSuccess.affectedRows < 0){
             return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
@@ -145,7 +145,7 @@ module.exports.saveUploadData = async function (req, res) {
             let rowData = masterData[i];
             let detailObj = []; 
 
-            if(typeof(rowData[6]) != 'object' && typeof(rowData[6]) != 'Object' && rowData[6] != undefined && rowData[6].length > 5){
+            if(rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5){
                 detailObj.push(idMaster);
                 detailObj.push(rowData[4]);
                 detailObj.push(rowData[5]);
@@ -174,13 +174,14 @@ module.exports.action = function(req, res){
         let action = req.body.action;
         let actionTime = req.body.actionTime;
         let cancelReason = req.body.cancelReason;
+        let cancelStep = req.body.cancelStep;
 
         // execute
         switch (parseInt(action))
         {
             case constant.Enum_Action.Cancel: 
                 {
-                    return cancel(req, res, groupId, cancelReason);
+                    return cancel(req, res, groupId, cancelReason, cancelStep);
                 }
             case constant.Enum_Action.Call:
                 {
@@ -244,7 +245,7 @@ async function ccdCall(req, res, groupId){
     }
 }
 
-async function cancel(req, res, groupId, cancelReason){
+async function cancel(req, res, groupId, cancelReason, cancelStep){
     try {
         // parameters
         let user = req.user.username;
@@ -252,7 +253,7 @@ async function cancel(req, res, groupId, cancelReason){
 
         // execute
         let query = `UPDATE cutting_fr_marker_data_plan 
-                    SET cancel_reason = '${cancelReason}',  cancel_date = '${datetime}', cancel_by = '${user}'
+                    SET cancel_step = ${cancelStep}, cancel_reason = '${cancelReason}',  cancel_date = '${datetime}', cancel_by = '${user}'
                     WHERE id=${groupId}`;
 
         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
@@ -262,7 +263,7 @@ async function cancel(req, res, groupId, cancelReason){
         testIo.emit('ccd-fabric-receive-action', {
             username: user,
             message: {
-                groupId: groupId, 
+                groupId: groupId,
                 actionType: constant.Enum_Action.Cancel
             }
         });
@@ -283,8 +284,8 @@ async function whSend(req, res, groupId, actionTime){
         let objMarker = await db.excuteQueryAsync(query);
 
         // check the ticket has been called or not
-        if(objMarker[0].ccd_call_by == undefined && objMarker[0].ccd_call_date == undefined){
-            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này chưa được ccd gọi/ This ticket has not been called by CCD" }));
+        if(objMarker[0].marker_call_by == undefined && objMarker[0].marker_call_date == undefined){
+            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này chưa được Marker gọi/ This ticket has not been called by Marker" }));
         }
 
         // check the ticket has been send by WH or not
@@ -439,6 +440,21 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.saveUploadFabricInventoryDataFile", error);
+    }
+}
+
+function calTaskNumber(totalRow, numberPerTask, taskNumDefault)
+{
+    if (totalRow <= taskNumDefault)
+    {
+        taskNumDefault = 1;
+        numberPerTask = totalRow;
+    }
+    else
+    {
+        numberPerTask = totalRow / taskNumDefault;
+        if (numberPerTask % taskNumDefault != 0)
+            numberPerTask++;
     }
 }
 

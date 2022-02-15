@@ -103,30 +103,37 @@ function getListMarkerData(){
                     <td>${ele._group}</td>
                     <td>${ele.cut_date}</td>
                     <td id="call-date-${ele.id}">
-                        ${ele.ccd_call_date == undefined ? "" : ele.ccd_call_date}
+                        ${ele.marker_call_date == undefined ? "" : ele.marker_call_date}
                     </td>
                     <td style="vertical-align: middle">
                         <span class="txtTime" id="action-time-${ele.id}"></span>
                     </td>
                     <td>
                         ${
-                            ele.ccd_call_by == undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
-                            : ele.ccd_confirm_by == undefined ? `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
+                            ele.marker_call_by == undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
+                            : ele.marker_call_by == undefined ? `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
                             : `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
                         }  
                     </td>
                     <td>
                         ${
-                            ele.ccd_call_by == undefined ?  `<div class='rounded-circle white' id='wh-circle-${ele.id}'></div>`
+                            ele.marker_call_by == undefined ?  `<div class='rounded-circle white' id='wh-circle-${ele.id}'></div>`
                             : ele.wh_confirm_by == undefined ? `<div class='rounded-circle red' id='wh-circle-${ele.id}'></div>`
                             : `<div class='rounded-circle yellow' id='wh-circle-${ele.id}'></div>`
                         }
                     </td>
                     <td>
+                        ${
+                            ele.marker_call_by == undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
+                            : ele.ccd_confirm_by == undefined ? `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
+                            : `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
+                        }  
+                    </td>
+                    <td>
                         ${ele.note}
                     </td>
                     <td>
-                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='Action(${Enum_Action.Call})'>CCD call</button>
+                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='Action(${Enum_Action.Call})'>Marker call</button>
                         <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
                         <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD scan</a>
                         <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
@@ -142,9 +149,9 @@ function getListMarkerData(){
                 // checking marker was called then continue counting if called
                 let totalMinutes = 0;
                 let now = new Date();
-                if (ele.ccd_call_date != undefined)
+                if (ele.marker_call_date != undefined)
                 {
-                    var callDate = new Date(ele.ccd_call_date);
+                    var callDate = new Date(ele.marker_call_date);
                     var nextDay = callDate.addDays(1); // 6:00 next day from call day
                     if (now > nextDay)
                     {
@@ -265,9 +272,11 @@ function Action(actionType){
     var ele = $(event.target);
     var groupId = "";
     var cancelReason = "";
+    var cancelStep = "";
     if (actionType == Enum_Action.Cancel) {
         groupId = $("#txtGroupId").val();
         cancelReason = $("#txtReason").val();
+        cancelStep = $("#txtCancelStep").val();
     }
     else {
         groupId = ele.attr("data-groupId");
@@ -281,7 +290,8 @@ function Action(actionType){
         groupId: groupId,
         action: actionType,
         actionTime: actionTime,
-        cancelReason: cancelReason
+        cancelReason: cancelReason,
+        cancelStep: cancelStep
     };
 
     PostDataAjax(action, datasend, function (response) {

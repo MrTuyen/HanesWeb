@@ -278,6 +278,9 @@ function whSubmitData(){
     let groupId = queryStr.group;
 
     Action(groupId);
+
+    
+
     // send to server
     // let action = baseUrl + 'get-marker-data-detail';
     // let datasend = {

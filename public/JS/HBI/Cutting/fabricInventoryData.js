@@ -138,6 +138,7 @@ function uploadExcel(){
             fileData.append("file", files[i]);
         }
 
+        LoadingShow();
         $.ajax({
             url: baseUrl + 'upload-fabric-inventory-file',
             method: 'POST',
@@ -145,6 +146,7 @@ function uploadExcel(){
             processData: false,
             data: fileData,
             success: function (result) {
+                LoadingHide();
                 result = JSON.parse(result);
                 if (result.rs) {
                     var listSheet = result.data
@@ -159,6 +161,7 @@ function uploadExcel(){
                     console.log(result.msg);
                 }
                 else {
+                    LoadingHide();
                     toastr.error(result.msg);
                 }
             },
@@ -184,10 +187,15 @@ function saveUploadData(){
         headerRow: headerRow,
         fileName: fileName
     };
+    LoadingShow();
     PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
         if (response.rs) {
             toastr.success(response.msg, "Thành công")
             $("#modalUploadInventoryData").modal('hide');
+            setTimeout(function(){
+                getInventoryData(currentPage);
+            }, 1000);
         }
         else {
             toastr.error(response.msg, "Thất bại");
