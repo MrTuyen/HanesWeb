@@ -1,3 +1,222 @@
+/*
+    Author: TuyenNV
+    DateTime: 
+*/
+
+// #region System variable
+const baseUrl = "/cutting/fabric-receive/";
+
+// Action enum
+var Enum_Action = {
+    Cancel: 1,
+    Call: 2,
+    CCDSend: 3,
+    WHSend: 4,
+    Complete: 5
+}
+
+// #endregion
+
+// #region System Method
+
+// Refresh data
+function refresh() {
+    window.location.href = '/innovation';
+}
+
+// Configure some plugin to work properly
+$.fn.modal.Constructor.prototype._enforceFocus = function () { };
+
+$(document).on('click', '.dropdown-menu', function (e) {
+    e.stopPropagation();
+});
+
+$(document).on('click', '.day', function (e) {
+    $('.datepicker').css('display', 'none')
+    e.preventDefault();
+    e.stopPropagation();
+})
+
+// For select2 open then focus on input search
+$(document).on('select2:open', () => {
+    if (!event.target.multiple) { 
+        let ele = $('.select2-container--open .select2-search--dropdown .select2-search__field').last()[0];
+        if(ele)
+            ele.focus() 
+    }
+});
+
+// Load khi tải trang xong
+$(document).ready(function () {
+    // init time picker
+    let date = new Date().toLocaleDateString("vi-VN", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    });
+    let html = `<option value='${date};${date}' selected>Hôm nay</option>`;
+    for (let i = 0; i < Timepickers.length; i++) {
+        let ele = Timepickers[i];
+        html += `<option value='${ele.value}'>${ele.text}</option>`
+    }
+    $("#txtFilterTime").append(html);
+
+    // init datepicker for all input date type
+    $('.isDate').datepicker({
+        format: "dd/mm/yyyy",
+        clear: true
+    });
+
+    // Load data from localstorage if those data has not submited
+    getMarkerPlanDetail();
+})
+
+var fabricRollList = []; // danh sách dạng key value lưu trữ key là item color. value là danh sách các cuộn vải theo item color
+var markerDetailList = []; // danh sách lưu trữ danh sách các mã vải
+var selectedFabricRollList = [];
+var markerPlan = {};
+function getMarkerPlanDetail(){
+    var queryStr = getUrlVars(window.location.href);
+    let groupId = queryStr.group;
+    // send to server
+    let action = baseUrl + 'get-marker-data-detail';
+    let datasend = {
+        groupId: groupId,
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if (response.rs) {
+            let master = response.data.master;
+            markerPlan = Object.assign({}, master);
+            let detail = response.data.detail;
+            markerDetailList = detail;
+            selectedFabricRollList = response.data.selectedFabricRoll;
+
+            setTimeout(function(){
+                getMarkerPlanDetailPreview();
+                $("#lbSumRoll").text(selectedFabricRollList.length);
+            }, 500);
+        }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
+
+function ccdSubmitData(){
+    markerPlan.note = $("#txtNote").val();
+    // send to server
+    let action = baseUrl + 'ccd-confirm';
+    let datasend = {
+        markerPlan: markerPlan,
+        markerDetailList: markerDetailList,
+        selectedRollList: selectedFabricRollList
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if (response.rs) {
+            toastr.success(response.msg, "Thành công");
+            Action(markerPlan.id);
+        }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
+
+function getMarkerPlanDetailPreview(){
+     
+    $("#txtPReceiveDate").val(markerPlan.receive_date);
+    $("#txtPReceiveTime").val(markerPlan.receive_time);
+    $("#txtPGroup").val(markerPlan._group);
+    $("#txtPCutDate").val(markerPlan.cut_date);
+    $("#txtPCreatedDate").val(markerPlan.date_update);
+    $("#txtPWeek").val(new Date(markerPlan.date_update).getWeekNumber());
+    $("#txtPNote").val(markerPlan.note);
+
+    let html = '';
+    for (let i = 0; i < markerDetailList.length; i++) {
+        let eleMarkerDetail = markerDetailList[i];
+        let selectedRollList = selectedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
+        let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+        let rollCount = selectedRollList.length;
+        let str = `<tr style='background: #ced6dd'>
+            <td>${i + 1}</td>
+            <td>${eleMarkerDetail.item_color}</td>
+            <td>${eleMarkerDetail.wo}</td>
+            <td>${eleMarkerDetail.ass}</td>
+            <td>${rollCount} cuộn</td>
+            <td><span class='text-danger'>${sumYard}</span> / ${eleMarkerDetail.yard_demand}</td>
+            <td colspan='4'></td>
+            <td><span id=''></span></td>
+            <td><span id=''></span></td>
+        </tr>`;
+        for (let j = 0; j < selectedRollList.length; j++) {
+            let eleRoll = selectedRollList[j];
+            str += `<tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>${eleRoll.unipack2}</td>
+                <td>${eleRoll.yard}</td>
+                <td>${eleRoll.rfinwt}</td>
+                <td>${eleRoll.rgrade}</td>
+                <td>${eleRoll.rlocbr}</td>
+                <td>${eleRoll.shade}</td>
+                <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}'></span></td>
+                <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}'></span></td>
+            </tr>`;
+        }
+        str += '<tr><td colspan="20">&nbsp;</td></tr>';
+
+        html += str;
+    }
+    
+    $("#preview-fabric-table-body").html('');
+    $("#preview-fabric-table-body").append(html);
+}
+
+// Action
+function Action(groupId){
+    // Call to server
+    LoadingShow();
+    var action = baseUrl + 'action';
+    var datasend = {
+        groupId: groupId,
+        action: Enum_Action.CCDSend,
+        actionTime: 0,
+        cancelReason: ''
+    };
+
+    PostDataAjax(action, datasend, function (response) {
+        if (response.rs) {
+            LoadingHide();
+            setTimeout(function () {
+                toastr.success(response.msg);
+            }, 1000)
+            window.location.href = "/cutting/fabric-receive";
+        }
+        else {
+            LoadingHide();
+            toastr.error(response.msg);
+        }
+    });
+}
+
+// cal sum yard from selected fabric roll list
+function calSumYard(arr){
+    
+}
+
+// #endregion
+
+// #region Socket
+
+// #endregion
+
 function loadExistedData(){
     let listData = JSON.parse(localStorage.getItem("listScannedData"));
     if(listData && listData.length > 0) {
@@ -59,13 +278,28 @@ function addRecord(){
 function scanBarcode() {
     if (event.which === 13 || event.key == 'Enter') {
         let rollCode = $("#txtRollCode");
-        let wo = $("#txtWo").val();
         if (rollCode.val().length > 0) {
             let code = rollCode.val();
             rollCode.val('');
+            let scannedTime = formatMMDDYYHHMMSS(new Date());
 
-            addRow({wo: wo, rollCode: code, scannedTime: formatDDMMYYHHMMSS(new Date())});
+            // addRow({wo: wo, rollCode: code, scannedTime: formatDDMMYYHHMMSS(new Date())});
 
+            let roll = selectedFabricRollList.filter(x => x.unipack2 == code)[0];
+
+            if(!roll){
+                toastr.error(`Không có cuộn vải có mã <span class='text-danger'>${code}</span> trong phiếu này` ,"Thất bại");
+                return false;
+            }
+
+            if(roll.scanned_time != null) {
+                toastr.error(`Cuộn vải có mã <span class='text-danger'>${code}</span> đã được scan` ,"Thất bại");
+                return false;
+            }
+
+            roll.scanned_time = scannedTime;
+            $(`#scanned-status-${code}`).html("<i class='text-success fa fa-check-circle'></i>");
+            $(`#scanned-time-${code}`).text(scannedTime);
             let count = parseInt($("#lbCounted").text()) + 1;
             $("#lbCounted").text(count);
         }

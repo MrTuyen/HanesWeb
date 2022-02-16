@@ -73,7 +73,7 @@ $(document).ready(function () {
 
 var fabricRollList = []; // danh sách dạng key value lưu trữ key là item color. value là danh sách các cuộn vải theo item color
 var markerDetailList = []; // danh sách lưu trữ danh sách các mã vải
-var markerData = {};
+var markerPlan = {};
 function getMarkerPlanDetail(){
     var queryStr = getUrlVars(window.location.href);
     let groupId = queryStr.group;
@@ -87,7 +87,7 @@ function getMarkerPlanDetail(){
         LoadingHide();
         if (response.rs) {
             let master = response.data.master;
-            markerData = Object.assign({}, master);
+            markerPlan = Object.assign({}, master);
             let detail = response.data.detail;
             markerDetailList = detail;
             fabricRollList = response.data.fabricRoll;
@@ -274,28 +274,25 @@ function confirmSelectedMarker(){
 }
 
 function whSubmitData(){
-    var queryStr = getUrlVars(window.location.href);
-    let groupId = queryStr.group;
-
-    Action(groupId);
-
-    
-
+    markerPlan.note = $("#txtNote").val();
     // send to server
-    // let action = baseUrl + 'get-marker-data-detail';
-    // let datasend = {
-    //     groupId: groupId,
-    // };
-    // LoadingShow();
-    // PostDataAjax(action, datasend, function (response) {
-    //     LoadingHide();
-    //     if (response.rs) {
-            
-    //     }
-    //     else {
-    //         toastr.error(response.msg, "Thất bại");
-    //     }
-    // });
+    let action = baseUrl + 'warehouse-confirm';
+    let datasend = {
+        markerPlan: markerPlan,
+        markerDetailList: markerDetailList,
+        selectedRollList: selectedFabricRollList
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if (response.rs) {
+            toastr.success(response.msg, "Thành công");
+            Action(markerPlan.id);
+        }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
 }
 
 function openPreviewTicket(){
@@ -305,13 +302,13 @@ function openPreviewTicket(){
 
 function getMarkerPlanDetailPreview(){
      
-    $("#txtPReceiveDate").val(markerData.receive_date);
-    $("#txtPReceiveTime").val(markerData.receive_time);
-    $("#txtPGroup").val(markerData._group);
-    $("#txtPCutDate").val(markerData.cut_date);
-    $("#txtPCreatedDate").val(markerData.date_update);
-    $("#txtPWeek").val(new Date(markerData.date_update).getWeekNumber());
-    $("#txtPNote").val(markerData.note);
+    $("#txtPReceiveDate").val(markerPlan.receive_date);
+    $("#txtPReceiveTime").val(markerPlan.receive_time);
+    $("#txtPGroup").val(markerPlan._group);
+    $("#txtPCutDate").val(markerPlan.cut_date);
+    $("#txtPCreatedDate").val(markerPlan.date_update);
+    $("#txtPWeek").val(new Date(markerPlan.date_update).getWeekNumber());
+    $("#txtPNote").val(markerPlan.note);
 
     let html = '';
     for (let i = 0; i < markerDetailList.length; i++) {

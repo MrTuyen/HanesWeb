@@ -61,6 +61,7 @@ module.exports.getMarkerDataDetail = async function (req, res) {
         // fabric roll info follow item-color
         let itemColorList = [];
         let farbicRollList = [];
+        let selectedFabricRollList = [];
         if(detailInfo[0] != undefined && detailInfo[0].length > 1) {
             itemColorList = [...new Set(detailInfo[0].map(x => x.item_color))]; // distinct array
 
@@ -70,7 +71,12 @@ module.exports.getMarkerDataDetail = async function (req, res) {
                 farbicRollList.push({itemColor: ele, rollList: result[0]})
             }
 
-            res.end(JSON.stringify({ rs: true, msg: "Thành công", data: {master: masterInfo[0], detail: detailInfo[0], fabricRoll: farbicRollList}}));
+            if(masterInfo[0].wh_confirm_by != undefined && masterInfo[0].wh_confirm_date != undefined) {
+                let result = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${groupId}`);
+                selectedFabricRollList.push(result);
+            }
+
+            res.end(JSON.stringify({ rs: true, msg: "Thành công", data: {master: masterInfo[0], detail: detailInfo[0], fabricRoll: farbicRollList, selectedFabricRoll: selectedFabricRollList[0]}}));
         }
     } catch (error) {
         logHelper.writeLog("fabric_receive.getMarkerDataDetail", error);
@@ -185,7 +191,7 @@ module.exports.action = function(req, res){
                 }
             case constant.Enum_Action.Call:
                 {
-                    return ccdCall(req, res, groupId);
+                    return markerCall(req, res, groupId);
                 }
             case constant.Enum_Action.CCDSend:
                 {
@@ -205,7 +211,7 @@ module.exports.action = function(req, res){
     }
 }
 
-async function ccdCall(req, res, groupId){
+async function markerCall(req, res, groupId){
     try {
         // parameters
         let user = req.user.username;
@@ -216,7 +222,7 @@ async function ccdCall(req, res, groupId){
         let objMarker = await db.excuteQueryAsync(query);
 
         // check the ticket has been called or not
-        if(objMarker[0].ccd_call_by != undefined && objMarker[0].ccd_call_date != undefined){
+        if(objMarker[0].marker_call_by != undefined && objMarker[0].marker_call_by != undefined){
             return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được ccd gọi/ This ticket has been called" }));
         }
         else{
@@ -253,7 +259,10 @@ async function cancel(req, res, groupId, cancelReason, cancelStep){
 
         // execute
         let query = `UPDATE cutting_fr_marker_data_plan 
-                    SET cancel_step = ${cancelStep}, cancel_reason = '${cancelReason}',  cancel_date = '${datetime}', cancel_by = '${user}'
+                    SET cancel_step = ${cancelStep}, 
+                        cancel_reason = '${cancelReason}',  
+                        cancel_date = '${datetime}', 
+                        cancel_by = '${user}'
                     WHERE id=${groupId}`;
 
         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
@@ -314,6 +323,156 @@ async function whSend(req, res, groupId, actionTime){
         }
     } catch (error) {
         logHelper.writeLog("fabric_receive.whSend", error);
+    }
+}
+
+module.exports.warehouseConfirm = async function (req, res) {
+    try {
+        // parameters
+        let markerPlan = req.body.markerPlan;
+        let markerDetailList = req.body.markerDetailList;
+        let selectedRollList = req.body.selectedRollList;
+
+        let insertRollFaiiList = [];
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
+
+        // update note marker plan 
+        let query = `UPDATE cutting_fr_marker_data_plan 
+                    SET note = '${markerPlan.note}'
+                    WHERE id = ${markerPlan.id}`;
+        let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        if(isUpdateSuccess <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Cập nhật note phiếu yêu cầu vải không thành công." }));
+
+        // update inventory and insert selected roll to database
+        for (let i = 0; i < markerDetailList.length; i++) {
+            let eleMarkerDetail = markerDetailList[i];
+            let rollList = selectedRollList.filter(x => x.markerDetailId == eleMarkerDetail.id);
+            
+            for (let j = 0; j < rollList.length; j++) {
+                let eleRoll = rollList[j];
+                
+                // insert to cutting_fr_marker_data_plan_detail_roll table
+                query = `INSERT INTO cutting_fr_marker_data_plan_detail_roll (
+                    marker_plan_id,
+                    marker_plan_detail_id,
+                    roll_id,
+                    runip,
+                    unipack2,
+                    rcutwo,
+                    rffsty,
+                    item_color,
+                    rcutwd,
+                    rcolor,
+                    rfinwt,
+                    yard,
+                    rlocbr,
+                    rgrade,
+                    shade,
+                    vendor_lot,
+                    po_number,
+                    rccust,
+                    rlstdt,
+                    vender,
+                    rlocdp,
+                    rdyedt,
+                    rfindt,
+                    fnd,
+                    rrstat,
+                    ruser,
+                    rfstyl,
+                    rshapr,
+                    rlnvar,
+                    rdylot
+                ) 
+                VALUES (
+                    ${markerPlan.id},
+                    ${eleMarkerDetail.id},
+                    '${eleRoll.id}',
+                    '${eleRoll.runip}',
+                    '${eleRoll.unipack2}',
+                    '${eleRoll.rcutwo}',
+                    '${eleRoll.rffsty}',
+                    '${eleRoll.item_color}',
+                    '${eleRoll.rcutwd}',
+                    '${eleRoll.rcolor}',
+                    ${eleRoll.rfinwt},
+                    ${eleRoll.usedYard},
+                    '${eleRoll.rlocbr}',
+                    '${eleRoll.rgrade}',
+                    '${eleRoll.shade}',
+                    '${eleRoll.vendor_lot}',
+                    '${eleRoll.po_number}',
+                    '${eleRoll.rccust}',
+                    '${eleRoll.rlstdt}',
+                    '${eleRoll.vender}',
+                    '${eleRoll.rlocdp}',
+                    '${eleRoll.rdyedt}',
+                    '${eleRoll.rfindt}',
+                    '${eleRoll.fnd}',
+                    '${eleRoll.rrstat}',
+                    '${eleRoll.ruser}',
+                    '${eleRoll.rfstyl}',
+                    '${eleRoll.rshapr}',
+                    '${eleRoll.rlnvar}',
+                    '${eleRoll.rdylot}'
+                )`;
+                
+                let isInsertRollSuccess = await db.excuteInsertReturnIdAsync(query);
+                if(isInsertRollSuccess < 0){
+                    insertRollFaiiList.push(eleRoll);
+                }
+                // auto update roll 's yard in inventory warehouse: remain yard, note, status by using MySQL trigger
+            }
+        }
+        
+        if (insertRollFaiiList.length > 0){
+            return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
+        }
+        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.warehouseConfirm", error);
+    }
+}
+
+async function ccdSend(req, res, groupId){
+    try {
+        // parameters
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
+
+        // execute
+        let query = `SELECT * FROM cutting_fr_marker_data_plan WHERE id=${groupId}`;
+        let objMarker = await db.excuteQueryAsync(query);
+
+        // check the ticket has been called or not
+        if(objMarker[0].marker_call_by != undefined && objMarker[0].marker_call_by != undefined){
+            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được ccd gọi/ This ticket has been called" }));
+        }
+        else{
+            query = `UPDATE cutting_fr_marker_data_plan 
+                    SET ccd_call_date = '${datetime}', ccd_call_by = '${user}'
+                    WHERE id = ${groupId}`;
+            let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+            if(isUpdateSuccess <= 0){
+                return res.end(JSON.stringify({ rs: false, msg: "Gọi phiếu xảy ra lỗi/ Calling ticket occured error" }));
+            }
+            else{
+                testIo.emit('ccd-fabric-receive-action', {
+                    username: user,
+                    message: {
+                        groupId: groupId, 
+                        callDate: datetime,
+                        actionType: constant.Enum_Action.Call
+                    }
+                });
+        
+                return res.end(JSON.stringify({ rs: true, msg: "Gọi phiếu thành công/ The ticket has been called successful" }));
+            }
+        }
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.ccdCall", error);
     }
 }
 

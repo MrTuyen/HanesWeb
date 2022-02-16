@@ -25,6 +25,7 @@ router.get("/fabric-receive/marker-data-detail", fabricReceiveController.getInde
 router.post("/fabric-receive/get-marker-data-detail", fabricReceiveController.getMarkerDataDetail)
 router.post("/fabric-receive/action", fabricReceiveController.action)
 router.get("/fabric-receive/scan-marker-data-detail", fabricReceiveController.getIndexScanMarkerDataDetail)
+router.post("/fabric-receive/warehouse-confirm", fabricReceiveController.warehouseConfirm)
 
 // Fabric Receive: Inventory data
 router.get("/fabric-receive/inventory-data", fabricReceiveController.getIndexInventoryData)
