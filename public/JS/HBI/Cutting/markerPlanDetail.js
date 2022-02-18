@@ -73,6 +73,8 @@ $(document).ready(function () {
 
 var fabricRollList = []; // danh sách dạng key value lưu trữ key là item color. value là danh sách các cuộn vải theo item color
 var markerDetailList = []; // danh sách lưu trữ danh sách các mã vải
+var selectedFabricRollList = []; // danh sách tổng các cuộn vải được chọn của cả phiếu
+var selectedSavedFabricRollList = []; // danh sách tổng các cuộn vải được chọn của cả phiếu
 var markerPlan = {};
 function getMarkerPlanDetail(){
     var queryStr = getUrlVars(window.location.href);
@@ -91,6 +93,7 @@ function getMarkerPlanDetail(){
             let detail = response.data.detail;
             markerDetailList = detail;
             fabricRollList = response.data.fabricRoll;
+            selectedSavedFabricRollList = response.data.selectedFabricRoll;
 
             $("#txtReceiveDate").val(master.receive_date);
             $("#txtReceiveTime").val(master.receive_time);
@@ -100,23 +103,71 @@ function getMarkerPlanDetail(){
             $("#txtWeek").val(new Date(master.date_update).getWeekNumber());
             $("#txtNote").val(master.note);
 
-            $("#fabric-table-body").html('');
             let html = '';
-            for (let i = 0; i < detail.length; i++) {
-                let ele = detail[i];
-                html += `<tr id='tr-${ele.id}'>
-                    <td>${ele.id}</td>
-                    <td>${ele.wo}</td>
-                    <td>${ele.ass}</td>
-                    <td>${ele.item_color}</td>
-                    <td>${ele.yard_demand}</td>
-                    <td style='text-align: -webkit-right'>
-                        <a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Chọn</a>
-                    </td>
-                </tr>`;
-            }
+            if(selectedSavedFabricRollList){
+                $("#table2").css("display", "block");
+                $("#table1").css("display", "none");
 
-            $("#fabric-table-body").append(html);
+                for (let i = 0; i < markerDetailList.length; i++) {
+                    let eleMarkerDetail = markerDetailList[i];
+                    let selectedRollList = selectedSavedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
+                    let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+                    let rollCount = selectedRollList.length;
+                    let str = `<tr style='background: #ced6dd'>
+                        <td>${i + 1}</td>
+                        <td>${eleMarkerDetail.item_color}</td>
+                        <td>${eleMarkerDetail.wo}</td>
+                        <td>${eleMarkerDetail.ass}</td>
+                        <td>${rollCount} cuộn</td>
+                        <td><span class='text-danger'>${sumYard}</span> / ${eleMarkerDetail.yard_demand}</td>
+                        <td colspan='4'></td>
+                        <td><span id=''></span></td>
+                        <td><span id=''></span></td>
+                    </tr>`;
+                    for (let j = 0; j < selectedRollList.length; j++) {
+                        let eleRoll = selectedRollList[j];
+                        str += `<tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>${eleRoll.unipack2}</td>
+                            <td>${eleRoll.yard}</td>
+                            <td>${eleRoll.rfinwt}</td>
+                            <td>${eleRoll.rgrade}</td>
+                            <td>${eleRoll.rlocbr}</td>
+                            <td>${eleRoll.shade}</td>
+                            <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
+                            <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
+                        </tr>`;
+                    }
+                    str += '<tr><td colspan="20">&nbsp;</td></tr>';
+                    html += str;
+                }
+                $("#table2-fabric-table-body").html('');
+                $("#table2-fabric-table-body").append(html);
+            }
+            else{
+                $("#table1").css("display", "block");
+                $("#table2").css("display", "none");
+
+                for (let i = 0; i < detail.length; i++) {
+                    let ele = detail[i];
+                    html += `<tr id='tr-${ele.id}'>
+                        <td>${ele.id}</td>
+                        <td>${ele.wo}</td>
+                        <td>${ele.ass}</td>
+                        <td>${ele.item_color}</td>
+                        <td>${ele.yard_demand}</td>
+                        <td style='text-align: -webkit-right'>
+                            <a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Chọn</a>
+                        </td>
+                    </tr>`;
+                }
+
+                $("#fabric-table-body").html('');
+                $("#fabric-table-body").append(html);
+            }
         }
         else {
             toastr.error(response.msg, "Thất bại");
@@ -125,7 +176,6 @@ function getMarkerPlanDetail(){
 }
 
 var currentFabricRollList = []; // danh sách cuộn vải theo item color cụ thể
-var selectedFabricRollList = []; // danh sách tổng các cuộn vải được chọn của cả phiếu
 var currentMarkerDetail = {}; // marker detail hiện tại khi chọn để select các cuộn vải
 var sum = 0; // biến tạm lưu tổng số yard của 1 marker detail
 

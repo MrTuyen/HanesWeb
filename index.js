@@ -162,7 +162,7 @@ app.use("/production", authController.authenticate, productionRoutes);
 
 // Cutting route
 var cuttingRoutes = require('./routes/cutting.routes');
-app.use("/cutting", authController.authorizeDepartment([constant.Department.Cutting]), cuttingRoutes);
+app.use("/cutting", authController.authenticate, cuttingRoutes);
 
 //======================================LOGIN==============================================
 

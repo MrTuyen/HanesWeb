@@ -1,3 +1,11 @@
+// General
+// Department
+var Enum_Department = {
+    Cutting: "Cutting",
+    Production: "Production",
+    Warehouse: "Warehouse"
+}
+
 // #region MECHANIC
 
 // Action enum
@@ -5,6 +13,15 @@ var Enum_Action = {
     None: 0,
     Approve: 1,
     Reject: 2
+}
+
+// Action enum
+var Enum_Kanban_Action = {
+    Cancel: 1,
+    Call: 2,
+    CCDSend: 3,
+    WHSend: 4,
+    Complete: 5
 }
 
 // Request Type enum

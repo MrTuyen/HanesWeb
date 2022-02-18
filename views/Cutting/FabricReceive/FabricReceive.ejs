@@ -21,24 +21,6 @@
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
-        .datepicker {
-            z-index: 9999 !important;
-        }
-
-        #lbCounted {
-            font-size: 350px;
-            text-align: center;
-            align-items: center;
-            vertical-align: middle;
-            padding: 295px 0;
-        }
-
-        .sticky-thead {
-            position: sticky;
-            background: whitesmoke;
-            top: 0;
-        }
-
         .scanned-table {
             height: 540px;
             overflow: auto;
@@ -49,35 +31,16 @@
             text-align: -webkit-center;
         }
 
-        .scanned-table::-webkit-scrollbar {
-            width: 3px;
-            height: 3px;
-            background-color: whitesmoke;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #888; 
-        }
-
-        /* Track */
-        ::-webkit-scrollbar-track {
-            background: white; 
-        }
-
-        .upload-btn-wrapper input[type=file] {
-            font-size: 100px;
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-        }
-
         .rounded-circle {
             width: 32px;
             height: 32px;
             border: 1px solid grey;
             background: white;
             border-radius: 50%;
+        }
+
+        .display-none{
+            display: none;
         }
 
         .txtTime {
@@ -154,39 +117,22 @@
                                                 <span class="fa fa-search"></span> Filter
                                             </button>
                                             <div class="dropdown-menu p-3" style="width: 300px;">
-                                                <form class="form-inline" id="formTRReport">
-                                                    <div class="mt-2 d-flex">
-                                                        <div class="w-100">
-                                                            <p class="mb-1"><strong>Zone</strong></p>
-                                                            <select class="form-control w-100 list-zone" name="" id="txtFilterSMZone" onchange="">
-                                                                <option value="">All</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mt-2 d-flex">
-                                                        <div class="w-100">
-                                                            <p class="mb-1"><strong>Line</strong></p>
-                                                            <select class="form-control w-100 list-zone" name="" id="txtFilterSMLine" onchange="">
-                                                                <option value="">All</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
+                                                <form class="form-inline" id="">
                                                     <div class="mt-2 d-flex">
                                                         <div class="w-100">
                                                             <label for="" class="col-form-label">Status:</label>
                                                             <div class="input-group w-100">
-                                                                <select class="form-control w-100" name="" id="txtFilterSMStatus" onchange="">
+                                                                <select class="form-control w-100" name="" id="txtFilterStatus" onchange="getListMarkerData()">
+                                                                    <option value="1"> Active </option>
+                                                                    <option value="2"> Done </option>
                                                                     <option value=""> All </option>
-                                                                    <option value="1"> Good </option>
-                                                                    <option value="2"> Error </option>
-                                                                    <option value="3"> Repairing </option>
                                                                 </select>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div class="justify-content-between align-items-center mt-3 text-right">
-                                                        <button type="button" class="btn btn-light btn-sm" onclick="downloadSewingMachine()">Download</button>
-                                                        <button type="button" class="btn btn-success btn-sm" onclick="getAllSewingMachine()">Search</button>
+                                                        <!-- <button type="button" class="btn btn-light btn-sm" onclick="downloadSewingMachine()">Download</button> -->
+                                                        <button type="button" class="btn btn-success btn-sm" onclick="getListMarkerData()">Search</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -333,6 +279,7 @@
     <script src="/Contents/libs/download.min.js"></script>
     <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
     <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/JS/HBI/Common/enum.js"></script>
     <script src="/JS/HBI/Cutting/fabricreceive.js"></script>
 </body>
 

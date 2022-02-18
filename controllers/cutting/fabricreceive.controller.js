@@ -19,16 +19,18 @@ const cuttingService = require("../../services/Cutting/cutting.service");
 
 // logic
 module.exports.getIndex = function (req, res) {
-    res.render('Cutting/FabricReceive/FabricReceive');
+    let user = req.user;
+    res.render('Cutting/FabricReceive/FabricReceive', {user: user});
 }
 
 // marker data
 module.exports.getMarkerData = async function (req, res) {
     try {
         // parameters
+        let filterStatus = req.body.filterStatus;
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ()`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterStatus}')`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -195,15 +197,11 @@ module.exports.action = function(req, res){
                 }
             case constant.Enum_Action.CCDSend:
                 {
-                    //return CPSend(assWo, actionTime);
+                    return ccdSend(req, res, groupId);
                 }
             case constant.Enum_Action.WHSend:
                 {
-                    return whSend(req, res, groupId, actionTime);
-                }
-            case constant.Enum_Action.Complete:
-                {
-                   //return Complete(assWo);
+                    return whSend(req, res, groupId);
                 }
         }
     } catch (error) {
@@ -223,11 +221,11 @@ async function markerCall(req, res, groupId){
 
         // check the ticket has been called or not
         if(objMarker[0].marker_call_by != undefined && objMarker[0].marker_call_by != undefined){
-            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được ccd gọi/ This ticket has been called" }));
+            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được marker gọi/ This ticket has been called by marker" }));
         }
         else{
             query = `UPDATE cutting_fr_marker_data_plan 
-                    SET ccd_call_date = '${datetime}', ccd_call_by = '${user}'
+                    SET marker_call_date = '${datetime}', marker_call_by = '${user}'
                     WHERE id = ${groupId}`;
             let isUpdateSuccess = await db.excuteNonQueryAsync(query);
             if(isUpdateSuccess <= 0){
@@ -282,7 +280,7 @@ async function cancel(req, res, groupId, cancelReason, cancelStep){
     }
 }
 
-async function whSend(req, res, groupId, actionTime){
+async function whSend(req, res, groupId){
     try {
         // parameters
         let user = req.user.username;
@@ -303,7 +301,7 @@ async function whSend(req, res, groupId, actionTime){
         }
         else{
             query = `UPDATE cutting_fr_marker_data_plan 
-                    SET wh_confirm_date = '${datetime}', wh_confirm_by = '${user}', wh_confirm_time = ${actionTime}
+                    SET wh_confirm_date = '${datetime}', wh_confirm_by = '${user}'
                     WHERE id = ${groupId}`;
             let isUpdateSuccess = await db.excuteNonQueryAsync(query);
             if(isUpdateSuccess <= 0){
@@ -334,8 +332,6 @@ module.exports.warehouseConfirm = async function (req, res) {
         let selectedRollList = req.body.selectedRollList;
 
         let insertRollFaiiList = [];
-        let user = req.user.username;
-        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
 
         // update note marker plan 
         let query = `UPDATE cutting_fr_marker_data_plan 
@@ -447,32 +443,84 @@ async function ccdSend(req, res, groupId){
         let objMarker = await db.excuteQueryAsync(query);
 
         // check the ticket has been called or not
-        if(objMarker[0].marker_call_by != undefined && objMarker[0].marker_call_by != undefined){
-            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được ccd gọi/ This ticket has been called" }));
+        if(objMarker[0].marker_call_by == undefined && objMarker[0].marker_call_date == undefined){
+            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này chưa được Marker gọi/ This ticket has not been called by Marker" }));
+        }
+
+        // check the ticket has been called or not
+        if(objMarker[0].ccd_confirm_by != undefined && objMarker[0].ccd_confirm_date != undefined){
+            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được ccd xác nhận hoàn thành/ This ticket has been confirmed by ccd" }));
         }
         else{
             query = `UPDATE cutting_fr_marker_data_plan 
-                    SET ccd_call_date = '${datetime}', ccd_call_by = '${user}'
+                    SET ccd_confirm_date = '${datetime}', ccd_confirm_by = '${user}'
                     WHERE id = ${groupId}`;
             let isUpdateSuccess = await db.excuteNonQueryAsync(query);
             if(isUpdateSuccess <= 0){
-                return res.end(JSON.stringify({ rs: false, msg: "Gọi phiếu xảy ra lỗi/ Calling ticket occured error" }));
+                return res.end(JSON.stringify({ rs: false, msg: "Ccd xác nhận xảy ra lỗi/ The ticket has not beend confirmed by CCD successful" }));
             }
             else{
                 testIo.emit('ccd-fabric-receive-action', {
                     username: user,
                     message: {
                         groupId: groupId, 
-                        callDate: datetime,
-                        actionType: constant.Enum_Action.Call
+                        actionType: constant.Enum_Action.CCDSend
                     }
                 });
         
-                return res.end(JSON.stringify({ rs: true, msg: "Gọi phiếu thành công/ The ticket has been called successful" }));
+                return res.end(JSON.stringify({ rs: true, msg: "Ccd xác nhận thành công/ The ticket has been confirmed by CCD successful" }));
             }
         }
     } catch (error) {
         logHelper.writeLog("fabric_receive.ccdCall", error);
+    }
+}
+
+module.exports.ccdConfirm = async function (req, res) {
+    try {
+        // parameters
+        let markerPlan = req.body.markerPlan;
+        let markerDetailList = req.body.markerDetailList;
+        let selectedRollList = req.body.selectedRollList;
+
+        let updateRollFaiiList = [];
+
+        // update note marker plan 
+        let query = `UPDATE cutting_fr_marker_data_plan 
+                    SET note = '${markerPlan.note}', status = 2
+                    WHERE id = ${markerPlan.id}`;
+        let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        if(isUpdateSuccess <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Cập nhật note phiếu yêu cầu vải không thành công." }));
+
+        // update inventory and insert selected roll to database
+        for (let i = 0; i < markerDetailList.length; i++) {
+            let eleMarkerDetail = markerDetailList[i];
+            let rollList = selectedRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
+            
+            for (let j = 0; j < rollList.length; j++) {
+                let eleRoll = rollList[j];
+                
+                if(eleRoll.scanned_time != ''){
+                    // update scanned time to cutting_fr_marker_data_plan_detail_roll table
+                    query = `UPDATE cutting_fr_marker_data_plan_detail_roll
+                    SET scanned_time = '${eleRoll.scanned_time}'
+                    WHERE id = ${eleRoll.id}`;
+                    
+                    let isUpdateRollSuccess = await db.excuteNonQueryAsync(query);
+                    if(isUpdateRollSuccess < 0){
+                        updateRollFaiiList.push(eleRoll);
+                    }
+                }
+            }
+        }
+        
+        if (updateRollFaiiList.length > 0){
+            return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
+        }
+        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.ccdConfirm", error);
     }
 }
 

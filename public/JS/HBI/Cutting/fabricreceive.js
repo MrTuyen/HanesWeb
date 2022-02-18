@@ -5,15 +5,9 @@
 
 // #region System variable
 const baseUrl = "/cutting/fabric-receive/";
-
-// Action enum
-var Enum_Action = {
-    Cancel: 1,
-    Call: 2,
-    CCDSend: 3,
-    WHSend: 4,
-    Complete: 5
-}
+const userLogin = JSON.parse(localStorage.getItem("user"));
+var wh_display = userLogin.dept == Enum_Department.Warehouse ? "" : "display-none";
+var ccd_display = userLogin.dept == Enum_Department.Cutting ? "" : "display-none";
 
 // #endregion
 
@@ -81,9 +75,11 @@ function changeDateFilter(){
 }
 
 function getListMarkerData(){
+    let filterStatus = $("#txtFilterStatus").val();
+
     let action = baseUrl + 'get-marker-data';
     let datasend = {
-         
+        filterStatus: filterStatus
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
@@ -133,10 +129,9 @@ function getListMarkerData(){
                         ${ele.note}
                     </td>
                     <td>
-                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='Action(${Enum_Action.Call})'>Marker call</button>
                         <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
-                        <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD scan</a>
-                        <a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
+                        <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD scan</a>
+                        <a class='btn btn-sm btn-primary ${wh_display}' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
                     </td>
                 </tr>`;
             }
@@ -149,7 +144,7 @@ function getListMarkerData(){
                 // checking marker was called then continue counting if called
                 let totalMinutes = 0;
                 let now = new Date();
-                if (ele.marker_call_date != undefined)
+                if (ele.marker_call_date != undefined && ele.ccd_confirm_date == undefined)
                 {
                     var callDate = new Date(ele.marker_call_date);
                     var nextDay = callDate.addDays(1); // 6:00 next day from call day
@@ -273,7 +268,7 @@ function Action(actionType){
     var groupId = "";
     var cancelReason = "";
     var cancelStep = "";
-    if (actionType == Enum_Action.Cancel) {
+    if (actionType == Enum_Kanban_Action.Cancel) {
         groupId = $("#txtGroupId").val();
         cancelReason = $("#txtReason").val();
         cancelStep = $("#txtCancelStep").val();
@@ -300,17 +295,17 @@ function Action(actionType){
             toastr.success(response.msg);
 
             switch (actionType) {
-                case Enum_Action.Cancel: {
+                case Enum_Kanban_Action.Cancel: {
                     $("#modalReason").modal('hide');
                     $("#txtReason").val('');
                     ClearTime(groupId);
                     CCDChange(groupId, "white");
                     WHChange(groupId, "white");
                 } break;
-                case Enum_Action.CCDSend: {
+                case Enum_Kanban_Action.CCDSend: {
                     $("#tr-" + groupId).remove();
                 } break;
-                case Enum_Action.WHSend: {
+                case Enum_Kanban_Action.WHSend: {
                     $("#tr-" + groupId).remove();
                 } break;
             }
@@ -427,19 +422,19 @@ socket.on('ccd-fabric-receive-action', (data) => {
     let message = data.message;
     let groupId = message.groupId;
     switch (message.actionType) {
-        case Enum_Action.Cancel:
+        case Enum_Kanban_Action.Cancel:
             Cancel(groupId);  
             break;
-        case Enum_Action.Call:                
+        case Enum_Kanban_Action.Call:                
             Call(groupId, message);
             break;
-        case Enum_Action.CCDSend:
+        case Enum_Kanban_Action.CCDSend:
             CCDSend(groupId);
             break;
-        case Enum_Action.WHSend:
+        case Enum_Kanban_Action.WHSend:
             WHSend(groupId);
             break;
-        case Enum_Action.Complete:
+        case Enum_Kanban_Action.Complete:
             Complete(groupId);
             break;
         default: Refresh(); break;

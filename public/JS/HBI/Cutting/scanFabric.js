@@ -96,6 +96,8 @@ function getMarkerPlanDetail(){
             setTimeout(function(){
                 getMarkerPlanDetailPreview();
                 $("#lbSumRoll").text(selectedFabricRollList.length);
+                let obj = selectedFabricRollList.filter(x => x.scanned_time != undefined).length;
+                $("#lbCounted").text(obj);
             }, 500);
         }
         else {
@@ -166,8 +168,8 @@ function getMarkerPlanDetailPreview(){
                 <td>${eleRoll.rgrade}</td>
                 <td>${eleRoll.rlocbr}</td>
                 <td>${eleRoll.shade}</td>
-                <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}'></span></td>
-                <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}'></span></td>
+                <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}-${eleRoll.marker_plan_detail_id}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
+                <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}-${eleRoll.marker_plan_detail_id}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
             </tr>`;
         }
         str += '<tr><td colspan="20">&nbsp;</td></tr>';
@@ -206,14 +208,45 @@ function Action(groupId){
     });
 }
 
+
+function scanBarcode() {
+    if (event.which === 13 || event.key == 'Enter') {
+        let rollCode = $("#txtRollCode");
+        if (rollCode.val().length > 0) {
+            let code = rollCode.val();
+            rollCode.val('');
+            let scannedTime = formatMMDDYYHHMMSS(new Date());
+
+            // addRow({wo: wo, rollCode: code, scannedTime: formatDDMMYYHHMMSS(new Date())});
+
+            let roll = selectedFabricRollList.filter(x => x.unipack2 == code && x.scanned_time == null)[0];
+
+            if(!roll){
+                toastr.error(`Không có cuộn vải có mã <span class='text-success'>${code}</span> hoặc đã được scanned trong phiếu này` ,"Thất bại");
+                return false;
+            }
+
+            // if(roll.scanned_time != null) {
+            //     toastr.error(`Cuộn vải có mã <span class='text-success'>${code}</span> đã được scan` ,"Thất bại");
+            //     return false;
+            // }
+
+            roll.scanned_time = scannedTime;
+            $(`#scanned-status-${code}-${roll.marker_plan_detail_id}`).html("<i class='text-success fa fa-check-circle'></i>");
+            $(`#scanned-time-${code}-${roll.marker_plan_detail_id}`).text(scannedTime);
+            let count = parseInt($("#lbCounted").text()) + 1;
+            $("#lbCounted").text(count);
+        }
+        else {
+            toastr.error("Bạn chưa nhập mã cuộn vải /Roll code can not blank.");
+        }
+    }
+}
+
 // cal sum yard from selected fabric roll list
 function calSumYard(arr){
     
 }
-
-// #endregion
-
-// #region Socket
 
 // #endregion
 
@@ -273,40 +306,6 @@ function addRecord(){
             toastr.error(response.msg, "Thất bại");
         }
     });
-}
-
-function scanBarcode() {
-    if (event.which === 13 || event.key == 'Enter') {
-        let rollCode = $("#txtRollCode");
-        if (rollCode.val().length > 0) {
-            let code = rollCode.val();
-            rollCode.val('');
-            let scannedTime = formatMMDDYYHHMMSS(new Date());
-
-            // addRow({wo: wo, rollCode: code, scannedTime: formatDDMMYYHHMMSS(new Date())});
-
-            let roll = selectedFabricRollList.filter(x => x.unipack2 == code)[0];
-
-            if(!roll){
-                toastr.error(`Không có cuộn vải có mã <span class='text-danger'>${code}</span> trong phiếu này` ,"Thất bại");
-                return false;
-            }
-
-            if(roll.scanned_time != null) {
-                toastr.error(`Cuộn vải có mã <span class='text-danger'>${code}</span> đã được scan` ,"Thất bại");
-                return false;
-            }
-
-            roll.scanned_time = scannedTime;
-            $(`#scanned-status-${code}`).html("<i class='text-success fa fa-check-circle'></i>");
-            $(`#scanned-time-${code}`).text(scannedTime);
-            let count = parseInt($("#lbCounted").text()) + 1;
-            $("#lbCounted").text(count);
-        }
-        else {
-            toastr.error("Bạn chưa nhập mã cuộn vải /Roll code can not blank.");
-        }
-    }
 }
 
 function addRow(ele){
@@ -375,3 +374,7 @@ function loadHistory(){
         }
     });
 }
+
+// #region Socket
+
+// #endregion
