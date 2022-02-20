@@ -33,6 +33,7 @@ router.get("/fabric-receive/inventory-data", fabricReceiveController.getIndexInv
 router.post("/fabric-receive/upload-fabric-inventory-file", fabricReceiveController.uploadFabricInventoryDataFile)
 router.post("/fabric-receive/save-upload-fabric-inventory-data", fabricReceiveController.saveUploadFabricInventoryDataFile)
 router.post("/fabric-receive/get-inventory-data", fabricReceiveController.getInventoryData)
+router.post("/fabric-receive/download-inventory-data", fabricReceiveController.downloadInventoryData)
 
 // Offstandard
 router.get("/OffStandard", offstandardController.getOffStandardPage)

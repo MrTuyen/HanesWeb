@@ -69,7 +69,7 @@ module.exports.getMarkerDataDetail = async function (req, res) {
 
             for (let i = 0; i < itemColorList.length; i++) {
                 let ele = itemColorList[i];
-                let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 10000, '', '${ele}', '')`);
+                let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 10000, '', '${ele}', '', '')`);
                 farbicRollList.push({itemColor: ele, rollList: result[0]})
             }
 
@@ -380,7 +380,8 @@ module.exports.warehouseConfirm = async function (req, res) {
                     rfstyl,
                     rshapr,
                     rlnvar,
-                    rdylot
+                    rdylot,
+                    note
                 ) 
                 VALUES (
                     ${markerPlan.id},
@@ -412,7 +413,8 @@ module.exports.warehouseConfirm = async function (req, res) {
                     '${eleRoll.rfstyl}',
                     '${eleRoll.rshapr}',
                     '${eleRoll.rlnvar}',
-                    '${eleRoll.rdylot}'
+                    '${eleRoll.rdylot}', 
+                    '${eleRoll.note}'
                 )`;
                 
                 let isInsertRollSuccess = await db.excuteInsertReturnIdAsync(query);
@@ -537,9 +539,10 @@ module.exports.getInventoryData = async function (req, res) {
         let unipack = req.body.unipack;
         let itemColor = req.body.itemColor;
         let itemStatus = req.body.status;
+        let itemNote = req.body.note;
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (${currentPage}, ${itemPerPage}, '${unipack}', '${itemColor}', '${itemStatus}')`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (${currentPage}, ${itemPerPage}, '${unipack}', '${itemColor}', '${itemStatus}', '${itemNote}')`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -640,13 +643,62 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
         
         // delete all data before update latest data from Inventory6
         let query = `TRUNCATE TABLE cutting_fr_wh_fabric_inventory`;
-        let isDeleteOldData = await db.excuteQueryAsync(query);
+        let isDeleteOldData = await db.excuteNonQueryAsync(query);
+        if(isDeleteOldData < 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Xóa dữ liệu cũ không thành công" }));
 
         let isUploadSuccess = cuttingService.addFabricInventoryData(savedData);
+        if(isUploadSuccess < 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Thêm dữ liệu mới không thành công" }));
 
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.saveUploadFabricInventoryDataFile", error);
+    }
+}
+
+module.exports.downloadInventoryData = function (req, res) {
+    try {
+        //parameters
+        let unipack = req.body.unipack;
+        let itemColor = req.body.itemColor;
+        let itemStatus = req.body.status;
+        let itemNote = req.body.note;
+
+        // execute
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 50000, '${unipack}', '${itemColor}', '${itemStatus}', '${itemNote}')`, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                let jsonModel = JSON.parse(JSON.stringify(result.data));
+
+                let workbook = new excel.Workbook(); //creating workbook
+                let worksheet = workbook.addWorksheet('Inventory Data'); //creating worksheet
+
+                //  WorkSheet Header
+                worksheet.columns = [
+                    { header: 'Id', key: 'id', width: 10 },
+                    { header: 'Unipack', key: 'unipack2', width: 30 },
+                    { header: 'ItemColor', key: 'item_color', width: 30 },
+                    { header: 'Yard', key: 'yard', width: 30 },
+                    { header: 'Bin', key: 'rlocbr', width: 30 },
+                    { header: 'Status', key: 'status', width: 30 },
+                    { header: 'Note', key: 'note', width: 30 }
+                ];
+
+                // Add Array Rows
+                worksheet.addRows(jsonModel);
+
+                // Write to File
+                let filename = "templates/inventory_data.xlsx";
+                workbook.xlsx.writeFile(filename).then(function () {
+                    res.download(filename);
+                });
+            }
+        });
+    } catch (error) {
+        logHelper.writeLog("fabricreceive.downloadInventoryData", error);
     }
 }
 

@@ -6,8 +6,10 @@
 // #region System variable
 const baseUrl = "/cutting/fabric-receive/";
 const userLogin = JSON.parse(localStorage.getItem("user"));
-var wh_display = userLogin.dept == Enum_Department.Warehouse ? "" : "display-none";
-var ccd_display = userLogin.dept == Enum_Department.Cutting ? "" : "display-none";
+// var wh_display = userLogin.dept == Enum_Department.Warehouse ? "" : "display-none";
+// var ccd_display = userLogin.dept == Enum_Department.Cutting ? "" : "display-none";
+var wh_display = userLogin.dept == Enum_Department.Warehouse ? "" : "";
+var ccd_display = userLogin.dept == Enum_Department.Cutting ? "" : "";
 
 // #endregion
 

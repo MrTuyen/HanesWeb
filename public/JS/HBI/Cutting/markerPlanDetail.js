@@ -231,6 +231,9 @@ function OpenModalMarkerDetail(markerDetail){
                         </div>
                     </div>
                 </td>
+                <td>
+                    <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" disabled />
+                </td>
                 <td>${ele.rlocbr}</td>
                 <td>${ele.rgrade}</td>
                 <td>${ele.shade}</td>
@@ -255,6 +258,9 @@ function OpenModalMarkerDetail(markerDetail){
                             </div>
                         </div>
                     </td>
+                    <td>
+                        <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" disabled />
+                    </td>
                     <td>${ele.rlocbr}</td>
                     <td>${ele.rgrade}</td>
                     <td>${ele.shade}</td>
@@ -272,6 +278,7 @@ function selectMarker(){
     let currentEle = $(event.target);
     let id = currentEle.attr('data-id');
     let isCheck = $(`#cb-${id}`).is(":checked");
+    let currentNoteEle = $(`#note-${id}`);
     let currentYardEle = $(`#used-yard-${id}`);
     let usedYard = currentYardEle.val();
 
@@ -283,6 +290,7 @@ function selectMarker(){
 
     if(isCheck){
         currentYardEle.removeAttr("disabled");
+        currentNoteEle.removeAttr("disabled");
 
         // thêm vào danh sách tổng các cuộn vải được chọn
         selectedFabricRollList.push(rollInfo);
@@ -291,6 +299,7 @@ function selectMarker(){
     }
     else{
         currentYardEle.attr("disabled", "disabled");
+        currentNoteEle.attr("disabled", "disabled");
 
         // xóa đi cuộn vải trong danh sách tổng các cuộn vải được chọn
         let objDelete = selectedFabricRollList.filter(x => x.id == id && x.markerDetailId == currentMarkerDetail.id)[0];
@@ -315,6 +324,16 @@ function yardChange(){
 
     // tính tổng số yard các cuộn vải theo chi tiết marker
     $("#txtFabricRollYard").text(selectedFabricRollList.filter(x => x.markerDetailId == currentMarkerDetail.id).reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
+}
+
+function noteChange(){
+    let currentEle = $(event.target);
+    let id = currentEle.attr('data-id');
+    let currentNoteEle = $(`#note-${id}`);
+    let note = currentNoteEle.val();
+
+    let rollInfo = selectedFabricRollList.filter(x => x.id == id && x.markerDetailId == currentMarkerDetail.id)[0];
+    rollInfo.note = note;
 }
 
 // change color of ....

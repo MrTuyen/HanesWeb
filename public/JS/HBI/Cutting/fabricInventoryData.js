@@ -77,6 +77,7 @@ function getInventoryData(intPage){
     let unipack = $("#txtUnipack").val();
     let itemColor = $("#txtItemColor").val();
     let status = $("#txtFilterStatus").val();
+    let note = $("#txtFilterNote").val();
     // send to server
     let action = baseUrl + 'get-inventory-data';
     let datasend = {
@@ -84,7 +85,8 @@ function getInventoryData(intPage){
         itemPerPage: itemPerPage,
         unipack: unipack,
         itemColor: itemColor,
-        status: status
+        status: status,
+        note: note
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
@@ -97,9 +99,11 @@ function getInventoryData(intPage){
                 html += `<tr>
                     <td>${ele.status == null ? "" : "Đã sử dụng"}</td>
                     <td>${ele.id}</td>
+                    <td>${ele.note ? ele.note : ''}</td>
                     <td>${ele.item_color}</td>
                     <td>${ele.unipack2}</td>
                     <td>${ele.yard}</td>
+                    <td>${ele.rlocbr}</td>
                     <td></td>
                 </tr>`;
             }
@@ -200,6 +204,35 @@ function saveUploadData(){
         else {
             toastr.error(response.msg, "Thất bại");
         }
+    });
+}
+
+function downloadInventoryData() {
+    LoadingShow();
+    let unipack = $("#txtUnipack").val();
+    let itemColor = $("#txtItemColor").val();
+    let status = $("#txtFilterStatus").val();
+    let note = $("#txtFilterNote").val();
+    // send to server
+    let action = baseUrl + 'download-inventory-data';
+    let datasend = {
+        unipack: unipack,
+        itemColor: itemColor,
+        status: status,
+        note: note
+    };
+
+    fetch(action, {
+        method: 'POST',
+        body: JSON.stringify(datasend),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).then(function (resp) {
+        return resp.blob();
+    }).then(function (blob) {
+        LoadingHide();
+        return download(blob, GetTodayDate() + "_inventory.xlsx");
     });
 }
 
