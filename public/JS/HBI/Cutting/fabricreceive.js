@@ -6,10 +6,8 @@
 // #region System variable
 const baseUrl = "/cutting/fabric-receive/";
 const userLogin = JSON.parse(localStorage.getItem("user"));
-// var wh_display = userLogin.dept == Enum_Department.Warehouse ? "" : "display-none";
-// var ccd_display = userLogin.dept == Enum_Department.Cutting ? "" : "display-none";
-var wh_display = userLogin.dept == Enum_Department.Warehouse ? "" : "";
-var ccd_display = userLogin.dept == Enum_Department.Cutting ? "" : "";
+var wh_display = (userLogin.dept == Enum_Department.Warehouse || userLogin.position == "Admin") ? "" : "display-none";
+var ccd_display = (userLogin.dept == Enum_Department.Cutting || userLogin.position == "Admin") ? "" : "display-none";
 
 // #endregion
 
@@ -50,10 +48,10 @@ $(document).ready(function () {
         month: "2-digit",
         day: "2-digit",
     });
-    let html = `<option value='${date};${date}' selected>Hôm nay</option>`;
+    let html = `<option value='${date};${date}'>Hôm nay</option>`;
     for (let i = 0; i < Timepickers.length; i++) {
         let ele = Timepickers[i];
-        html += `<option value='${ele.value}'>${ele.text}</option>`
+        html += `<option value='${ele.value}' ${i == 0 ? 'selected' : ''}>${ele.text}</option>`
     }
     $("#txtFilterTime").append(html);
 
@@ -78,10 +76,15 @@ function changeDateFilter(){
 
 function getListMarkerData(){
     let filterStatus = $("#txtFilterStatus").val();
+    let filterDate = $("#txtFilterTime").val();
+    if (filterDate.toString() == "5") {
+        filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+    }
 
     let action = baseUrl + 'get-marker-data';
     let datasend = {
-        filterStatus: filterStatus
+        filterStatus: filterStatus,
+        filterDate: filterDate
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
@@ -301,8 +304,7 @@ function Action(actionType){
                     $("#modalReason").modal('hide');
                     $("#txtReason").val('');
                     ClearTime(groupId);
-                    CCDChange(groupId, "white");
-                    WHChange(groupId, "white");
+                    $("#tr-" + groupId).remove();
                 } break;
                 case Enum_Kanban_Action.CCDSend: {
                     $("#tr-" + groupId).remove();
@@ -357,10 +359,11 @@ function WHSend(groupId) {
 
 // Cancel click: Change both CCD and WH to white
 function Cancel(groupId) {
-    $("#call-date-" + groupId).text("");
+    //$("#call-date-" + groupId).text("");
     ClearTime(groupId);
-    CCDChange(groupId, "white");
-    WHChange(groupId, "white");
+    // CCDChange(groupId, "white");
+    // WHChange(groupId, "white");
+    $("#tr-" + groupId).remove();
 }
 
 // Complete click: Save data row to TBL_KANBAN_DATA
@@ -435,9 +438,6 @@ socket.on('ccd-fabric-receive-action', (data) => {
             break;
         case Enum_Kanban_Action.WHSend:
             WHSend(groupId);
-            break;
-        case Enum_Kanban_Action.Complete:
-            Complete(groupId);
             break;
         default: Refresh(); break;
     }

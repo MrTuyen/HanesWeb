@@ -156,6 +156,10 @@ input[type="checkbox"]{
     background: white;
 }
 
+.display-none{
+    display: none;
+}
+
 @media (max-width: 575.98px) {
     .part-img {
         width: 100%;

@@ -107,7 +107,7 @@ function getMarkerPlanDetail(){
 }
 
 function ccdSubmitData(){
-    markerPlan.note = $("#txtNote").val();
+    markerPlan.note = $("#txtPNote").val();
     // send to server
     let action = baseUrl + 'ccd-confirm';
     let datasend = {

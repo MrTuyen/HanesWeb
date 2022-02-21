@@ -28,9 +28,12 @@ module.exports.getMarkerData = async function (req, res) {
     try {
         // parameters
         let filterStatus = req.body.filterStatus;
+        let filterDate = req.body.filterDate;
+        let fromDate = filterDate.split(';')[0];
+        let toDate = filterDate.split(';')[1];
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterStatus}')`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterStatus}', '${fromDate}', '${toDate}')`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -260,7 +263,8 @@ async function cancel(req, res, groupId, cancelReason, cancelStep){
                     SET cancel_step = ${cancelStep}, 
                         cancel_reason = '${cancelReason}',  
                         cancel_date = '${datetime}', 
-                        cancel_by = '${user}'
+                        cancel_by = '${user}',
+                        status = 3
                     WHERE id=${groupId}`;
 
         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
@@ -528,7 +532,8 @@ module.exports.ccdConfirm = async function (req, res) {
 
 // inventory data
 module.exports.getIndexInventoryData = function (req, res) {
-    res.render('Cutting/FabricReceive/FabricInventoryData');
+    let user = req.user;
+    res.render('Cutting/FabricReceive/FabricInventoryData', {user: user});
 }
 
 module.exports.getInventoryData = async function (req, res) {

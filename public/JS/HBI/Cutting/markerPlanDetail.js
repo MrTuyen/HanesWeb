@@ -232,7 +232,7 @@ function OpenModalMarkerDetail(markerDetail){
                     </div>
                 </td>
                 <td>
-                    <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" disabled />
+                    <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" />
                 </td>
                 <td>${ele.rlocbr}</td>
                 <td>${ele.rgrade}</td>

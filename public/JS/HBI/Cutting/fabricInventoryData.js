@@ -97,7 +97,7 @@ function getInventoryData(intPage){
             for (let i = 0; i < data.length; i++) {
                 let ele = data[i];
                 html += `<tr>
-                    <td>${ele.status == null ? "" : "Đã sử dụng"}</td>
+                    <td>${ele.status == 0 ? "" : "Đã sử dụng"}</td>
                     <td>${ele.id}</td>
                     <td>${ele.note ? ele.note : ''}</td>
                     <td>${ele.item_color}</td>
