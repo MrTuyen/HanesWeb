@@ -652,11 +652,22 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
         if(isDeleteOldData < 0)
             return res.end(JSON.stringify({ rs: false, msg: "Xóa dữ liệu cũ không thành công" }));
 
-        let isUploadSuccess = cuttingService.addFabricInventoryData(savedData);
-        if(isUploadSuccess < 0)
-            return res.end(JSON.stringify({ rs: false, msg: "Thêm dữ liệu mới không thành công" }));
+        let loopNumber = Math.round(savedData.length / 1000);
+        for (let i = 0; i < loopNumber; i++) {
+            let index = i * 1000;
+            let tempList = savedData.slice(index, index + 1000);
+            let isUploadSuccess = await cuttingService.addFabricInventoryData(tempList);
+            if(isUploadSuccess < 0)
+                return res.end(JSON.stringify({ rs: false, msg: "Thêm dữ liệu mới không thành công" }));
+            if(i == loopNumber - 1)
+                return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+        }
 
-        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+        // let isUploadSuccess = await cuttingService.addFabricInventoryData(savedData);
+        // if(isUploadSuccess < 0)
+        //     return res.end(JSON.stringify({ rs: false, msg: "Thêm dữ liệu mới không thành công" }));
+
+        // return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.saveUploadFabricInventoryDataFile", error);
     }
@@ -704,21 +715,6 @@ module.exports.downloadInventoryData = function (req, res) {
         });
     } catch (error) {
         logHelper.writeLog("fabricreceive.downloadInventoryData", error);
-    }
-}
-
-function calTaskNumber(totalRow, numberPerTask, taskNumDefault)
-{
-    if (totalRow <= taskNumDefault)
-    {
-        taskNumDefault = 1;
-        numberPerTask = totalRow;
-    }
-    else
-    {
-        numberPerTask = totalRow / taskNumDefault;
-        if (numberPerTask % taskNumDefault != 0)
-            numberPerTask++;
     }
 }
 

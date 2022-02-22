@@ -107,11 +107,11 @@ module.exports.getStackBarMachineData = async function (req, res) {
                             let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
                             if (tempListMachine.length > 0) {
                                 if(filterShift ==  'b_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
                                 else if(filterShift ==  'c_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
                                 else
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);                  
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);                  
                             }
                         }
 
@@ -208,11 +208,11 @@ module.exports.getStackBarMachineData = async function (req, res) {
                             let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
                             if (tempListMachine.length > 0) {
                                 if(filterShift ==  'b_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
                                 else if(filterShift ==  'c_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
                                 else
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
                             }
                         }
 
@@ -308,11 +308,11 @@ module.exports.getStackBarMachineData = async function (req, res) {
                     let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
                     if (tempListMachine.length > 0) {
                         if(filterShift ==  'b_shift')
-                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
                         else if(filterShift ==  'c_shift')
-                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
                         else
-                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
+                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
                     }
                 }
 
