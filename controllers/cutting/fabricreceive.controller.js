@@ -652,7 +652,7 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
         if(isDeleteOldData < 0)
             return res.end(JSON.stringify({ rs: false, msg: "Xóa dữ liệu cũ không thành công" }));
 
-        let loopNumber = Math.round(savedData.length / 1000);
+        let loopNumber = Math.ceil(savedData.length / 1000);
         for (let i = 0; i < loopNumber; i++) {
             let index = i * 1000;
             let tempList = savedData.slice(index, index + 1000);
