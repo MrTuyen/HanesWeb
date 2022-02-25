@@ -104,7 +104,9 @@ function getInventoryData(intPage){
                     <td>${ele.unipack2}</td>
                     <td>${ele.yard}</td>
                     <td>${ele.rlocbr}</td>
-                    <td></td>
+                    <td>
+                        <button class='btn btn-primary btn-sm' onclick="openModalUpdateRoll()">Update</button>
+                    </td>
                 </tr>`;
             }
 

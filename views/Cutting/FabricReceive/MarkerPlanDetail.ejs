@@ -27,11 +27,17 @@
             border: 1px solid #dddddd;
         }
 
-        .fabric-roll-table td, .fabric-roll-table th, .sticky-table tr, .sticky-table th, .sticky-table td {
+        .sticky-modal-table{
+            height: 428px;
+            overflow: auto;
+            border: 1px solid #dddddd;
+        }
+
+        th, td {
             text-align: -webkit-center;
         }
 
-        .fabric-roll-table td, .fabric-roll-table th, .sticky-table td, .sticky-table th {
+        th, td {
             padding: 1px!important;
         }
 
@@ -185,8 +191,20 @@
                 </div>
                 <div class="" style="background-color: #28a745; height: 3px"></div>
                 <div class="">
-                    <table class="table mb-0">
-                        <tr>
+                    <table class="table table-bordered table-item-color mb-0">
+                        <thead class="sticky-thead">
+                            <tr>
+                                <th>#</th>
+                                <th>Item Color</th>
+                                <th>WO</th>
+                                <th>Ass</th>
+                                <th>Demand Yards</th>
+                            </tr>
+                        </thead>
+                        <tbody id="item-color-table-body">
+
+                        </tbody>
+                        <!-- <tr>
                             <td>
                                 WO: <strong><span id="txtWo"></span></strong> 
                             </td>
@@ -201,7 +219,7 @@
                             </td>
                             <td>
                                 Sum Fabric Roll Yards: <strong><span class='text-danger' id="txtFabricRollYard"></span></strong>
-                            </td>
+                            </td> -->
                         </tr>
                     </table>
                 </div>
@@ -214,7 +232,7 @@
                             </div>
                         </div> -->
                         <div class="panel-body p-0">
-                            <div class="col-sm-12 col-md-12 pl-0 pr-0 sticky-table">
+                            <div class="col-sm-12 col-md-12 pl-0 pr-0 sticky-modal-table">
                                 <table class="table table-hover table-bordered table-scrollable mb-0">
                                     <thead class="sticky-thead">
                                         <th>#</th>

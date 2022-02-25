@@ -27,13 +27,14 @@ module.exports.getIndex = function (req, res) {
 module.exports.getMarkerData = async function (req, res) {
     try {
         // parameters
+        let filterGroup = req.body.filterGroup;
         let filterStatus = req.body.filterStatus;
         let filterDate = req.body.filterDate;
         let fromDate = filterDate.split(';')[0];
         let toDate = filterDate.split(';')[1];
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterStatus}', '${fromDate}', '${toDate}')`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}')`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }

@@ -139,6 +139,7 @@ input[type="checkbox"]{
     position: sticky;
     background: whitesmoke;
     top: 0;
+    z-index: 10;
 }
 
 ::-webkit-scrollbar {

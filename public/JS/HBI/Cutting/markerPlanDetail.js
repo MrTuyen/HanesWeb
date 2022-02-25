@@ -151,6 +151,7 @@ function getMarkerPlanDetail(){
                 $("#table1").css("display", "block");
                 $("#table2").css("display", "none");
 
+                let colorFlag = "";
                 for (let i = 0; i < detail.length; i++) {
                     let ele = detail[i];
                     html += `<tr id='tr-${ele.id}'>
@@ -160,9 +161,15 @@ function getMarkerPlanDetail(){
                         <td>${ele.item_color}</td>
                         <td>${ele.yard_demand}</td>
                         <td style='text-align: -webkit-right'>
-                            <a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Chọn</a>
+                            ${
+                                ele.item_color != colorFlag ?
+                                `<a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Select</a>`
+                                : 
+                                ``
+                            }
                         </td>
                     </tr>`;
+                    colorFlag = ele.item_color;
                 }
 
                 $("#fabric-table-body").html('');
@@ -180,27 +187,47 @@ var currentMarkerDetail = {}; // marker detail hiện tại khi chọn để sel
 var sum = 0; // biến tạm lưu tổng số yard của 1 marker detail
 
 function OpenModalMarkerDetail(markerDetail){
+
+    // general information
+    let sameItemColorList = markerDetailList.filter(x => x.item_color == markerDetail.item_color);
+    let sumYard = sameItemColorList.reduce((a, b) => a + b.yard_demand, 0);
+    let html = '';
+    for (let i = 0; i < sameItemColorList.length; i++) {
+        let ele = sameItemColorList[i];
+        html += `<tr> 
+            <td>${i + 1}</td>
+            <td>${ele.item_color}</td>
+            <td>${ele.wo}</td>
+            <td>${ele.ass}</td>
+            <td>${ele.yard_demand}</td>
+        </tr>`
+    }
+    html += `<tr>
+        <td colspan='4' class='text-right'>Số lượng chọn / Số lượng marker: <span class='text-danger' id='txtFabricRollYard'>0</span></td>
+        <td class='text-success'>${sumYard}</td>
+    </tr>`
+    $("#item-color-table-body").html('');
+    $("#item-color-table-body").append(html);
+
     currentMarkerDetail = markerDetail;
     sum = 0;
     // open modal to fill-up data
     $("#modalFabricRoll").modal("show");
 
     let itemColor = markerDetail.item_color;
-
     // các thông tin cơ bản của phiếu
-    $("#txtWo").text(markerDetail.wo);
-    $("#txtAss").text(markerDetail.ass);
-    $("#txtItemColor").text(markerDetail.item_color);
-    $("#txtDemandYard").text(markerDetail.yard);
-    $("#txtFabricRollYard").text(0);
+    // $("#txtWo").text(markerDetail.wo);
+    // $("#txtAss").text(markerDetail.ass);
+    // $("#txtItemColor").text(markerDetail.item_color);
+    // $("#txtDemandYard").text(markerDetail.yard);
+    // $("#txtFabricRollYard").text(0);
 
     // lấy dữ liệu nguồn các cuộn vải theo item_color của chi tiết marker
     let tempList = fabricRollList.filter(x => x.itemColor === itemColor)[0].rollList;
     tempList = sortArrayByKey(tempList, 'unipack2', false);
     currentFabricRollList = tempList;
 
-    $("#fabric-roll-table-body").html('');
-    let html = '';
+    html = '';
     for (let i = 0; i < tempList.length; i++) {
         let ele = tempList[i];
 
@@ -269,6 +296,7 @@ function OpenModalMarkerDetail(markerDetail){
         }
     }
 
+    $("#fabric-roll-table-body").html('');
     $("#fabric-roll-table-body").append(html);
     // tính tổng số yard các cuộn vải theo chi tiết marker
     $("#txtFabricRollYard").text(selectedFabricRollList.filter(x => x.markerDetailId == currentMarkerDetail.id).reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
@@ -351,6 +379,11 @@ function whSubmitData(){
         markerDetailList: markerDetailList,
         selectedRollList: selectedFabricRollList
     };
+    // let datasend = JSON.stringify({
+    //     markerPlan: markerPlan,
+    //     markerDetailList: markerDetailList,
+    //     selectedRollList: selectedFabricRollList
+    // })
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
         LoadingHide();

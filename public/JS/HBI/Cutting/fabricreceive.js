@@ -75,6 +75,7 @@ function changeDateFilter(){
 }
 
 function getListMarkerData(){
+    let filterGroup = $("#txtFilterGroup").val();
     let filterStatus = $("#txtFilterStatus").val();
     let filterDate = $("#txtFilterTime").val();
     if (filterDate.toString() == "5") {
@@ -83,6 +84,7 @@ function getListMarkerData(){
 
     let action = baseUrl + 'get-marker-data';
     let datasend = {
+        filterGroup: filterGroup,
         filterStatus: filterStatus,
         filterDate: filterDate
     };
@@ -134,6 +136,7 @@ function getListMarkerData(){
                         ${ele.note}
                     </td>
                     <td>
+                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Print</button>
                         <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
                         <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD scan</a>
                         <a class='btn btn-sm btn-primary ${wh_display}' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
@@ -216,7 +219,10 @@ function uploadExcel(){
                     var options = "";
                     for (var i = 0; i < listSheet.length; i++) {
                         let item = listSheet[i];
-                        options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
+                        if(item.sheetname == 'Upload-YCV')
+                            options += "<option value=" + item.id + " selected>" + item.sheetname + "</option>";
+                        else 
+                            options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
                     }
 
                     $(".selected-sheet").html("").append(options);
@@ -359,11 +365,12 @@ function WHSend(groupId) {
 
 // Cancel click: Change both CCD and WH to white
 function Cancel(groupId) {
-    //$("#call-date-" + groupId).text("");
-    ClearTime(groupId);
+    // $("#call-date-" + groupId).text("");
+    // ClearTime(groupId);
     // CCDChange(groupId, "white");
     // WHChange(groupId, "white");
-    $("#tr-" + groupId).remove();
+    // $("#tr-" + groupId).remove();
+    getListMarkerData();
 }
 
 // Complete click: Save data row to TBL_KANBAN_DATA
