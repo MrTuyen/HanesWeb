@@ -108,42 +108,93 @@ function getMarkerPlanDetail(){
                 $("#table2").css("display", "block");
                 $("#table1").css("display", "none");
 
+                // for (let i = 0; i < markerDetailList.length; i++) {
+                //     let eleMarkerDetail = markerDetailList[i];
+                //     let selectedRollList = selectedSavedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
+                //     let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+                //     let rollCount = selectedRollList.length;
+                //     let str = `<tr style='background: #ced6dd'>
+                //         <td>${i + 1}</td>
+                //         <td>${eleMarkerDetail.item_color}</td>
+                //         <td>${eleMarkerDetail.wo}</td>
+                //         <td>${eleMarkerDetail.ass}</td>
+                //         <td>${rollCount} cuộn</td>
+                //         <td><span class='text-danger'>${sumYard}</span> / ${eleMarkerDetail.yard_demand}</td>
+                //         <td colspan='4'></td>
+                //         <td><span id=''></span></td>
+                //         <td><span id=''></span></td>
+                //     </tr>`;
+                //     for (let j = 0; j < selectedRollList.length; j++) {
+                //         let eleRoll = selectedRollList[j];
+                //         str += `<tr>
+                //             <td></td>
+                //             <td></td>
+                //             <td></td>
+                //             <td></td>
+                //             <td>${eleRoll.unipack2}</td>
+                //             <td>${eleRoll.yard}</td>
+                //             <td>${eleRoll.rfinwt}</td>
+                //             <td>${eleRoll.rgrade}</td>
+                //             <td>${eleRoll.rlocbr}</td>
+                //             <td>${eleRoll.shade}</td>
+                //             <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
+                //             <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
+                //         </tr>`;
+                //     }
+                //     str += '<tr><td colspan="20">&nbsp;</td></tr>';
+                //     html += str;
+                // }
+
+                let html = '';
+                let colorFlag = '';
                 for (let i = 0; i < markerDetailList.length; i++) {
                     let eleMarkerDetail = markerDetailList[i];
-                    let selectedRollList = selectedSavedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
-                    let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
-                    let rollCount = selectedRollList.length;
-                    let str = `<tr style='background: #ced6dd'>
-                        <td>${i + 1}</td>
-                        <td>${eleMarkerDetail.item_color}</td>
-                        <td>${eleMarkerDetail.wo}</td>
-                        <td>${eleMarkerDetail.ass}</td>
-                        <td>${rollCount} cuộn</td>
-                        <td><span class='text-danger'>${sumYard}</span> / ${eleMarkerDetail.yard_demand}</td>
-                        <td colspan='4'></td>
-                        <td><span id=''></span></td>
-                        <td><span id=''></span></td>
-                    </tr>`;
-                    for (let j = 0; j < selectedRollList.length; j++) {
-                        let eleRoll = selectedRollList[j];
-                        str += `<tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>${eleRoll.unipack2}</td>
-                            <td>${eleRoll.yard}</td>
-                            <td>${eleRoll.rfinwt}</td>
-                            <td>${eleRoll.rgrade}</td>
-                            <td>${eleRoll.rlocbr}</td>
-                            <td>${eleRoll.shade}</td>
-                            <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
-                            <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
-                        </tr>`;
+                    if(eleMarkerDetail.item_color != colorFlag){
+                        let selectedRollList = selectedSavedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
+                        let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+                        let rollCount = selectedRollList.length;
+                        let sameColorList = markerDetailList.filter(x => x.item_color == eleMarkerDetail.item_color);
+                        let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
+
+                        if(selectedRollList.length){
+                            let str = `<tr style='background: #ced6dd'>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>${rollCount} cuộn</td>
+                                <td><span class='text-danger'>${sumYard}</span> / ${sumDemandYard}</td>
+                                <td colspan='4'></td>
+                                <td><span id=''></span></td>
+                                <td><span id=''></span></td>
+                            </tr>`;
+
+                            for (let j = 0; j < selectedRollList.length; j++) {
+                                let eleRoll = selectedRollList[j];
+                                str += `<tr>
+                                    <td>${j + 1}</td>
+                                    <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
+                                    <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
+                                    <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
+                                    <td>${sameColorList[j] ? sameColorList[j].yard_demand : ''}</td>
+                                    <td>${eleRoll.unipack2}</td>
+                                    <td>${eleRoll.yard}</td>
+                                    <td>${eleRoll.rfinwt}</td>
+                                    <td>${eleRoll.rgrade}</td>
+                                    <td>${eleRoll.rlocbr}</td>
+                                    <td>${eleRoll.shade}</td>
+                                    <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
+                                    <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
+                                </tr>`;
+                            }
+                            str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
+                            html += str;
+                        }
                     }
-                    str += '<tr><td colspan="20">&nbsp;</td></tr>';
-                    html += str;
+                    colorFlag = eleMarkerDetail.item_color;
                 }
+
                 $("#table2-fabric-table-body").html('');
                 $("#table2-fabric-table-body").append(html);
             }
@@ -412,39 +463,85 @@ function getMarkerPlanDetailPreview(){
     $("#txtPWeek").val(new Date(markerPlan.date_update).getWeekNumber());
     $("#txtPNote").val(markerPlan.note);
 
+    // let html = '';
+    // for (let i = 0; i < markerDetailList.length; i++) {
+    //     let eleMarkerDetail = markerDetailList[i];
+    //     let selectedRollList = selectedFabricRollList.filter(x => x.markerDetailId == eleMarkerDetail.id);
+    //     let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0);
+    //     let rollCount = selectedRollList.length;
+    //     let str = `<tr style='background: #ced6dd'>
+    //         <td>${i + 1}</td>
+    //         <td>${eleMarkerDetail.item_color}</td>
+    //         <td>${eleMarkerDetail.wo}</td>
+    //         <td>${eleMarkerDetail.ass}</td>
+    //         <td>${rollCount} cuộn</td>
+    //         <td><span class='text-danger'>${sumYard}</span> / ${eleMarkerDetail.yard_demand}</td>
+    //         <td colspan='4'></td>
+    //     </tr>`;
+    //     for (let j = 0; j < selectedRollList.length; j++) {
+    //         let eleRoll = selectedRollList[j];
+    //         str += `<tr>
+    //             <td></td>
+    //             <td></td>
+    //             <td></td>
+    //             <td></td>
+    //             <td>${eleRoll.unipack2}</td>
+    //             <td>${eleRoll.usedYard}</td>
+    //             <td>${eleRoll.rfinwt}</td>
+    //             <td>${eleRoll.rgrade}</td>
+    //             <td>${eleRoll.rlocbr}</td>
+    //             <td>${eleRoll.shade}</td>
+    //         </tr>`;
+    //     }
+    //     str += '<tr><td colspan="20">&nbsp;</td></tr>';
+
+    //     html += str;
+    // }
+
     let html = '';
+    let colorFlag = '';
     for (let i = 0; i < markerDetailList.length; i++) {
         let eleMarkerDetail = markerDetailList[i];
-        let selectedRollList = selectedFabricRollList.filter(x => x.markerDetailId == eleMarkerDetail.id);
-        let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0);
-        let rollCount = selectedRollList.length;
-        let str = `<tr style='background: #ced6dd'>
-            <td>${i + 1}</td>
-            <td>${eleMarkerDetail.item_color}</td>
-            <td>${eleMarkerDetail.wo}</td>
-            <td>${eleMarkerDetail.ass}</td>
-            <td>${rollCount} cuộn</td>
-            <td><span class='text-danger'>${sumYard}</span> / ${eleMarkerDetail.yard_demand}</td>
-            <td colspan='4'></td>
-        </tr>`;
-        for (let j = 0; j < selectedRollList.length; j++) {
-            let eleRoll = selectedRollList[j];
-            str += `<tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td>${eleRoll.unipack2}</td>
-                <td>${eleRoll.usedYard}</td>
-                <td>${eleRoll.rfinwt}</td>
-                <td>${eleRoll.rgrade}</td>
-                <td>${eleRoll.rlocbr}</td>
-                <td>${eleRoll.shade}</td>
-            </tr>`;
-        }
-        str += '<tr><td colspan="20">&nbsp;</td></tr>';
+        if(eleMarkerDetail.item_color != colorFlag){
+            let selectedRollList = selectedFabricRollList.filter(x => x.markerDetailId == eleMarkerDetail.id);
+            let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+            let rollCount = selectedRollList.length;
+            let sameColorList = markerDetailList.filter(x => x.item_color == eleMarkerDetail.item_color);
+            let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
 
-        html += str;
+            if(selectedRollList.length > 0){
+                let str = `<tr style='background: #ced6dd'>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>${rollCount} cuộn</td>
+                    <td><span class='text-danger'>${sumYard}</span> / ${sumDemandYard}</td>
+                    <td colspan='4'></td>
+                </tr>`;
+
+                for (let j = 0; j < selectedRollList.length; j++) {
+                    let eleRoll = selectedRollList[j];
+                    str += `<tr>
+                        <td>${j + 1}</td>
+                        <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
+                        <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
+                        <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
+                        <td>${sameColorList[j] ? sameColorList[j].yard_demand : ''}</td>
+                        <td>${eleRoll.unipack2}</td>
+                        <td>${eleRoll.yard}</td>
+                        <td>${eleRoll.rfinwt}</td>
+                        <td>${eleRoll.rgrade}</td>
+                        <td>${eleRoll.rlocbr}</td>
+                        <td>${eleRoll.shade}</td>
+                    </tr>`;
+                }
+                str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
+                html += str;
+            }
+        }
+        colorFlag = eleMarkerDetail.item_color;
     }
     
     $("#preview-fabric-table-body").html('');

@@ -136,7 +136,7 @@ function getListMarkerData(){
                         ${ele.note}
                     </td>
                     <td>
-                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Print</button>
+                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='printTicket(${ele.id})'>Print</button>
                         <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
                         <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD scan</a>
                         <a class='btn btn-sm btn-primary ${wh_display}' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
@@ -353,12 +353,12 @@ function Call(groupId, message) {
     WHChange(groupId, "red");
 }
 
-// CP click: Change CCD to yellow
+// CCDSend click: Change CCD to yellow
 function CCDSend(groupId){
     CCDChange(groupId, "yellow");
 }
 
-// SP click: Change WH to yellow
+// WHSend click: Change WH to yellow
 function WHSend(groupId) {
     WHChange(groupId, "yellow");
 }
@@ -373,19 +373,34 @@ function Cancel(groupId) {
     getListMarkerData();
 }
 
-// Complete click: Save data row to TBL_KANBAN_DATA
-function Complete(groupId) {
-    $("#tr-" + groupId).remove();
-}
-
-// CP change color
+// CCDChange change color
 function CCDChange(groupId, color) {
     $("#ccd-circle-" + groupId).css("background", color);
 }
 
-// SP change color
+// WHChange change color
 function WHChange(groupId, color) {
     $("#wh-circle-" + groupId).css("background", color);
+}
+
+function printTicket(groupId){
+    // form data
+  
+    // send to server
+    let action = baseUrl + 'print-ticket';
+    let datasend = {
+        groupId: groupId
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if (response.rs) {
+            window.open("/Assets/fabricPrint.html");
+        }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
 }
 
 // Count time run every 1 minute
