@@ -186,6 +186,36 @@ function getListMarkerData(){
     });
 }
 
+function downloadMarkerData(){
+    let filterGroup = $("#txtFilterGroup").val();
+    let filterStatus = $("#txtFilterStatus").val();
+    let filterDate = $("#txtFilterTime").val();
+    if (filterDate.toString() == "5") {
+        filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+    }
+
+    let action = baseUrl + 'download-marker-data';
+    let datasend = {
+        filterGroup: filterGroup,
+        filterStatus: filterStatus,
+        filterDate: filterDate
+    };
+   
+    LoadingShow();
+    fetch(action, {
+        method: 'POST',
+        body: JSON.stringify(datasend),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).then(function (resp) {
+        return resp.blob();
+    }).then(function (blob) {
+        LoadingHide();
+        return download(blob, GetTodayDate() + "_Demand_Fabric_Ticket.xlsx");
+    });
+}
+
 function uploadExcel(){
     var e = event;
     var fileName = e.target.files[0].name;

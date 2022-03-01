@@ -29,12 +29,15 @@ router.post("/fabric-receive/warehouse-confirm", fabricReceiveController.warehou
 router.post("/fabric-receive/ccd-confirm", fabricReceiveController.ccdConfirm)
 
 router.post("/fabric-receive/print-ticket", fabricReceiveController.printTicket)
+router.post("/fabric-receive/download-marker-data", fabricReceiveController.downloadMarkerData)
 
 // Fabric Receive: Inventory data
 router.get("/fabric-receive/inventory-data", fabricReceiveController.getIndexInventoryData)
 router.post("/fabric-receive/upload-fabric-inventory-file", fabricReceiveController.uploadFabricInventoryDataFile)
 router.post("/fabric-receive/save-upload-fabric-inventory-data", fabricReceiveController.saveUploadFabricInventoryDataFile)
 router.post("/fabric-receive/get-inventory-data", fabricReceiveController.getInventoryData)
+router.get("/fabric-receive/get-inventory-data-detail/:id", fabricReceiveController.getInventoryDataDetail)
+router.post("/fabric-receive/update-inventory-data-detail", fabricReceiveController.updateInventoryDataDetail)
 router.post("/fabric-receive/download-inventory-data", fabricReceiveController.downloadInventoryData)
 
 // Offstandard

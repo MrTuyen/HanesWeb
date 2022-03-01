@@ -105,7 +105,7 @@ function getInventoryData(intPage){
                     <td>${ele.yard}</td>
                     <td>${ele.rlocbr}</td>
                     <td>
-                        <button class='btn btn-primary btn-sm' onclick="openModalUpdateRoll()">Update</button>
+                        <button class='btn btn-primary btn-sm' onclick="openModalUpdateRoll(${ele.id})">Update</button>
                     </td>
                 </tr>`;
             }
@@ -121,6 +121,60 @@ function getInventoryData(intPage){
             $(".pagination-current").text(`${(currentPage - 1) * itemPerPage  + 1} - ${currentPage * itemPerPage > totalRow ? totalRow : currentPage * itemPerPage} trong ${totalRow} bản ghi`);
         }
         else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
+
+function openModalUpdateRoll(id){
+    $("#modalUpdateRoll").modal('show');
+
+    let action = baseUrl + 'get-inventory-data-detail/' + id;
+    LoadingShow();
+    GetDataAjax(action, function (response) {
+        LoadingHide();
+        if(response.rs){
+            let data = response.data[0];
+            $("#txtURollId").val(data.id);
+            $("#txtURollUnipack").val(data.unipack2);
+            $("#txtURollYard").val(data.yard);
+        }
+        else{
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
+
+function updateRoll(){
+
+    let id = $("#txtURollId").val();
+    let unipack = $("#txtURollUnipack");
+    let yard = $("#txtURollYard");
+
+    if (!CheckNullOrEmpty(unipack, "Unipack không được để trống"))
+        return false;
+    if (!CheckNullOrEmpty(yard, "Số lượng yard không được để trống"))
+        return false;
+    if(parseFloat(yard.val()) < 0){
+        toastr.error("Số lượng yard không nhỏ hơn 0");
+        return false;
+    }
+
+    let datasend = {
+        id: id,
+        unipack: unipack.val(),
+        yard: yard.val(),
+    };
+    let action = baseUrl + 'update-inventory-data-detail';
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if(response.rs){
+            toastr.success(response.msg, "Thành công");
+            $("#modalUpdateRoll").modal('hide');
+            getInventoryData(1);
+        }
+        else{
             toastr.error(response.msg, "Thất bại");
         }
     });

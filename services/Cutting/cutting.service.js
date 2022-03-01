@@ -79,4 +79,26 @@ CuttingService.addFabricInventoryData = async function(objDTO){
     }
 }
 
+CuttingService.getInventoryDataDetail = async function (objDTO) {
+    try {
+        let query = `SELECT * FROM cutting_fr_wh_fabric_inventory 
+                WHERE id = ${objDTO.id}`;
+        return await db.excuteQueryAsync(query);
+    } catch (error) {
+        logHelper.writeLog("CuttingService.getInventoryDataDetail", error);
+    }
+}
+
+CuttingService.updateInventoryDataDetail = async function(objDTO){
+    try {
+        let query = `UPDATE cutting_fr_wh_fabric_inventory 
+                    SET yard = '${objDTO.yard}'
+                    WHERE id = ${objDTO.id}`;
+
+        return await db.excuteNonQueryAsync(query);
+    } catch (error) {
+        logHelper.writeLog("InnovationService.updateInventoryDataDetail", error);
+    }
+}
+
 module.exports = CuttingService;

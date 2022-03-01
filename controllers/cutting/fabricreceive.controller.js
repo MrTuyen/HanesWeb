@@ -7,8 +7,8 @@ const logHelper = require('../../common/log.js');
 const config = require('../../config.js');
 const constant = require('../../common/constant');
 const excel = require('exceljs');
-const pdf = require('html-pdf');
-const fetch = require('node-fetch');
+// const pdf = require('html-pdf');
+// const fetch = require('node-fetch');
 
 // database
 var Database = require("../../database/db_cutting.js")
@@ -532,6 +532,184 @@ module.exports.ccdConfirm = async function (req, res) {
     }
 }
 
+module.exports.printTicket = async function (req, res) {
+    try {
+        // parameters
+        let groupId = req.body.groupId;
+
+        // execute
+        // master data info
+        let masterInfo = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan WHERE id = ${groupId}`);
+
+        // item-color detail info
+        let detailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${groupId})`);
+
+        // fabric roll info follow item-color
+        let itemColorList = [];
+        let farbicRollList = [];
+        let selectedFabricRollList = [];
+        if (detailInfo[0] != undefined && detailInfo[0].length > 1) {
+            itemColorList = [...new Set(detailInfo[0].map(x => x.item_color))]; // distinct array
+
+            for (let i = 0; i < itemColorList.length; i++) {
+                let ele = itemColorList[i];
+                let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 10000, '', '${ele}', '', '')`);
+                farbicRollList.push({ itemColor: ele, rollList: result[0] })
+            }
+
+            if (masterInfo[0].wh_confirm_by != undefined && masterInfo[0].wh_confirm_date != undefined) {
+                let result = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${groupId}`);
+                selectedFabricRollList.push(result);
+            }
+        }
+
+        let data = { 
+            master: masterInfo[0], 
+            detail: detailInfo[0], 
+            fabricRoll: farbicRollList, 
+            selectedFabricRoll: selectedFabricRollList[0] ? selectedFabricRollList[0] : []
+        }
+        let sumYard = data.selectedFabricRoll.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+
+        // read file and replace
+        let template = fs.readFileSync('templates/print/fabricPrint.html', 'utf8');
+
+        let table1 =`<tr>
+                        <td width="25%">Received Date: ${data.master.receive_date}</td>
+                        <td width="25%">Received Time: ${data.master.receive_time}</td>
+                        <td width="25%">Group: ${data.master._group}</td>
+                        <td width="25%">Cut Date: ${data.master.cut_date}</td>
+                    </tr>
+                    <tr>
+                        <td width="25%">Created Date: ${data.master.date_update}</td>
+                        <td width="25%">Week ${new Date(data.master.date_update).getWeekNumber()}</td>
+                        <td width="25%">Note</td>
+                    </tr>
+                    <tr>
+                        <td width="10%">${data.selectedFabricRoll.length} Cuộn</td>
+                        <td width="10%">${sumYard} YDS</td>
+                    </tr>`
+
+        template = template.replace("{{table1}}", table1);
+
+        let table2 = '';
+        let colorFlag = '';
+        for (let i = 0; i < data.detail.length; i++) {
+            let eleMarkerDetail = data.detail[i];
+            if(eleMarkerDetail.item_color != colorFlag){
+                let selectedRollList = data.selectedFabricRoll.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
+                let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+                let rollCount = selectedRollList.length;
+                let sameColorList = data.detail.filter(x => x.item_color == eleMarkerDetail.item_color);
+                let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
+
+                if(selectedRollList.length > 0){
+                    let str = `<tr style='background: #ced6dd'>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td>${rollCount} cuộn</td>
+                        <td><span class='text-danger'>${sumYard}</span> / ${sumDemandYard}</td>
+                        <td colspan='4'></td>
+                    </tr>`;
+
+                    for (let j = 0; j < selectedRollList.length; j++) {
+                        let eleRoll = selectedRollList[j];
+                        str += `<tr>
+                            <td>${j + 1}</td>
+                            <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
+                            <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
+                            <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
+                            <td>${sameColorList[j] ? sameColorList[j].yard_demand : ''}</td>
+                            <td>${eleRoll.unipack2}</td>
+                            <td>${eleRoll.yard}</td>
+                            <td>${eleRoll.rfinwt}</td>
+                            <td>${eleRoll.rgrade}</td>
+                            <td>${eleRoll.rlocbr}</td>
+                            <td>${eleRoll.shade}</td>
+                        </tr>`;
+                    }
+                    str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
+                    table2 += str;
+                }
+            }
+            colorFlag = eleMarkerDetail.item_color;
+        }
+
+        template = template.replace("{{table2}}", table2);
+
+        fs.writeFile('public/Assets/fabricPrint.html', template, 'utf-8', function (err, response) {
+            if (err) {
+                logHelper.writeLog("fabric_receive.printTicket", err);
+                return res.end(JSON.stringify({ rs: false, msg: "Thất bại" }));
+            }
+            return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+        });
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.printTicket", error);
+    }
+}
+
+module.exports.downloadMarkerData = function (req, res) {
+    try {
+        // parameters
+        let filterGroup = req.body.filterGroup;
+        let filterStatus = req.body.filterStatus;
+        let filterDate = req.body.filterDate;
+        let fromDate = filterDate.split(';')[0];
+        let toDate = filterDate.split(';')[1];
+
+        // execute
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}')`, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                let jsonModel = JSON.parse(JSON.stringify(result.data));
+
+                let workbook = new excel.Workbook(); //creating workbook
+                let worksheet = workbook.addWorksheet('Ticket Data'); //creating worksheet
+
+                //  WorkSheet Header
+                worksheet.columns = [
+                    { header: 'id', key: 'id', width: 10 },
+                    { header: 'plant', key: 'plant', width: 10 },
+                    { header: 'work_center', key: 'work_center', width: 10 },
+                    { header: 'receive_date', key: 'receive_date', width: 20 },
+                    { header: 'receive_time', key: 'receive_time', width: 20 },
+                    { header: 'group', key: '_group', width: 20 },
+                    { header: 'cut_date', key: 'cut_date', width: 20 },
+                    { header: 'user_update', key: 'user_update', width: 20 },
+                    { header: 'created_date', key: 'date_update', width: 20 },
+                    { header: 'marker_call_date', key: 'marker_call_date', width: 20 },
+                    { header: 'marker_call_by', key: 'marker_call_by', width: 20 },
+                    { header: 'wh_confirm_date', key: 'wh_confirm_date', width: 20 },
+                    { header: 'wh_confirm_by', key: 'wh_confirm_by', width: 20 },
+                    { header: 'ccd_confirm_date', key: 'ccd_confirm_date', width: 20 },
+                    { header: 'ccd_confirm_by', key: 'ccd_confirm_by', width: 20 },
+                    { header: 'cancel_date', key: 'cancel_date', width: 20 },
+                    { header: 'cancel_by', key: 'cancel_by', width: 20 },
+                    { header: 'cancel_reason', key: 'cancel_reason', width: 20 },
+                    { header: 'cancel_step', key: 'cancel_step', width: 20 }
+                ];
+
+                // Add Array Rows
+                worksheet.addRows(jsonModel);
+
+                // Write to File
+                let filename = "templates/ticket_data.xlsx";
+                workbook.xlsx.writeFile(filename).then(function () {
+                    res.download(filename);
+                });
+            }
+        });
+    } catch (error) {
+        logHelper.writeLog("fabricreceive.downloadMarkerData", error);
+    }
+}
+
 // inventory data
 module.exports.getIndexInventoryData = function (req, res) {
     let user = req.user;
@@ -675,6 +853,39 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
     }
 }
 
+module.exports.getInventoryDataDetail = async function (req, res) {
+    try {
+        // parameters
+        let id = req.params.id;
+
+        // get request info
+        let requestInfo = await cuttingService.getInventoryDataDetail({ id: id });
+        if (!requestInfo)
+            return res.end(JSON.stringify({ rs: false, msg: "Không tìm thấy thông tin phiếu yêu cầu" }));
+
+        return res.end(JSON.stringify({ rs: true, msg: "", data: requestInfo}));
+    }
+    catch (error) {
+        logHelper.writeLog("fabricreceive.getInventoryDataDetail", error);
+    }
+}
+
+module.exports.updateInventoryDataDetail = async function (req, res, next) {
+    try {
+        var objReq = await cuttingService.getInventoryDataDetail(req.body);
+        if (!objReq)
+            return res.end(JSON.stringify({ rs: false, msg: "Không tìm thấy request" }));
+
+        var isSuccess = await cuttingService.updateInventoryDataDetail(req.body);
+        if (isSuccess <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+        return res.end(JSON.stringify({ rs: true, msg: "Cập nhật thành công" }));
+    }
+    catch (error) {
+        logHelper.writeLog("fabricreceive.updateRequest", error);
+    }
+}
+
 module.exports.downloadInventoryData = function (req, res) {
     try {
         //parameters
@@ -717,126 +928,6 @@ module.exports.downloadInventoryData = function (req, res) {
         });
     } catch (error) {
         logHelper.writeLog("fabricreceive.downloadInventoryData", error);
-    }
-}
-
-module.exports.printTicket = async function (req, res) {
-    try {
-        // parameters
-        let groupId = req.body.groupId;
-
-        // execute
-        // master data info
-        let masterInfo = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan WHERE id = ${groupId}`);
-
-        // item-color detail info
-        let detailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${groupId})`);
-
-        // fabric roll info follow item-color
-        let itemColorList = [];
-        let farbicRollList = [];
-        let selectedFabricRollList = [];
-        if (detailInfo[0] != undefined && detailInfo[0].length > 1) {
-            itemColorList = [...new Set(detailInfo[0].map(x => x.item_color))]; // distinct array
-
-            for (let i = 0; i < itemColorList.length; i++) {
-                let ele = itemColorList[i];
-                let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 10000, '', '${ele}', '', '')`);
-                farbicRollList.push({ itemColor: ele, rollList: result[0] })
-            }
-
-            if (masterInfo[0].wh_confirm_by != undefined && masterInfo[0].wh_confirm_date != undefined) {
-                let result = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${groupId}`);
-                selectedFabricRollList.push(result);
-            }
-        }
-
-        let data = { 
-            master: masterInfo[0], 
-            detail: detailInfo[0], 
-            fabricRoll: farbicRollList, 
-            selectedFabricRoll: selectedFabricRollList[0] 
-        }
-        let sumYard = data.selectedFabricRoll.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
-
-        // read file and replace
-        let template = fs.readFileSync('templates/print/fabricPrint.html', 'utf8');
-
-        let table1 =`<tr>
-                        <td width="25%">Received Date: ${data.master.receive_date}</td>
-                        <td width="25%">Received Time: ${data.master.receive_time}</td>
-                        <td width="25%">Group: ${data.master._group}</td>
-                        <td width="25%">Cut Date: ${data.master.cut_date}</td>
-                    </tr>
-                    <tr>
-                        <td width="25%">Created Date: ${data.master.date_update}</td>
-                        <td width="25%">Week ${new Date(data.master.date_update).getWeekNumber()}</td>
-                        <td width="25%">Note</td>
-                    </tr>
-                    <tr>
-                        <td width="10%">${data.selectedFabricRoll.length} Cuộn</td>
-                        <td width="10%">${sumYard} YDS</td>
-                    </tr>`
-
-        template = template.replace("{{table1}}", table1);
-
-        let table2 = '';
-        let colorFlag = '';
-        for (let i = 0; i < data.detail.length; i++) {
-            let eleMarkerDetail = data.detail[i];
-            if(eleMarkerDetail.item_color != colorFlag){
-                let selectedRollList = data.selectedFabricRoll.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
-                let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
-                let rollCount = selectedRollList.length;
-                let sameColorList = data.detail.filter(x => x.item_color == eleMarkerDetail.item_color);
-                let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
-
-                if(selectedRollList.length > 0){
-                    let str = `<tr style='background: #ced6dd'>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td>${rollCount} cuộn</td>
-                        <td><span class='text-danger'>${sumYard}</span> / ${sumDemandYard}</td>
-                        <td colspan='4'></td>
-                    </tr>`;
-
-                    for (let j = 0; j < selectedRollList.length; j++) {
-                        let eleRoll = selectedRollList[j];
-                        str += `<tr>
-                            <td>${j + 1}</td>
-                            <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
-                            <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
-                            <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
-                            <td>${sameColorList[j] ? sameColorList[j].yard_demand : ''}</td>
-                            <td>${eleRoll.unipack2}</td>
-                            <td>${eleRoll.yard}</td>
-                            <td>${eleRoll.rfinwt}</td>
-                            <td>${eleRoll.rgrade}</td>
-                            <td>${eleRoll.rlocbr}</td>
-                            <td>${eleRoll.shade}</td>
-                        </tr>`;
-                    }
-                    str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
-                    table2 += str;
-                }
-            }
-            colorFlag = eleMarkerDetail.item_color;
-        }
-
-        template = template.replace("{{table2}}", table2);
-
-        fs.writeFile('public/Assets/fabricPrint.html', template, 'utf-8', function (err, response) {
-            if (err) {
-                logHelper.writeLog("fabric_receive.printTicket", err);
-                return res.end(JSON.stringify({ rs: false, msg: "Thất bại" }));
-            }
-            return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
-        });
-    } catch (error) {
-        logHelper.writeLog("fabric_receive.printTicket", error);
     }
 }
 

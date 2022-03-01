@@ -81,9 +81,21 @@ module.exports.getStackBarMachineData = async function (req, res) {
 
                         let query = `CALL USP_Cutting_Net_Time_92 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
                         let result92 = await db.excuteQueryAsync(query);
+                        // Tính lại idle_time
+                        if(result92[0]){
+                            for (let j = 1; j < result92[0].length; j++) {
+                                result92[0][j].idle_time = Math.abs(result92[0][j].start_time - result92[0][j - 1].end_time) / (1000 * 60);
+                            }
+                        }
 
                         query = `CALL USP_Cutting_Net_Time_92 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
                         let result95 = await db.excuteQueryAsync(query);
+                        // Tính lại idle_time
+                        if(result95[0]){
+                            for (let j = 1; j < result95[0].length; j++) {
+                                result95[0][j].idle_time = Math.abs(result95[0][j].start_time - result95[0][j - 1].end_time) / (1000 * 60);
+                            }
+                        }
 
                         // order to find the first record of each machine in order to update idle time for the first record of day
                         result92 = result92[0].sort((x, y) => x.machine_code - y.machine_code);
@@ -92,11 +104,11 @@ module.exports.getStackBarMachineData = async function (req, res) {
                             let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
                             if (tempListMachine.length > 0) {
                                 if(filterShift ==  'b_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
                                 else if(filterShift ==  'c_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
                                 else
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);        
+                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);        
                             }
                         }
 
@@ -107,11 +119,11 @@ module.exports.getStackBarMachineData = async function (req, res) {
                             let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
                             if (tempListMachine.length > 0) {
                                 if(filterShift ==  'b_shift')
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
                                 else if(filterShift ==  'c_shift')
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
                                 else
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);                  
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);                  
                             }
                         }
 
@@ -182,9 +194,21 @@ module.exports.getStackBarMachineData = async function (req, res) {
 
                         let query = `CALL USP_Cutting_Net_Time_92 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
                         let result92 = await db.excuteQueryAsync(query);
+                        // Tính lại idle_time
+                        if(result92[0]){
+                            for (let j = 1; j < result92[0].length; j++) {
+                                result92[0][j].idle_time = Math.abs(result92[0][j].start_time - result92[0][j - 1].end_time) / (1000 * 60);
+                            }
+                        }
 
                         query = `CALL USP_Cutting_Net_Time_92 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
                         let result95 = await db.excuteQueryAsync(query);
+                        // Tính lại idle_time
+                        if(result95[0]){
+                            for (let j = 1; j < result95[0].length; j++) {
+                                result95[0][j].idle_time = Math.abs(result95[0][j].start_time - result95[0][j - 1].end_time) / (1000 * 60);
+                            }
+                        }
 
                         // order to find the first record of each machine in order to update idle time for the first record of day
                         result92 = result92[0].sort((x, y) => x.machine_code - y.machine_code);
@@ -193,11 +217,11 @@ module.exports.getStackBarMachineData = async function (req, res) {
                             let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
                             if (tempListMachine.length > 0) {
                                 if(filterShift ==  'b_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
                                 else if(filterShift ==  'c_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
                                 else
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
+                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);  
                             }
                         }
 
@@ -208,11 +232,11 @@ module.exports.getStackBarMachineData = async function (req, res) {
                             let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
                             if (tempListMachine.length > 0) {
                                 if(filterShift ==  'b_shift')
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
                                 else if(filterShift ==  'c_shift')
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
                                 else
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
+                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);  
                             }
                         }
 
@@ -256,11 +280,27 @@ module.exports.getStackBarMachineData = async function (req, res) {
 
                         let query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine.code}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
                         let tempResult = await db.excuteQueryAsync(query);
-                        result92.push(tempResult ? tempResult[0] : []);
+                        // result92.push(tempResult ? tempResult[0] : []);
+                        // Tính lại idle_time
+                        if(tempResult){
+                            let tempData = tempResult[0];
+                            for (let j = 1; j < tempData.length; j++) {
+                                tempData[j].idle_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
+                            }
+                            result92.push(tempData);
+                        }
 
                         query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine.code}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
                         tempResult = await db.excuteQueryAsync(query);
-                        result95.push(tempResult[0] === undefined ? [] : tempResult[0]);
+                        // result95.push(tempResult[0] === undefined ? [] : tempResult[0]);
+                        // Tính lại idle_time
+                        if(tempResult[0] !== undefined){
+                            let tempData = tempResult[0];
+                            for (let j = 1; j < tempData.length; j++) {
+                                tempData[j].gap_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
+                            }
+                            result95.push(tempData);
+                        }
                     }
                 }
                 else {
@@ -273,11 +313,27 @@ module.exports.getStackBarMachineData = async function (req, res) {
 
                         let query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
                         let tempResult = await db.excuteQueryAsync(query);
-                        result92.push(tempResult ? tempResult[0] : []);
+                        // result92.push(tempResult ? tempResult[0] : []);
+                        // Tính lại idle_time
+                        if(tempResult){
+                            let tempData = tempResult[0];
+                            for (let j = 1; j < tempData.length; j++) {
+                                tempData[j].idle_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
+                            }
+                            result92.push(tempData);
+                        }
 
                         query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
                         tempResult = await db.excuteQueryAsync(query);
-                        result95.push(tempResult[0] === undefined ? [] : tempResult[0]);
+                        // result95.push(tempResult[0] === undefined ? [] : tempResult[0]);
+                        // Tính lại idle_time
+                        if(tempResult[0] !== undefined){
+                            let tempData = tempResult[0];
+                            for (let j = 1; j < tempData.length; j++) {
+                                tempData[j].gap_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
+                            }
+                            result95.push(tempData);
+                        }
                     }
                 }
 
@@ -294,11 +350,11 @@ module.exports.getStackBarMachineData = async function (req, res) {
                     let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
                     if (tempListMachine.length > 0) {
                         if(filterShift ==  'b_shift')
-                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
                         else if(filterShift ==  'c_shift')
-                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
                         else
-                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
+                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);  
                     }
                 }
 
@@ -308,11 +364,11 @@ module.exports.getStackBarMachineData = async function (req, res) {
                     let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
                     if (tempListMachine.length > 0) {
                         if(filterShift ==  'b_shift')
-                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
                         else if(filterShift ==  'c_shift')
-                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
                         else
-                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
+                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);  
                     }
                 }
 
@@ -361,8 +417,114 @@ module.exports.getStackBarMachineData = async function (req, res) {
 //         let filterDate = req.body.filterDate;
 //         let filterMachine = req.body.filterMachine;
 //         let filterShift = req.body.filterShift;
+//         let filterWeek = req.body.filterWeek;
+//         let filterWeekEndValue = req.body.filterWeekEndValue;
+//         let filterViewType = JSON.parse(req.body.viewType);
 
-//         if (filterWorkCenter == constant.WorkCenter.Cutting92) {
+//         if (filterViewType && !isNaN(parseInt(filterWeekEndValue))) { // Khung nhìn theo nhiều tuần
+//             let listWeek = [];
+//             for (let i = filterWeek; i <= filterWeekEndValue; i++) {
+//                 listWeek.push(parseInt(i));
+//             }
+
+//             let stackBarChartData92 = {
+//                 data1: listWeek, // labels
+//                 data2: {}
+//             };
+            
+//             let labels = [];
+//             if (filterMachine == "") {
+//                 labels = listMachines.filter(function (ele) {
+//                     return ele.group == filterWorkCenter;
+//                 })
+//             }
+//             else {
+//                 for (var i = 0; i < filterMachine.length; i++) {
+//                     let machine = filterMachine[i];
+//                     let tempMachine = listMachines.filter(function (ele) {
+//                         return ele.code == machine;
+//                     })
+//                     labels.push(tempMachine);
+//                 }
+//             }
+//             labels = labels.flat();
+
+//             let newListMachines = [];
+//             for (let k = 0; k < listWeek.length; k++) {
+//                 let listMachinesInWeek = [];
+//                 let eleWeek = listWeek[k];
+//                 let objDate = helper.getDateOfWeek(eleWeek);
+//                 objDate.dateFrom = new Date(objDate.dateFrom);
+//                 filterDate = `${objDate.dateFrom.formatDateDDMMYYYY()};${objDate.dateFrom.addDays(1).formatDateDDMMYYYY()};${objDate.dateFrom.addDays(2).formatDateDDMMYYYY()};${objDate.dateFrom.addDays(3).formatDateDDMMYYYY()};${objDate.dateFrom.addDays(4).formatDateDDMMYYYY()};${objDate.dateFrom.addDays(5).formatDateDDMMYYYY()};${objDate.dateFrom.addDays(6).formatDateDDMMYYYY()}`;
+//                 let listDate = filterDate.split(';');
+
+//                 for (let i = 0; i < listDate.length; i++) {
+//                     let eleDate = listDate[i];
+//                     for (let j = 0; j < labels.length; j++) {
+//                         let objLabel = labels[j];
+//                         let machine = new CuttingMachineData(objLabel.code);
+
+//                         let query = `CALL USP_Cutting_Net_Time_92 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
+//                         let result92 = await db.excuteQueryAsync(query);
+
+//                         query = `CALL USP_Cutting_Net_Time_92 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
+//                         let result95 = await db.excuteQueryAsync(query);
+
+//                         // order to find the first record of each machine in order to update idle time for the first record of day
+//                         result92 = result92[0].sort((x, y) => x.machine_code - y.machine_code);
+//                         for (let i = 0; i < labels.length; i++) {
+//                             let ele = labels[i];
+//                             let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
+//                             if (tempListMachine.length > 0) {
+//                                 if(filterShift ==  'b_shift')
+//                                     tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+//                                 else if(filterShift ==  'c_shift')
+//                                     tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+//                                 else
+//                                     tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);        
+//                             }
+//                         }
+
+//                         result95 = result95[0] === undefined ? [] : result95[0];
+//                         result95 = result95.sort((x, y) => x.machine_code - y.machine_code);
+//                         for (let i = 0; i < labels.length; i++) {
+//                             let ele = labels[i];
+//                             let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
+//                             if (tempListMachine.length > 0) {
+//                                 if(filterShift ==  'b_shift')
+//                                     tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+//                                 else if(filterShift ==  'c_shift')
+//                                     tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+//                                 else
+//                                     tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);                  
+//                             }
+//                         }
+
+//                         for (let k = 0; k < result92.length; k++) {
+//                             let ele = result92[k];
+//                             if (ele["machine_code"] == objLabel.code)
+//                                 sumData92(machine, ele);
+//                         }
+
+//                         for (let h = 0; h < result95.length; h++) {
+//                             let ele = result95[h];
+//                             if (ele["machine_code"] == objLabel.code)
+//                                 sumData95(machine, ele);
+//                         }
+//                         machine.calculate();
+//                         listMachinesInWeek.push(machine);
+//                     }
+//                 }
+//                 newListMachines.push(listMachinesInWeek);
+//             }
+//             stackBarChartData92.data2 = {
+//                 listMachines: newListMachines
+//             }
+//             returnData = {
+//                 stackBarChartData: { data1: stackBarChartData92.data1, data2: stackBarChartData92.data2}
+//             }
+//         }
+//         else { // Khung nhìn theo 1 ngày và 1 tuần
 //             let listDate = filterDate.split(';');
 //             if (listDate.length > 1) { // Week
 //                 let listStackBarChartData92 = [];
@@ -371,7 +533,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
 //                 let labels = [];
 //                 if (filterMachine == "") {
 //                     labels = listMachines.filter(function (ele) {
-//                         return ele.group == constant.WorkCenter.Cutting92;
+//                         return ele.group == filterWorkCenter;
 //                     })
 //                 }
 //                 else {
@@ -382,7 +544,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
 //                         })
 //                         labels.push(tempMachine);
 //                     }
-//                }
+//                 }
 
 //                 labels = labels.flat();
 //                 for (let i = 0; i < labels.length; i++) {
@@ -409,13 +571,18 @@ module.exports.getStackBarMachineData = async function (req, res) {
 //                         query = `CALL USP_Cutting_Net_Time_92 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
 //                         let result95 = await db.excuteQueryAsync(query);
 
-//                         // order to find the first record of each machine inorder to update idle time for the first record
+//                         // order to find the first record of each machine in order to update idle time for the first record of day
 //                         result92 = result92[0].sort((x, y) => x.machine_code - y.machine_code);
 //                         for (let i = 0; i < labels.length; i++) {
 //                             let ele = labels[i];
 //                             let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
-//                             if(tempListMachine.length > 0) {
-//                                 tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+//                             if (tempListMachine.length > 0) {
+//                                 if(filterShift ==  'b_shift')
+//                                     tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+//                                 else if(filterShift ==  'c_shift')
+//                                     tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+//                                 else
+//                                     tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
 //                             }
 //                         }
 
@@ -424,8 +591,13 @@ module.exports.getStackBarMachineData = async function (req, res) {
 //                         for (let i = 0; i < labels.length; i++) {
 //                             let ele = labels[i];
 //                             let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
-//                             if(tempListMachine.length > 0) {
-//                                 tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+//                             if (tempListMachine.length > 0) {
+//                                 if(filterShift ==  'b_shift')
+//                                     tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+//                                 else if(filterShift ==  'c_shift')
+//                                     tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+//                                 else
+//                                     tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
 //                             }
 //                         }
 
@@ -462,7 +634,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
 //                 let labels = [];
 //                 if (filterMachine == "") {
 //                     labels = listMachines.filter(function (ele) {
-//                         return ele.group == constant.WorkCenter.Cutting92;
+//                         return ele.group == filterWorkCenter;
 //                     })
 //                     for (var i = 0; i < labels.length; i++) {
 //                         let machine = labels[i];
@@ -482,7 +654,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
 //                         let tempMachine = listMachines.filter(function (ele) {
 //                             return ele.code == machine;
 //                         })
-//                         labels.push(tempMachine); 
+//                         labels.push(tempMachine);
 
 //                         let query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
 //                         let tempResult = await db.excuteQueryAsync(query);
@@ -500,13 +672,18 @@ module.exports.getStackBarMachineData = async function (req, res) {
 //                     data2: {}
 //                 };
 
-//                 // order to find the first record of each machine inorder to update idle time for the first record
+//                 // order to find the first record of each machine in order to update idle time for the first record of day
 //                 result92 = result92.flat().sort((x, y) => x.machine_code - y.machine_code);
 //                 for (let i = 0; i < labels.length; i++) {
 //                     let ele = labels[i];
 //                     let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
-//                     if(tempListMachine.length > 0) {
-//                         tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+//                     if (tempListMachine.length > 0) {
+//                         if(filterShift ==  'b_shift')
+//                             tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+//                         else if(filterShift ==  'c_shift')
+//                             tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+//                         else
+//                             tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
 //                     }
 //                 }
 
@@ -514,8 +691,13 @@ module.exports.getStackBarMachineData = async function (req, res) {
 //                 for (let i = 0; i < labels.length; i++) {
 //                     let ele = labels[i];
 //                     let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
-//                     if(tempListMachine.length > 0) {
-//                         tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+//                     if (tempListMachine.length > 0) {
+//                         if(filterShift ==  'b_shift')
+//                             tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
+//                         else if(filterShift ==  'c_shift')
+//                             tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);     
+//                         else
+//                             tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);  
 //                     }
 //                 }
 
@@ -549,196 +731,10 @@ module.exports.getStackBarMachineData = async function (req, res) {
 //                 }
 //             }
 //         }
-//         else {
-//             let listDate = filterDate.split(';');
-//             if (listDate.length > 1) { // Week
-//                 let listStackBarChartData95 = [];
-//                 let listLabel = [];
-
-//                 let labels = [];
-//                 if (filterMachine == "") {
-//                     labels = listMachines.filter(function (ele) {
-//                         return ele.group == constant.WorkCenter.Cutting95;
-//                     })
-//                 }
-//                 else {
-//                     for (var i = 0; i < filterMachine.length; i++) {
-//                         let machine = filterMachine[i];
-//                         let tempMachine = listMachines.filter(function (ele) {
-//                             return ele.code == machine;
-//                         })
-//                         labels.push(tempMachine);
-//                     }
-//                 }
-
-//                 labels = labels.flat();
-//                 for (let i = 0; i < labels.length; i++) {
-//                     for (let j = 0; j < listDate.length; j++) {
-//                         listLabel.push(`${listDate[j]};${labels[i].name};${j}`);
-//                     }
-//                 }
-
-//                 for (let i = 0; i < listDate.length; i++) {
-//                     let eleDate = listDate[i];
-//                     let stackBarChartData95 = {
-//                         data1: labels, // labels
-//                         data2: {}
-//                     };
-
-//                     newListMachines = [];
-//                     for (let j = 0; j < labels.length; j++) {
-//                         let objLabel = labels[j];
-//                         let machine = new CuttingMachineData(objLabel.code);
-
-//                         let query = `CALL USP_Cutting_Net_Time_95 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
-//                         let result92 = await db.excuteQueryAsync(query);
-
-//                         query = `CALL USP_Cutting_Net_Time_95 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
-//                         let result95 = await db.excuteQueryAsync(query);
-
-//                         // order to find the first record of each machine inorder to update idle time for the first record
-//                         result92 = result92[0].sort((x, y) => x.machine_code - y.machine_code);
-//                         for (let i = 0; i < labels.length; i++) {
-//                             let ele = labels[i];
-//                             let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
-//                             if(tempListMachine.length > 0) {
-//                                 tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
-//                             }
-//                         }
-
-//                         result95 = result95[0].sort((x, y) => x.machine_code - y.machine_code);
-//                         for (let i = 0; i < labels.length; i++) {
-//                             let ele = labels[i];
-//                             let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
-//                             if(tempListMachine.length > 0) {
-//                                 tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
-//                             }
-//                         }
-
-//                         for (let k = 0; k < result92.length; k++) {
-//                             let ele = result92[k];
-//                             if (ele["machine_code"] == objLabel.code)
-//                                 sumData92(machine, ele);
-//                         }
-
-//                         for (let h = 0; h < result95.length; h++) {
-//                             let ele = result95[h];
-//                             if (ele["machine_code"] == objLabel.code)
-//                                 sumData95(machine, ele);
-//                         }
-//                         machine.calculate();
-//                         newListMachines.push(machine);
-//                     }
-
-//                     stackBarChartData95.data2 = {
-//                         listMachines: newListMachines
-//                     }
-
-//                     listStackBarChartData95.push(stackBarChartData95);
-//                 }
-
-//                 returnData = {
-//                     stackBarChartData: { data1: listLabel, data2: listStackBarChartData95 },
-//                 }
-//             }
-//             else { // Date
-//                 // Bên 95 có 2 máy có cấu trúc dữ liệu giống bên 92 do đó phải query cả bảng Cutting_92 để lấy dữ liệu cho Cutting 95
-//                 let result92 = [];
-//                 let result95 = [];
-//                 let labels = [];
-//                 if (filterMachine == "") {
-//                     labels = listMachines.filter(function (ele) {
-//                         return ele.group == constant.WorkCenter.Cutting95;
-//                     })
-//                     for (var i = 0; i < labels.length; i++) {
-//                         let machine = labels[i];
-
-//                         let query = `CALL USP_Cutting_Net_Time_95 ('${filterDate}', '${machine.code}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
-//                         let tempResult = await db.excuteQueryAsync(query);
-//                         result92.push(tempResult ? tempResult[0] : []);
-
-//                         query = `CALL USP_Cutting_Net_Time_95 ('${filterDate}', '${machine.code}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
-//                         tempResult = await db.excuteQueryAsync(query);
-//                         result95.push(tempResult ? tempResult[0] : []);
-//                     }
-//                 }
-//                 else {
-//                     for (var i = 0; i < filterMachine.length; i++) {
-//                         let machine = filterMachine[i];
-//                         let tempMachine = listMachines.filter(function (ele) {
-//                             return ele.code == machine;
-//                         })
-//                         labels.push(tempMachine); 
-
-//                         let query = `CALL USP_Cutting_Net_Time_95 ('${filterDate}', '${machine}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
-//                         let tempResult = await db.excuteQueryAsync(query);
-//                         result92.push(tempResult ? tempResult[0] : []);
-
-//                         query = `CALL USP_Cutting_Net_Time_95 ('${filterDate}', '${machine}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
-//                         tempResult = await db.excuteQueryAsync(query);
-//                         result95.push(tempResult ? tempResult[0] : []);
-//                     }
-//                 }
-
-//                 labels = labels.flat();
-//                 let stackBarChartData95 = {
-//                     data1: labels, // labels
-//                     data2: {}
-//                 };
-
-//                 // order to find the first record of each machine inorder to update idle time for the first record
-//                 result92 = result92.flat().sort((x, y) => x.machine_code - y.machine_code);
-//                 for (let i = 0; i < labels.length; i++) {
-//                     let ele = labels[i];
-//                     let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
-//                     if(tempListMachine.length > 0) {
-//                         tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
-//                     }
-//                 }
-
-//                 result95 = result95.flat().sort((x, y) => x.machine_code - y.machine_code);
-//                 for (let i = 0; i < labels.length; i++) {
-//                     let ele = labels[i];
-//                     let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
-//                     if(tempListMachine.length > 0) {
-//                         tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - new Date(tempListMachine[0].start_time)) / (1000 * 60);
-//                     }
-//                 }
-
-//                 listMachines = [];
-//                 for (let i = 0; i < labels.length; i++) {
-//                     const objLabel = labels[i];
-//                     let machine = new CuttingMachineData(objLabel.code);
-
-//                     for (let i = 0; i < result92.length; i++) {
-//                         let ele = result92[i];
-//                         if (ele["machine_code"] == objLabel.code)
-//                             sumData92(machine, ele);
-//                     }
-
-//                     for (let i = 0; i < result95.length; i++) {
-//                         let ele = result95[i];
-//                         if (ele["machine_code"] == objLabel.code)
-//                             sumData95(machine, ele);
-//                     }
-//                     machine.calculate();
-//                     listMachines.push(machine);
-//                 }
-
-//                 stackBarChartData95.data2 = {
-//                     listMachines: listMachines
-//                 }
-
-//                 returnData = {
-//                     // {label of chart, data of chart, all records, machine list }
-//                     stackBarChartData: { data1: stackBarChartData95.data1, data2: stackBarChartData95.data2, data3: result95, data4: labels },
-//                 }
-//             }
-//         }
 
 //         return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: returnData }));
 //     } catch (error) {
-//         logHelper.writeLog("cutting.netCuttingTime", error);
+//         logHelper.writeLog("cutting.getStackBarMachineData", error);
 //     }
 // }
 
