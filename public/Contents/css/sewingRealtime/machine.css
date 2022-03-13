@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+
+}
+
+body {
+    /* background-image: url(../images/plant.jpg); */
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: #fff;
+    font-size: 25px;
+}
+
+.title {
+    text-align: center;
+    margin: 30px 0px;
+    color:black;
+    font-size:5vh;
+}
+
+.main {
+    position: relative;
+    margin: 15vh 0px 27vh 0px;
+    animation-name: leftMove;
+    animation-duration: .2s;
+}
+@keyframes leftMove {
+    0%   {left:-100%; top:0px;}
+    100% {left:0px; top:0px;}
+  }
+.line {
+    margin: 5px 20px;
+}
+.machine-location {
+    display: flex;
+    position: relative;
+    justify-content: center;
+    margin: 0px 2px;
+    height: 16vh;
+    background: #ecf0f1fa;
+    color: #34495e;
+    border-radius: 10px;
+    border: 3px solid #27ae60;
+}
+.machine-location:hover{
+ cursor: pointer;
+ border: 3px solid #8e44ad;
+}
+.machine-no {
+    left: 5px;
+    position: absolute;
+    font-size: .8vw;
+}
+
+.machine-name {
+    top: 11%;
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    font-size: 1vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.op {
+    top: 40%;
+    position: absolute;
+    width: 100%;
+    font-size: 1.3vw;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+
+.machine-tag {
+    top: 80%;
+    width: 100%;
+    font-size: .9vw;
+    text-align: center;
+    position: absolute;
+}
+
+.empty {
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    margin: 0px 2px;
+    height: 16vh;
+    background: #ecf0f1a4;
+    color: #34495e;
+    border-radius: 10px;
+    border: 3px solid #d35400;
+    font-size: 3vw;
+    color: #2c3e50;
+}
+.empty:hover{
+    cursor: pointer;
+    border: 3px solid #8e44ad;
+   }
+.empty-no {
+    left: 5px;
+    top: 0;
+    position: absolute;
+    font-size: 0.8vw;
+}
+
+.machine-modal {
+    border-radius: 10px;
+}
+
+.modal-header {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    background-color: #16a085;
+    color: #fff;
+}
+.modal-body{
+    background: #ecf0f1;
+}
+.modal-body-title {
+    color: #34495e;
+    font-size: .8em;
+}
+
+.modal-body-run {
+    background-color: #27ae60;
+    color: #fff;
+}
+
+.modal-body-loss {
+    background-color: #e74c3c;
+    color: #fff;
+}
+
+.modal-body-id-name {
+    border-radius: 5px 0px 0px 5px !important;
+    background-color: #3498db;
+    color: #fff;
+}
+.modal-body-id-number {
+    border-radius: 0px 5px 5px 0px !important;
+    background-color: #3498db;
+    color: #fff;
+}
+
+.modal-body-id-adjust {
+    border: none;
+    font-size: 1.5rem;
+    color: #000;
+    background-color: rgba(255, 255, 255, 0);
+}
+
+.modal-body-id-adjust i:hover {
+    cursor: pointer;
+    color: #2980b9;
+}
+
+.modal-body-id-input {
+    left: 60px !important;
+    top: -40px !important;
+    position: relative;
+}

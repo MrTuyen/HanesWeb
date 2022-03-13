@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+*{
+margin: 0;
+padding: 0;
+box-sizing:border-box;
+text-decoration: none;
+font-family: 'Poppins', sans-serif;
+}
+body{
+/* background-image: url(../images/plant.jpg); */
+background-color: #FBFCFC;
+background-repeat: no-repeat;
+background-size: cover;
+color: #17202A;
+font-size: 30px;
+}
+.conteiner-fluid{
+    display: flex;
+    flex-direction: column;
+}
+.lt-search{
+   display:flex;
+   flex-direction:column;
+   width: 300px;
+   text-align: center;
+   align-self: center;
+   color: black;
+   font-size: 14pt ;
+}
+.lt-form-select{margin-bottom: 10px;
+    box-sizing: border-box;
+    border: 1px solid black;
+    border-radius: 4px;
+    font-size: 15px;
+    width: 300px;
+    height: 40px;
+    align-self: center;
+    color: #34495e;
+}
+.text{
+  color: black;
+  font-size: 14pt ;
+  font-style: italic;
+  text-align:left;
+}
+
+  .wrap table {
+    table-layout: fixed;
+    width: 100%;
+    
+  }
+  .wrap table.head {
+    /* width: calc(98.9%); */
+    width: calc(100%);
+  }
+  /* .wrap table.head tr td {
+    text-align: center;
+    font-size: 80%;
+  } */
+  .wrap table.head tr th {
+    background-color:#27ae60;
+    color: #fff;
+    border: 1px solid black;
+    text-align: center;
+    font-size: 80%;
+    height: 60px;
+   
+  }
+  table tr td {
+    
+    border: 1px solid black;
+    text-align: center;
+    background-color:white;
+    color: black;
+    font-size: 80%;
+    /* width: auto; */
+  }
+  .scroll-table {
+    
+    height:450px;
+    overflow-y: auto;
+  }
+  .scroll-table::-webkit-scrollbar {
+    /* display: none; */
+    width:0;
+  }
+
+
+  /*date*/
+  label {
+    display: block;
+    font: 1rem 'Fira Sans', sans-serif;
+    border-radius: 4px;
+    
+  }
+
+  input,
+  label {
+      margin: 6px 0;
+      border-radius: 4px;
+  }
+
+  .dropdown.lt-search{
+    width: 300px;
+    background-color: white;
+  }
+
+
+  .btn {
+    width: 300px;
+    margin-bottom: 10px;
+  }
+  
+  .btn-1 {
+    width: 300px;
+    margin-top: 5px;
+    border-radius: 4px;
+    margin-left: 81%;
+    }
+
+  .her {
+    position: relative;
+    display: inline-block;
+    width: 300px;
+ 
+  }  
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ecf0f1;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    padding: 12px 16px;
+    z-index: 1;
+  }
+  
+  .dropdown:focus-within .dropdown-content {
+    display: block;
+  }
+.icon{
+  position : relative;
+  left: 750px;
+
+}
+.loss_title{
+  text-align: center;
+  margin-top:30px;
+  
+}

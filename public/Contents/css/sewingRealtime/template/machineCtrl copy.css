@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing:border-box;
+  text-decoration: none;
+  font-family: 'Poppins', sans-serif;
+
+}
+body{
+  background-image: url(../images/plant.jpg);
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: #fff;
+  font-size: 25px;
+}
+.search{
+  display:flex;
+  flex-direction:column;
+  width: 100%;
+}
+.search h3{
+  align-self: center;
+}
+.form-select{ 
+  font-size: 15px;
+  border: 2px solid rgba(255, 255, 255, 0);
+  width: 300px;
+  align-self: center;
+  color: #34495e;
+  box-sizing: border-box;
+}
+.form-select:hover{
+  cursor: pointer;
+  border: 2px solid #3498db;
+}
+.form-select option{
+  border-radius: 120px;
+}
+.content{
+  display: flex;
+  flex-direction: column;
+  margin: 0px 100px 0px 150px;
+}
+.content-layout{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #000;
+}
+.content-layout-header{
+  margin: 20px 0px 3px 6px;
+  text-align: center;
+  color: #fff;
+  border-radius:5px;
+  width: 100px;
+  background-color: #16a085;
+  border: 2px solid #fff;
+}
+.content-layout-line{
+  padding-top: 10px;  
+  border-radius:0px 10px 10px 10px;
+  position: relative;
+  display:flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+
+}
+.content-layout-line-machine{
+  margin: 3px;
+  border-radius:  10px;
+  border: 2px solid #16a085;
+  background-color: #ecf0f1;
+  position: relative;
+  font-size: 20px;
+  height: 90px;
+  width: 110px;
+}
+.content-layout-line-machine:hover{
+  border: 2px solid #3498db ;
+  background-color: #95a5a6 ;
+  cursor: pointer;
+}
+.content-layout-line-machine h4{
+  text-align: center;
+  position: absolute;
+  padding-top: 20%;
+  width: 100%;
+  height: 100%;
+}
+.content-layout-line-machine p{
+  position: absolute;
+  font-size: 80%;
+  margin: 0;
+  width: 100%;
+  bottom: 0;
+  text-align: center;
+}
+#m1{
+  border: 2px solid #fff;
+  background: #e74c3c;
+  color:#ecf0f1;
+}
+#m17{
+  border: 2px solid #fff;
+  background: #27ae60;
+  color:#ecf0f1;
+}
+#m22{
+  border: 2px solid #fff;
+  background: #f1c40f;
+  color:#ecf0f1;
+}

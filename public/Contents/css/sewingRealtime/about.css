@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+*{
+margin: 0;
+padding: 0;
+box-sizing:border-box;
+text-decoration: none;
+font-family: 'Poppins', sans-serif;
+}
+body{
+background-image: url(../images/plant.jpg);
+background-repeat: no-repeat;
+background-size: cover;
+color: #fff;
+font-size: 25px;
+}
+.content{
+    position: relative;
+    background-color:#16a08483;
+    border-radius: 20px;
+    font-size: 30px;
+    border: 5px solid #fff;
+    margin: 0 150px;
+    height: 100%;
+}
+
+.content-name{
+    font-size: 40px;
+    padding-left: 150px;
+}
+p  {
+    padding: 10px;
+    font-size: 40px;
+}

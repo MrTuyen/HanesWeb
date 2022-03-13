@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://fonts.googleapis.com/css?family=Poppins' rel='stylesheet'>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="/Contents/fonts/fontawesome-free-5.15.4-web/css/all.css">
+    <link rel="stylesheet" href="/Contents/css/sewingRealtime/reset.css"> 
+    <link rel="stylesheet" href="/Contents/css/sewingRealtime/losstime.css">
+    <link rel="stylesheet" href="/contents/libs/toastr-master/build/toastr.css" />
+    <title>LossTime</title>
+</head>
+
+<body>
+    <%- include('partials/header') -%>
+        <div class="container-fluid">
+
+            <div class="conteiner-fluid">
+                <div class="col-12 col">
+                    <h3 class="loss_title">DANH SÁCH CHI TIẾT LỖI VÀ THỜI GIAN MÁY LỖI </h3>
+                </div>
+                <form action="losstime" method="post">
+                    <div class="her dropdown">
+                        <button type="button" class="btn btn-primary dropdown-toggle" id="dropdownMenuButton1"
+                            data-bs-toggle="dropdown" aria-expanded="false">Tìm Kiếm</button>
+                        <ul class="dropdown-content" aria-labelledby="dropdownMenuButton1">
+                            <div class="lt-search">
+                                <div class="text"> Chọn Vị Trí Zone,Line</div>
+                                <select class="lt-form-select" id="zone" name="zone">
+                                    <option value='All'>All </option>
+                                    <% var Zone=["A","B","C","D","E","F","G","H"] %>
+                                        <% for( let a=0; a <=7; a++ ) { %>
+                                            <option value=<%=a %>>Zone <%= Zone[a] %>
+                                            </option>
+                                            <% } %>
+                                </select>
+                                <select class="lt-form-select" id="line" name="line">
+                                    <option value='All'>All </option>
+                                    <% for( let i=1; i <=6; i++ ) { %>
+                                        <option value=<%=i %>> Line <%= i %>
+                                        </option>
+                                        <% } %>
+                                </select>
+                                <div class="text">Ngày, tháng, năm</div>
+                                <input type="date" id="date" name="date" value="<?php echo date('Y-m-d');?>"
+                                    min="2020-01-01" max="2050-12-31">
+                            </div>
+                            <input type="submit" class="btn btn-primary" value="Yêu Cầu" onclick="showAlert()" />
+                        </ul>
+                </form>
+            </div>
+            <div class="wrap" id="table2excel">
+                <table class="head">
+                    <tbody>
+                        <tr>
+                            <th>Location</th>
+                            <th>Tag Machine</th>
+                            <th>Operation</th>
+                            <th>Error Code</th>
+                            <th>Start Wait</th>
+                            <th>Start Repair</th>
+                            <th>End Repair</th>
+                            <th>Loss Time</th>
+                            <th>Date</th>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="scroll-table">
+                    <table>
+                        <tbody>
+                            <% for( let i=0; i < today.length; i++ ) { %>
+                                <tr>
+                                    <td>
+                                        <%= today[i]['zone'] + today[i]['line'] %>
+                                    </td>
+                                    <td>
+                                        <%=today[i]['tag'] %>
+                                    </td>
+                                    <td>
+                                        <%=today[i]['operation'] %>
+                                    </td>
+                                    <td>
+                                        <%= today[i]['error_code'] %>
+                                    </td>
+                                    <td>
+                                        <%= today[i]['start_wait'] %>
+                                    </td>
+                                    <td>
+                                        <%= today[i]['start_repair'] %>
+                                    </td>
+                                    <td>
+                                        <%= today[i]['end_repair'] %>
+                                    </td>
+                                    <td>
+                                        <%= today[i]['loss_time_s'] %>
+                                    </td>
+                                    <td>
+                                        <%= today[i]["date"] %>
+                                    </td>
+                                </tr>
+                                <% } %>
+                        </tbody>
+                    </table>
+                </div>
+                <%if (today.length> 12) { %>
+                    <i class="icon fas fa-angle-down"> cuộn xuống</i>
+                    <% } %>
+                        <button type="button" class="btn-1 btn-success" id="bt1">Xuất File Excel</button>
+            </div>
+        </div>
+        <%- include('partials/footer') -%>    
+
+        <script src="/contents/libs/toastr-master/build/toastr.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+        <script src="/contents/libs/jquery-1.10.2.min.js"></script>
+        <script src="//cdn.rawgit.com/rainabba/jquery-table2excel/1.1.0/dist/jquery.table2excel.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous"></script>
+        <!-- <script src="./jquery.table2excel.min.js"></script> -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"
+            integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script>
+            $("button#bt1").click(function () {
+                $("#table2excel").table2excel({
+                    // exclude CSS class
+                    exclude: ".noExl",
+                    name: "TênFile",
+                    filename: "LossTime_DaTa", //do not include extension
+                    fileext: ".xlsx" // file extension
+                });
+            });
+        </script>
+        <script>
+            function showAlert() {
+                x = document.getElementById('date').value;
+                if (document.getElementById('date').value == "") {
+
+                    alert('CHÚ Ý: Nên chọn ngày tháng cụ thể!');
+                }
+            }
+        </script>
+</body>
+
+</html>

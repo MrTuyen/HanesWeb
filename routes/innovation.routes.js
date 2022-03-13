@@ -9,9 +9,11 @@ const dashboardController = require("../controllers/innovation/dashboard.control
 const userController = require("../controllers/innovation/user.controller");
 const realtimeController = require("../controllers/innovation/realtime.controller");
 const positionController = require("../controllers/innovation/position.controller");
-
 const authController = require("../middleware/auth.controller");
-
+const workcenter = require("../controllers/innovation/sewingRealtime/workcenter.controller");
+const realtimeDashboard= require("../controllers/innovation/sewingRealtime/dashboard.controller");
+const machine = require("../controllers/innovation/sewingRealtime/machine.controller");
+const losstime = require("../controllers/innovation/sewingRealtime/losstime.controller");
 // Dashboard
 router.get("/dashboard", authController.authorize([4,5]), dashboardController.getDashboard)
 router.post("/dashboard/get-count", dashboardController.getStatistic)
@@ -99,4 +101,22 @@ router.get("/realtime", realtimeController.getIndex)
 // Position
 router.get("/machine-position", positionController.getIndex)
 
+//sewingRealtime
+//router losstime
+router.get('/realtime/losstime',losstime.getLosstime);
+router.post('/realtime/losstime',losstime.postLosstime);
+// router machine
+router.get('/realtime/workcenter',workcenter.getHomePage);
+router.post("/realtime/updateZone",workcenter.adjustingZone);
+router.get('/realtime/machine',machine.getMachine);
+router.post('/realtime/machine',machine.postMachine);
+router.post('/realtime/machineData',machine.postMachneData);
+router.post('/realtime/updateMachine',machine.postUpdateMachine);
+// router dashboard 
+router.get('/realtime/dashboard',realtimeDashboard.getDashboard);
+router.post('/realtime/locations',realtimeDashboard.portLocations);
+router.post('/realtime/dataSubmit',realtimeDashboard.postDataSubmit);
+router.post('/realtime/downloadReport',realtimeDashboard.portDownloadReport);
+router.get('/realtime/detailDashboard',realtimeDashboard.getdetailDashboard);
+router.post('/realtime/DetailDataSubmit',realtimeDashboard.postDetailDataSubmit);
 module.exports = router;
