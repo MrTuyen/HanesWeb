@@ -4,8 +4,8 @@ var machineCtrl = {
     getMachine:async function(req, res,next) {
         var lineName = req.query.line;
         let machineLine = await db.QueryAsync(`call usp_view_machine_line('${lineName}');`);
-        console.log(`call usp_view_machine_line('${lineName}');`)
-        console.log(lineName)
+        // console.log(`call usp_view_machine_line('${lineName}');`)
+        // console.log(lineName)
         res.render('Innovation/sewingRealtime/machine',{line:machineLine[0],lineName:lineName});                     
     },
     postMachine:async function(req, res, next) {
@@ -18,7 +18,7 @@ var machineCtrl = {
         let newID = req.body.newID;
         let lineName = req.body.lineName;
         let location = req.body.location;
-        console.log(`CALL usp_change_machine_tag('${oldID}','${newID}','${lineName}')`);
+        // console.log(`CALL usp_change_machine_tag('${oldID}','${newID}','${lineName}')`);
         if(newID == 0){
             return res.end(JSON.stringify({  msg: "Không được bỏ trông tag máy",status:0})); 
         }
@@ -45,7 +45,7 @@ var machineCtrl = {
     postMachneData:async function(req, res){
         var lineName= req.body.lineName;  
         var index= req.body.index;
-        console.log(`CALL usp_view_machine_operation('${lineName}','${index}')`);
+        // console.log(`CALL usp_view_machine_operation('${lineName}','${index}')`);
         machineData = await db.QueryAsync(`CALL usp_view_machine_operation('${lineName}','${index}')`);
         return res.end(JSON.stringify({ rs: true, msg: "Thành công",machineData:machineData[0]}))
     }
