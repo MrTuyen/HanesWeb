@@ -11,11 +11,11 @@ $(document).ready(function () {
         var a = '<option class="chart_header_option" value="ALL">ALL</option>';
         zoneChanged(this, 0);
         for (const x of response.data1) {
+            // console.log(x['Zone'])
             a += '<option class="chart_header_option" value="' + x['Zone'] + '">Zone ' + x['Zone'] + '</option>\n';
         }
         document.getElementById('zone').innerHTML = a;
     })
-
     load();
 });
 
@@ -31,14 +31,6 @@ function load() {
     var shift = document.getElementById("shift").value;
     var from_date = document.getElementById("timeCheckIn").value;
     var to_date = document.getElementById("timeCheckOut").value;
-    if(zone ==''){zone="ALL";};
-    if(line==''){line="ALL";};
-    if(shift==''){shift="ALL";};
-    if(from_date=='' && to_date==''){
-       var nowDate= new Date();
-       from_date=`${nowDate.getDate()}/${nowDate.getMonth()+1}/${nowDate.getFullYear()}`;
-       to_date=from_date;
-    }
     $.ajax({
         url: "/innovation/realtime/dataSubmit",
         type: "post",
@@ -76,6 +68,7 @@ function zoneChanged(obj) {
         dataType: 'json',
     }).done(function (response) {
         var a = '<option class="chart_header_option" value="ALL">ALL</option>';
+        // console.log(response.data1[0])
         for (const x of response.data1[0]) {
             if (x['line'] != null) {
                 a += `<option class="chart_header_option" value=${x['line']}>Line ${x['line']}</option>\n`;
@@ -91,13 +84,8 @@ function zoneChanged(obj) {
 function check_time() {
     var fd = document.getElementById('timeCheckIn').value.split("/");
     var td = document.getElementById('timeCheckOut').value.split("/");
-    var date1 = new Date()
-    var date2 = new Date()
-    if(td!=''){
-        date1 = new Date(td[2], td[1], td[0], 0, 0, 0)
-        date2 = new Date(fd[2], fd[1], fd[0], 0, 0, 0)
-    }
-    
+    var date1 = new Date(td[2], td[1], td[0], 0, 0, 0)
+    var date2 = new Date(fd[2], fd[1], fd[0], 0, 0, 0)
     if (date1 - date2 < 0) {
         date1.setDate(date2.getDate() + 1);
         toastr.warning(`To date không được nhỏ hơn from date`);
