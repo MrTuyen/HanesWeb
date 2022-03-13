@@ -30,9 +30,14 @@ function load() {
     var shift = document.getElementById("shift").value;
     var from_date = document.getElementById("timeCheckIn").value;
     var to_date = document.getElementById("timeCheckOut").value;
-    if (line == '') {
-        line = 1;
-    }
+    if(zone ==''){zone="A";};
+    if(line==''){line="1";};
+    if(shift==''){shift="ALL";};
+    if(from_date=='' && to_date==''){
+       var nowDate= new Date();
+       from_date=`${nowDate.getDate()}/${nowDate.getMonth()+1}/${nowDate.getFullYear()}`;
+       to_date=from_date;
+    };
 
     $.ajax({
         url: "/innovation/realtime/DetailDataSubmit",
@@ -62,7 +67,7 @@ function load() {
         realtime.update();
         realtimeRatio.update();
         $('.line_name').html(`Line name: ${zone}${line}`);
-        $('.detail_style').html(`Style: ${response.data.lineName[0]['line_name']}`);
+            $('.detail_style').html(`Style: ${response.data.lineName[0]['line_name']}`);
     });
 }
 

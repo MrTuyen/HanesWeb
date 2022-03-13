@@ -1,6 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
 
-
+body{
+    background-color:#FBFCFC  ;
+    background-repeat: no-repeat;
+    background-size: cover;
+    color: #17202A;
+    font-size: 30px;
+    }
+    
 .detail_chart_header{
     height: 5px !important;
     /* font-size: 20px; */

@@ -23,7 +23,6 @@ var dashboard = {
         var from_date = req.body.from_date;
         var to_date = req.body.to_date;
         
-        // console.log(`CALL dashboard_data_ratio('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
         let dataSQL = await db.QueryAsync(`CALL dashboard_data('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
         let dataRatioSQL = await db.QueryAsync(`CALL dashboard_data_ratio('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
         var repairingTime=[];
@@ -62,8 +61,6 @@ var dashboard = {
         var shift = req.body.shift;
         var from_date = req.body.from_date;
         var to_date = req.body.to_date;
-        // console.log(`CALL report_losstime('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
-        // console.log(`CALL report_runtime('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
         let dataLossTime = await db.QueryAsync(`CALL report_losstime('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
         let dataRunTime = await db.QueryAsync(`CALL report_runtime('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
         return res.end(JSON.stringify({ rs: true,
@@ -80,10 +77,10 @@ var dashboard = {
         var shift = req.body.shift;
         var from_date = req.body.from_date;
         var to_date = req.body.to_date;
+        
         let lineName = await db.QueryAsync(`SELECT line_name FROM zone WHERE CONCAT(zone,line)='${zone}${line}' LIMIT 1`);
         let dataRatioSQL = await db.QueryAsync(`CALL dashboard_detail_data_ratio('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
         let dataSQL = await db.QueryAsync(`CALL dashboard_detail_data('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
-
         var lableRunTime=[];
         var repairingTime=[];
         var waitingTime=[];
