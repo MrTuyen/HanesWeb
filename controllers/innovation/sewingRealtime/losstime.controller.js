@@ -3,19 +3,7 @@ var db = new database();
 ////////////////////////////////////////////////////////////////////////
 var losstimeCtrl = {
    getLosstime : async function(req, res, next) {
-        let result = await db.QueryAsync(`SELECT loss_time.tag,loss_time.error_code,
-        time(loss_time.start_wait) as start_wait, 
-        machine_locations.line, 
-        machine_locations.zone,style.operation ,
-        time(loss_time.start_repair) as start_repair,
-        time(loss_time.end_repair) as end_repair ,
-        loss_time.loss_time_s,
-        date_format(loss_time.date,'%Y/%m/%d') as date
-        FROM sewing_needle_realtime.loss_time 
-        INNER JOIN sewing_needle_realtime.machine_locations 
-        ON loss_time.tag = machine_locations.tag
-        INNER JOIN sewing_needle_realtime.style 
-        ON machine_locations.location = style.location;`);
+    let result = await db.QueryAsync(`CALL procedure_losstime('All','All','');`);
         res.render('Innovation/sewingRealtime/losstime',today= result);
     },
     postLosstime:async function(req, res, next) {
@@ -34,7 +22,7 @@ var losstimeCtrl = {
             query ="CALL procedure_losstime('"+ zone[x].toString() + "',"+"'"+ y.toString()+"'"+"," +"'"+ z.toString()+ "');"
         }
         let result= await db.QueryAsync(query);
-        res.render('pages/losstime',today= result[0]);  
+        res.render('Innovation/sewingRealtime/losstime',today= result[0]);  
 
     },
 };
