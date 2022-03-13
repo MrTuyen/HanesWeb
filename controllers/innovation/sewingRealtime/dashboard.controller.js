@@ -62,6 +62,8 @@ var dashboard = {
         var shift = req.body.shift;
         var from_date = req.body.from_date;
         var to_date = req.body.to_date;
+        // console.log(`CALL report_losstime('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
+        // console.log(`CALL report_runtime('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
         let dataLossTime = await db.QueryAsync(`CALL report_losstime('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
         let dataRunTime = await db.QueryAsync(`CALL report_runtime('${zone}','${line}','${shift}','${from_date}','${to_date}');`);
         return res.end(JSON.stringify({ rs: true,
