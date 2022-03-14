@@ -359,7 +359,6 @@ function deleteRow(file){
     $(event.currentTarget).parent().parent().remove();
 }
 
-
 function saveUploadData(){
 
     let fileList = $(".fileName");

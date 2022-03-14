@@ -161,6 +161,16 @@ input[type="checkbox"]{
     display: none;
 }
 
+.drop-file-box {
+    display: block;
+    border: 1px dashed #d9dedb;
+    padding: 20px 0;
+    width: 100%;
+    cursor: pointer;
+    text-align: center;
+    color: #676867;
+}
+
 @media (max-width: 575.98px) {
     .part-img {
         width: 100%;
