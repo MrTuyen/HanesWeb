@@ -103,20 +103,21 @@ router.get("/machine-position", positionController.getIndex)
 
 //sewingRealtime
 //router losstime
-router.get('/realtime/losstime',losstime.getLosstime);
-router.post('/realtime/losstime',losstime.postLosstime);
+router.get('/realtime/losstime', losstime.getLosstime);
+router.post('/realtime/losstime', losstime.postLosstime);
 // router machine
-router.get('/realtime/workcenter',workcenter.getHomePage);
-router.post("/realtime/updateZone",workcenter.adjustingZone);
-router.get('/realtime/machine',machine.getMachine);
-router.post('/realtime/machine',machine.postMachine);
-router.post('/realtime/machineData',machine.postMachneData);
-router.post('/realtime/updateMachine',machine.postUpdateMachine);
+router.get('/realtime/workcenter', workcenter.getHomePage);
+router.post("/realtime/updateZone", workcenter.adjustingZone);
+router.get('/realtime/machine', machine.getMachine);
+router.post('/realtime/machine', machine.postMachine);
+router.post('/realtime/machineData', machine.postMachneData);
+router.post('/realtime/updateMachine', machine.postUpdateMachine);
 // router dashboard 
-router.get('/realtime/dashboard',realtimeDashboard.getDashboard);
-router.post('/realtime/locations',realtimeDashboard.portLocations);
-router.post('/realtime/dataSubmit',realtimeDashboard.postDataSubmit);
-router.post('/realtime/downloadReport',realtimeDashboard.portDownloadReport);
-router.get('/realtime/detailDashboard',realtimeDashboard.getdetailDashboard);
-router.post('/realtime/DetailDataSubmit',realtimeDashboard.postDetailDataSubmit);
+router.get('/realtime/dashboard', realtimeDashboard.getDashboard);
+router.post('/realtime/locations', realtimeDashboard.portLocations);
+router.post('/realtime/dataSubmit', realtimeDashboard.postDataSubmit);
+router.post('/realtime/downloadReport', realtimeDashboard.portDownloadReport);
+router.get('/realtime/detailDashboard', realtimeDashboard.getdetailDashboard);
+router.post('/realtime/DetailDataSubmit', realtimeDashboard.postDetailDataSubmit);
+
 module.exports = router;

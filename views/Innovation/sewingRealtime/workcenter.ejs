@@ -17,76 +17,78 @@
         <div class=" container-fluid" >
             <h2 class="wc-title">BRA WORK CENTER VISUALIZATION</h2>
             <div class="wc-content row">
-                <% let countName = 0 %>
-                <% for( let zone = 0; zone < 9; zone++ ) { %>
-                   <% if (zone == 0) { %>
-                        <% var zoneW = "col-1" %> 
-                   <% }else{%>
-                        <% var zoneW = "col" %> 
-                    <% } %>  
-                    <div class="wc-content-zone <%=zoneW%>">
-                        <% for( let line = 0; line <= 6; line++ ) { %>
-                            <% if (line == 0) { %>
-                                <% if (zone == 0) { %>
-                                    <div class="wc-content-title row" data-bs-toggle="modal" data-bs-target="#adjust-line" style ="background:#2980b9"><i class="fas fa-edit" style="padding-top: 4px; padding-left: 15px;"></i></div>
-                                    <div class="modal-line-details modal fade" id="adjust-line" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                        <div class="line-modal modal-dialog modal-dialog-centered">
-                                          <div class="line-modal modal-content">
-                                            <div class=" modal-header">
-                                              <h5 class="modal-title" id="exampleModalLabel">Thay đổi style của truyền may</h5>
-                                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                              <div class="modal-body">
-                                                <div class="input-group mb-3">
-                                                  <span class="modal-body-run input-group-text">Mã truyền: </span>
-                                                  <input type="text" class="form-control" id="inLocation" placeholder="Nhập mã của truyền may...">           
+                <% if(locals.listLineName!='') {%> 
+                    <% let countName = 0 %>
+                    <% for( let zone = 0; zone < 9; zone++ ) { %>
+                    <% if (zone == 0) { %>
+                            <% var zoneW = "col-1" %> 
+                    <% }else{%>
+                            <% var zoneW = "col" %> 
+                        <% } %>  
+                        <div class="wc-content-zone <%=zoneW%>">
+                            <% for( let line = 0; line <= 6; line++ ) { %>
+                                <% if (line == 0) { %>
+                                    <% if (zone == 0) { %>
+                                        <div class="wc-content-title row" data-bs-toggle="modal" data-bs-target="#adjust-line" style ="background:#2980b9"><i class="fas fa-edit" style="padding-top: 4px; padding-left: 15px;"></i></div>
+                                        <div class="modal-line-details modal fade" id="adjust-line" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="line-modal modal-dialog modal-dialog-centered">
+                                            <div class="line-modal modal-content">
+                                                <div class=" modal-header">
+                                                <h5 class="modal-title" id="exampleModalLabel">Thay đổi style của truyền may</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
-                                                <div class="input-group mb-3">
-                                                  <span class="modal-body-id input-group-text">Style thay đổi: </span>
-                                                  <input type="text" class="form-control" id="inStyle" placeholder="Nhập style thay đổi..."> 
-                                              </div>
-                                              <div class="modal-body-check-clear  form-check">
-                                                <input class="form-check-input" type="checkbox" id="deleteId">
-                                                <label class="form-check-label" for="deleteId">
-                                                        Xoá toàn bộ id máy may
-                                                </label>
-                                              </div>
-                                              </div>
-                                              <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                                                <button type="button" onclick="Adjusting()" class="btn btn-primary" data-bs-dismiss="modal">Lưu lại</button>
-                                              </div>
-                                          </div>
-                                        </div>
-                                      </div> 
-                                <% }else{%>
-                                    <div class="wc-content-title row"><p><%=listZone[zone-1]%></p></div>
-                                <% } %> 
-                            <% }else if(zone == 0){%>
-                                <div class="wc-content-title row"><p><%= listLine[line-1] %></p></div>
-                            <% }else{%>
-                                <% if( locals.listLineName[countName]["line_name"] != '') { %>
-                                    <% var checkOn = locals.online.some(checkExist => checkExist.line_location === locals.listLineName[countName]["line_location"]) %> 
-                                    <% var checkWait = locals.wait.some(checkExist => checkExist.line_location === locals.listLineName[countName]["line_location"] ) %>
-                                    <% var checkRepaire = locals.repair.some(checkExist => checkExist.line_location === locals.listLineName[countName]["line_location"]) %>
-                                    
-                                    <% if (checkOn == true && checkWait == false && checkRepaire == false) { %>
-                                        <a href="/innovation/realtime/machine?line=<%= listLineName[countName]["line_location"]%>"><div class="wc-content-line row" id="div<%= countName%>" style ="border: 2px solid #fff;background:#27ae60;color:#ecf0f1;"><p id="p<%= countName%>"><%= listLineName[countName]["line_name"]%></p></div></a>
-                                    <% } else if(checkWait == true && checkRepaire == false) { %>
-                                        <a href="/innovation/realtime/machine?line=<%= listLineName[countName]["line_location"]%>"><div class="wc-content-line row" id="div<%= countName%>" style ="border: 2px solid #fff;background:#e74c3c;color:#ecf0f1;"><p id="p<%= countName%>"><%= listLineName[countName]["line_name"]%></p></div></a>
-                                    <% } else if(checkRepaire == true) { %>
-                                        <a href="/innovation/realtime/machine?line=<%= listLineName[countName]["line_location"]%>"><div class="wc-content-line row" id="div<%= countName%>" style ="border: 2px solid #fff;background:#f1c40f;color:#ecf0f1;"><p id="p<%= countName%>"><%= listLineName[countName]["line_name"]%></p></div></a>
+                                                <div class="modal-body">
+                                                    <div class="input-group mb-3">
+                                                    <span class="modal-body-run input-group-text">Mã truyền: </span>
+                                                    <input type="text" class="form-control" id="inLocation" placeholder="Nhập mã của truyền may...">           
+                                                    </div>
+                                                    <div class="input-group mb-3">
+                                                    <span class="modal-body-id input-group-text">Style thay đổi: </span>
+                                                    <input type="text" class="form-control" id="inStyle" placeholder="Nhập style thay đổi..."> 
+                                                </div>
+                                                <div class="modal-body-check-clear  form-check">
+                                                    <input class="form-check-input" type="checkbox" id="deleteId">
+                                                    <label class="form-check-label" for="deleteId">
+                                                            Xoá toàn bộ id máy may
+                                                    </label>
+                                                </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                    <button type="button" onclick="Adjusting()" class="btn btn-primary" data-bs-dismiss="modal">Lưu lại</button>
+                                                </div>
+                                            </div>
+                                            </div>
+                                        </div> 
                                     <% }else{%>
-                                        <a href="/innovation/realtime/machine?line=<%= listLineName[countName]["line_location"]%>"><div class="wc-content-line row" id="div<%= countName%>"><p id="p<%= countName%>"><%= listLineName[countName]["line_name"]%></p></div></a>
+                                        <div class="wc-content-title row"><p><%=listZone[zone-1]%></p></div>
                                     <% } %> 
-                                <% } else {%>
-                                    <div class="wc-content-line row" id="div<%= countName%>"><p id="p<%= countName%>"><%= listLineName[countName]["line_name"]%></p></div>
-                                <% } %> 
-                                    <% countName++ %> 
+                                <% }else if(zone == 0){%>
+                                    <div class="wc-content-title row"><p><%= listLine[line-1] %></p></div>
+                                <% }else{%>
+                                    <% if( locals.listLineName[countName]["line_name"] != '') { %>
+                                        <% var checkOn = locals.online.some(checkExist => checkExist.line_location === locals.listLineName[countName]["line_location"]) %> 
+                                        <% var checkWait = locals.wait.some(checkExist => checkExist.line_location === locals.listLineName[countName]["line_location"] ) %>
+                                        <% var checkRepaire = locals.repair.some(checkExist => checkExist.line_location === locals.listLineName[countName]["line_location"]) %>
+                                        
+                                        <% if (checkOn == true && checkWait == false && checkRepaire == false) { %>
+                                            <a href="/innovation/realtime/machine?line=<%= listLineName[countName]["line_location"]%>"><div class="wc-content-line row" id="div<%= countName%>" style ="border: 2px solid #fff;background:#27ae60;color:#ecf0f1;"><p id="p<%= countName%>"><%= listLineName[countName]["line_name"]%></p></div></a>
+                                        <% } else if(checkWait == true && checkRepaire == false) { %>
+                                            <a href="/innovation/realtime/machine?line=<%= listLineName[countName]["line_location"]%>"><div class="wc-content-line row" id="div<%= countName%>" style ="border: 2px solid #fff;background:#e74c3c;color:#ecf0f1;"><p id="p<%= countName%>"><%= listLineName[countName]["line_name"]%></p></div></a>
+                                        <% } else if(checkRepaire == true) { %>
+                                            <a href="/innovation/realtime/machine?line=<%= listLineName[countName]["line_location"]%>"><div class="wc-content-line row" id="div<%= countName%>" style ="border: 2px solid #fff;background:#f1c40f;color:#ecf0f1;"><p id="p<%= countName%>"><%= listLineName[countName]["line_name"]%></p></div></a>
+                                        <% }else{%>
+                                            <a href="/innovation/realtime/machine?line=<%= listLineName[countName]["line_location"]%>"><div class="wc-content-line row" id="div<%= countName%>"><p id="p<%= countName%>"><%= listLineName[countName]["line_name"]%></p></div></a>
+                                        <% } %> 
+                                    <% } else {%>
+                                        <div class="wc-content-line row" id="div<%= countName%>"><p id="p<%= countName%>"><%= listLineName[countName]["line_name"]%></p></div>
+                                    <% } %> 
+                                        <% countName++ %> 
+                                <% }%> 
                             <% }%> 
-                        <% }%> 
-                    </div>
-                <% } %>
+                        </div>
+                    <% }}  else%>
+                   <h1 style="text-align: center;margin-top:60px;color:rgba(244,67,54,0.2)">NO DATA FOUND ...</h1>
             </div>
         </div>
         <%- include('partials/footer')%>
