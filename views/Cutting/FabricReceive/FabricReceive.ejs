@@ -55,6 +55,10 @@
             background: white;
         }
 
+        .green {
+            background: green;
+        }
+
     </style>
 
 </head>
@@ -167,7 +171,16 @@
                                         </div>                                               
                                     </div>
                                 </div>
-                                <label class="">Danh sách phiếu xuất vải:</label> <span id="lbSumMarkerData">0</span> phiếu
+                                <div class="d-flex">
+                                    <span class="w-50">
+                                        <strong>Danh sách phiếu xuất vải:</strong> 
+                                        <span id="lbSumMarkerData">0</span> phiếu
+                                    </span>
+                                    <span class="w-50 text-right">
+                                        <strong>Lastest update:</strong> 
+                                        <span id="lbLastestUpdate"></span>
+                                    </span>
+                                </div>
                                 <div class="col-sm-12 col-md-12 pl-0 pr-0 scanned-table">
                                     <table class="table table-hover table-bordered table-scrollable mb-0 table-kanban">
                                         <thead class="sticky-thead">
@@ -214,8 +227,9 @@
                             <tr>
                                 <label class="drop-file-box">
                                     <span class="fa fa-cloud-upload" aria-hidden="true"></span>
-                                    <span>Nhấn vào đây để chọn tập tin <br />Maximum File Size: 5 MB  |  File Format: XLS, XLSX</span>
-                                    <input type="file" name="UploadedFile" id="fileFabricReceiveUpload" multiple onchange="uploadExcel()" accept=".xlsx, .xls" style="display: none">
+                                    <span>Nhấn vào đây để chọn tập tin <br />Maximum File Size: 5 MB  |  File Format: XLS, XLSX, XLSB</span>
+                                    <!-- <input type="file" name="UploadedFile" id="fileFabricReceiveUpload" multiple onchange="uploadExcel()" accept=".xlsx, .xls" style="display: none"> -->
+                                    <input type="file" name="UploadedFile" id="fileFabricReceiveUpload" multiple onchange="uploadExcel()" accept=".xlsx, .xls, .xlsb" style="display: none">
                                 </label>    
                             </tr>
                             <tr>

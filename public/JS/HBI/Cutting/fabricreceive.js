@@ -115,14 +115,15 @@ function getListMarkerData(){
                         ${
                             ele.marker_call_by == undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
                             : ele.marker_call_by == undefined ? `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
-                            : `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
+                            : `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
                         }  
                     </td>
                     <td>
                         ${
                             ele.marker_call_by == undefined ?  `<div class='rounded-circle white' id='wh-circle-${ele.id}'></div>`
-                            : ele.wh_confirm_by == undefined ? `<div class='rounded-circle red' id='wh-circle-${ele.id}'></div>`
-                            : `<div class='rounded-circle yellow' id='wh-circle-${ele.id}'></div>`
+                            : (ele.wh_prepare == '0' && ele.wh_confirm_by == undefined) ? `<div class='rounded-circle yellow' id='wh-circle-${ele.id}'></div>`
+                            : ele.wh_confirm_by != undefined ? `<div class='rounded-circle green' id='wh-circle-${ele.id}'></div>`
+                            : `<div class='rounded-circle red' id='wh-circle-${ele.id}'></div>`
                         }
                     </td>
                     <td>
@@ -144,10 +145,10 @@ function getListMarkerData(){
                 </tr>`;
             }
 
-            $("#fabric-plan-table-body").html('');
-            $("#fabric-plan-table-body").append(html);
+            $("#fabric-plan-table-body").html('').append(html);
 
             $("#lbSumMarkerData").text(data.length);
+            $("#lbLastestUpdate").text(data[0].marker_call_date);
 
             for (let i = 0; i < data.length; i++) {
                 let ele = data[i];
@@ -218,62 +219,6 @@ function downloadMarkerData(){
     });
 }
 
-// function uploadExcel(){
-//     var e = event;
-//     var fileName = e.target.files[0].name;
-//     $('.fileUploadName').text(fileName);
-
-//     if (window.FormData !== undefined) {
-
-//         var fileUpload = $("#fileFabricReceiveUpload").get(0);
-//         var files = fileUpload.files;
-
-//         // Create FormData object
-//         var fileData = new FormData();
-
-//         // Looping over all files and add it to FormData object
-//         for (var i = 0; i < files.length; i++) {
-//             fileData.append("file" + i, files[i]);
-//         }
-
-//         LoadingShow();
-//         $.ajax({
-//             url: baseUrl + 'upload-fabric-file',
-//             method: 'POST',
-//             contentType: false,
-//             processData: false,
-//             data: fileData,
-//             success: function (result) {
-//                 LoadingHide();
-//                 result = JSON.parse(result);
-//                 if (result.rs) {
-//                     var listSheet = result.data
-//                     var options = "";
-//                     for (var i = 0; i < listSheet.length; i++) {
-//                         let item = listSheet[i];
-//                         if(item.sheetname == 'Upload-YCV')
-//                             options += "<option value=" + item.id + " selected>" + item.sheetname + "</option>";
-//                         else 
-//                             options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
-//                     }
-
-//                     $(".selected-sheet").html("").append(options);
-//                     $(".selected-header").focus();
-//                     console.log(result.msg);
-//                 }
-//                 else {
-//                     toastr.error(result.msg);
-//                 }
-//             },
-//             error: function (err) {
-//                 LoadingHide();
-//                 toastr.error(err.statusText);
-//             }
-//         });
-//     } else {
-//         toastr.error("FormData is not supported.");
-//     }
-// }
 
 function uploadExcel(){
     var e = event;
@@ -403,33 +348,6 @@ function saveUploadData(){
         }
     });
 }
-
-// function saveUploadData(){
-//     // form data
-//     let sheet = $("#selected-sheet").val();
-//     let headerRow = $("#selected-header").val();
-//     let fileName = $("#fileUploadName").text();
-
-//     // send to server
-//     let action = baseUrl + 'save-upload-data';
-//     let datasend = {
-//         sheet: sheet,
-//         headerRow: headerRow,
-//         fileName: fileName
-//     };
-//     LoadingShow();
-//     PostDataAjax(action, datasend, function (response) {
-//         LoadingHide();
-//         if (response.rs) {
-//             toastr.success(response.msg, "Thành công")
-//             $("#modalUploadData").modal('hide');
-//             getListMarkerData();
-//         }
-//         else {
-//             toastr.error(response.msg, "Thất bại");
-//         }
-//     });
-// }
 
 // Interval array
 var arrInterval = [];
@@ -614,7 +532,8 @@ socket.on('ccd-fabric-receive-action', (data) => {
             Cancel(groupId);  
             break;
         case Enum_Kanban_Action.Call:                
-            Call(groupId, message);
+            //Call(groupId, message);
+            getListMarkerData();
             break;
         case Enum_Kanban_Action.CCDSend:
             CCDSend(groupId);

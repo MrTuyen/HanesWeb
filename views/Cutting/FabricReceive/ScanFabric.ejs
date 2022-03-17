@@ -71,10 +71,13 @@
                     <div class="">
                         <div class="bg-white fabric-receive">
                             <div class="col-md-10 col-sm-12">
-                                <div class="d-flex pr-4 mt-2">
-                                    <div class="p-0">
-                                        <div class="input-group">
+                                <div class="d-flex mt-2">
+                                    <div class="p-0 d-flex w-100">
+                                        <div class="w-50">
                                             <a class="btn btn-success btn-sm" href='/cutting/fabric-receive'><i class="fa fa-arrow-left"></i> &nbsp; Back</a>
+                                        </div>
+                                        <div class="w-50 text-right">
+                                            <button class="btn btn-success btn-sm text-right" onclick="ccdSubmitData()">Submit</button>
                                         </div>
                                     </div>
                                 </div>
@@ -135,7 +138,7 @@
                                             </div>
                                             <div class="col-md-4 d-flex p-0">
                                                 <input type="text" class="form-control w-100" id="txtRollCode" onkeydown="scanBarcode()" placeholder="Mã cuộn vải" autofocus />
-                                                <button class="btn btn-success" onclick="ccdSubmitData()">Submit</button>
+                                                <!-- <button class="btn btn-success" onclick="ccdSubmitData()">Submit</button> -->
                                             </div>
                                         </div>
                                         <div class="panel-body p-0">

@@ -98,12 +98,17 @@ function getInventoryData(intPage){
                 let ele = data[i];
                 html += `<tr>
                     <td>${ele.status == 0 ? "" : "Đã sử dụng"}</td>
-                    <td>${ele.id}</td>
                     <td>${ele.note ? ele.note : ''}</td>
-                    <td>${ele.item_color}</td>
                     <td>${ele.unipack2}</td>
+                    <td>${ele.item_color}</td>
+                    <td>${ele.rfinwt}</td>
                     <td>${ele.yard}</td>
                     <td>${ele.rlocbr}</td>
+                    <td>${ele.rgrade}</td>
+                    <td>${ele.shade}</td>
+                    <td>${ele.qccomment}</td>
+                    <td>${ele.with_actual}</td>
+                    <td>${ele.vendor}</td>
                     <td>
                         <button class='btn btn-primary btn-sm' onclick="openModalUpdateRoll(${ele.id})">Update</button>
                     </td>
@@ -119,6 +124,9 @@ function getInventoryData(intPage){
             $("#txtTotalPage").text(totalPage);
             $(".paging-textbox").val(intPage);
             $(".pagination-current").text(`${(currentPage - 1) * itemPerPage  + 1} - ${currentPage * itemPerPage > totalRow ? totalRow : currentPage * itemPerPage} trong ${totalRow} bản ghi`);
+        
+            let lastestUpdate = data ? data[0].date_update : "";
+            $("#lbLastestUpdate").text(lastestUpdate);
         }
         else {
             toastr.error(response.msg, "Thất bại");

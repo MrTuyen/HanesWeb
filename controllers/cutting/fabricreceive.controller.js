@@ -8,6 +8,7 @@ const logHelper = require('../../common/log.js');
 const config = require('../../config.js');
 const constant = require('../../common/constant');
 const excel = require('exceljs');
+const xlsx = require('xlsx');
 // const pdf = require('html-pdf');
 // const fetch = require('node-fetch');
 
@@ -80,7 +81,7 @@ module.exports.getMarkerDataDetail = async function (req, res) {
                 farbicRollList.push({ itemColor: ele, rollList: result[0] })
             }
 
-            if (masterInfo[0].wh_confirm_by != undefined && masterInfo[0].wh_confirm_date != undefined) {
+            if (masterInfo[0].wh_prepare == '0') {
                 let result = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${groupId}`);
                 selectedFabricRollList.push(result);
             }
@@ -123,7 +124,13 @@ module.exports.uploadFabricFile = function (req, res) {
                 // });
 
                 await rename(tempFile.path, "templates/cutting/" + tempFile.name)
-                let sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
+                let sheets = [];
+                if(tempFile.name.includes("xlsb")){
+                    sheets = helper.getListSheetFromExcel_Xlsx("templates/cutting/" + tempFile.name);
+                }
+                else{
+                    sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
+                }
                 data.push({ name: tempFile.name, sheets: sheets });
 
                 if (data.length == Object.keys(file).length) {
@@ -137,34 +144,6 @@ module.exports.uploadFabricFile = function (req, res) {
     }
 }
 
-// module.exports.uploadFabricFile = function (req, res) {
-//     try {
-//         // parameters
-//         let form = new formidable.IncomingForm();
-
-//         form.parse(req, function (err, fields, file) {
-//             if (err) {
-//                 logHelper.writeLog("fabric_receive.uploadFabricFile", err);
-//                 return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
-//             }
-
-//             fs.rename(file.file.path, "templates/cutting/" + file.file.name, async function (err) {
-//                 if (err) {
-//                     logHelper.writeLog("fabric_receive.uploadFabricFile", err);
-//                     return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
-//                 }
-
-//                 let sheets = await helper.getListSheetFromExcel("templates/cutting/" + file.file.name);
-
-//                 return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: sheets }));
-//             });
-//         });
-
-//     } catch (error) {
-//         logHelper.writeLog("fabric_receive.uploadFabricFile", error);
-//     }
-// }
-
 module.exports.saveUploadData = async function (req, res) {
     try {
         // parameters
@@ -176,7 +155,13 @@ module.exports.saveUploadData = async function (req, res) {
         for (let i = 0; i < data.length; i++) {
             let eleFile = data[i];
             // get data from excel file
-            let arrExcelData = await helper.getDataFromExcel("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+            let arrExcelData = [];
+            if(eleFile.file.includes("xlsb")){
+                arrExcelData = helper.getDataFromExcel_Xlsx("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+            }
+            else{
+                arrExcelData = await helper.getDataFromExcel("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+            }
 
             // clean data
             let masterData = [];
@@ -222,73 +207,18 @@ module.exports.saveUploadData = async function (req, res) {
             let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
         }
 
+        testIo.emit('ccd-fabric-receive-action', {
+            username: user,
+            message: {
+                actionType: constant.Enum_Action.Call
+            }
+        });
+
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.saveUploadData", error);
     }
 }
-
-// module.exports.saveUploadData = async function (req, res) {
-//     try {
-//         // parameters
-//         let sheet = req.body.sheet;
-//         let headerRow = req.body.headerRow;
-//         let fileName = req.body.fileName;
-
-//         let user = req.user.username;
-//         let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
-
-//         // get data from excel file
-//         let arrExcelData = await helper.getDataFromExcel("templates/cutting/" + fileName, sheet, headerRow);
-
-//         // clean data
-//         let masterData = [];
-//         for (let i = 0; i < arrExcelData.length; i++) {
-//             let rowData = arrExcelData[i];
-//             let group = rowData[3];
-//             let insertRow = [];
-//             if (group != '' && group.toLowerCase().trim() != 'không có') {
-//                 masterData.push(rowData);
-//             }
-//         }
-
-//         // insert to master table: only have group => take group, receive data, time, cut date, marker name, dozen value of first row
-//         let fr = masterData[0];
-//         let query = `INSERT INTO cutting_fr_marker_data_plan (plant, work_center, receive_date, receive_time, _group, cut_date, note, marker_call_by, marker_call_date, user_update, date_update)
-//                     VALUES ('${fr[12]}', '${fr[13]}', '${new Date(fr[1]).toLocaleDateString()}', '${fr[2]}', '${fr[3]}', '${new Date(fr[8]).toLocaleDateString()}', '${fr[9]}', '${user}', '${datetime}', '${user}', '${datetime}')`;
-//         let isInsertMasterSuccess = await db.excuteQueryAsync(query);
-//         if (isInsertMasterSuccess.affectedRows < 0) {
-//             return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
-//         }
-
-//         // insert to child table: contain item color => insert each item color to child table
-//         let idMaster = isInsertMasterSuccess.insertId;
-//         let detailData = [];
-//         for (let i = 0; i < masterData.length; i++) {
-//             let rowData = masterData[i];
-//             let detailObj = [];
-
-//             if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
-//                 detailObj.push(idMaster);
-//                 detailObj.push(rowData[4]);
-//                 detailObj.push(rowData[5]);
-//                 detailObj.push(rowData[6]);
-//                 detailObj.push(rowData[7]);
-//                 detailObj.push(rowData[10]);
-//                 detailObj.push(rowData[11]);
-
-//                 detailData.push(detailObj);
-//             }
-//         }
-//         query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen) 
-//         VALUES ?`;
-//         let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
-
-//         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
-//     } catch (error) {
-//         logHelper.writeLog("fabric_receive.saveUploadData", error);
-//     }
-// }
 
 module.exports.action = function (req, res) {
     try {
@@ -444,13 +374,13 @@ module.exports.warehouseConfirm = async function (req, res) {
         // parameters
         let markerPlan = req.body.markerPlan;
         let markerDetailList = req.body.markerDetailList;
-        let selectedRollList = req.body.selectedRollList;
+        let selectedRollList = req.body.selectedRollList ? req.body.selectedRollList : [];
 
         let insertRollFaiiList = [];
 
         // update note marker plan 
         let query = `UPDATE cutting_fr_marker_data_plan 
-                    SET note = '${markerPlan.note}'
+                    SET note = '${markerPlan.note}', wh_prepare = '0'
                     WHERE id = ${markerPlan.id}`;
         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
         if (isUpdateSuccess <= 0)
@@ -487,15 +417,13 @@ module.exports.warehouseConfirm = async function (req, res) {
                     rlstdt,
                     vender,
                     rlocdp,
-                    rdyedt,
-                    rfindt,
-                    fnd,
                     rrstat,
                     ruser,
-                    rfstyl,
-                    rshapr,
-                    rlnvar,
-                    rdylot,
+                    qccomment,
+                    actual_with,
+                    with_actual,
+                    vendor,
+                    rprtcd,
                     note
                 ) 
                 VALUES (
@@ -520,15 +448,13 @@ module.exports.warehouseConfirm = async function (req, res) {
                     '${eleRoll.rlstdt}',
                     '${eleRoll.vender}',
                     '${eleRoll.rlocdp}',
-                    '${eleRoll.rdyedt}',
-                    '${eleRoll.rfindt}',
-                    '${eleRoll.fnd}',
                     '${eleRoll.rrstat}',
                     '${eleRoll.ruser}',
-                    '${eleRoll.rfstyl}',
-                    '${eleRoll.rshapr}',
-                    '${eleRoll.rlnvar}',
-                    '${eleRoll.rdylot}', 
+                    '${eleRoll.qccoment}',
+                    '${eleRoll.actual_with}',
+                    '${eleRoll.with_actual}',
+                    '${eleRoll.vendor}',
+                    '${eleRoll.rprtcd}', 
                     '${eleRoll.note}'
                 )`;
 
@@ -873,7 +799,14 @@ module.exports.uploadFabricInventoryDataFile = function (req, res) {
                 let tempFile = file[Object.keys(file)[i]];
 
                 await rename(tempFile.path, "templates/cutting/" + tempFile.name)
-                let sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
+                // let sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
+                let sheets = [];
+                if(tempFile.name.includes("xlsb")){
+                    sheets = helper.getListSheetFromExcel_Xlsx("templates/cutting/" + tempFile.name);
+                }
+                else{
+                    sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
+                }
                 data.push({ name: tempFile.name, sheets: sheets });
 
                 if (data.length == Object.keys(file).length) {
@@ -897,8 +830,13 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
         for (let j = 0; j < data.length; j++) {
             let eleFile = data[j];
             // get data from excel file
-            let arrExcelData = await helper.getDataFromExcel("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
-
+            let arrExcelData = [];
+            if(eleFile.file.includes("xlsb")){
+                arrExcelData = helper.getDataFromExcel_Xlsx("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+            }
+            else{
+                arrExcelData = await helper.getDataFromExcel("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+            }
             // insert data into database
             let savedData = [];
             for (let i = 0; i < arrExcelData.length; i++) {
@@ -930,8 +868,9 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
                 row.push(rowData[22]);
                 row.push(rowData[23]);
                 row.push(rowData[24]);
-                row.push(rowData[25]);
-                row.push(rowData[26]);
+
+                row.push(user);
+                row.push(datetime);
 
                 savedData.push(row);
             }
@@ -963,111 +902,6 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
         logHelper.writeLog("fabric_receive.saveUploadFabricInventoryDataFile", error);
     }
 }
-
-// module.exports.uploadFabricInventoryDataFile = function (req, res) {
-//     try {
-//         // parameters
-//         let form = new formidable.IncomingForm();
-
-//         form.parse(req, function (err, fields, file) {
-//             if (err) {
-//                 logHelper.writeLog("fabric_receive.uploadFabricInventoryDataFile", err);
-//                 return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
-//             }
-
-//             fs.rename(file.file.path, "templates/cutting/" + file.file.name, async function (err) {
-//                 if (err) {
-//                     logHelper.writeLog("fabric_receive.uploadFabricInventoryDataFile", err);
-//                     return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
-//                 }
-
-//                 let sheets = await helper.getListSheetFromExcel("templates/cutting/" + file.file.name);
-
-//                 return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: sheets }));
-//             });
-//         });
-
-//     } catch (error) {
-//         logHelper.writeLog("fabric_receive.uploadFabricInventoryDataFile", error);
-//     }
-// }
-
-// module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
-//     try {
-//         // parameters
-//         let sheet = req.body.sheet;
-//         let headerRow = req.body.headerRow;
-//         let fileName = req.body.fileName;
-
-//         let user = req.user.username;
-//         let datetime = helper.getDateTimeNow();
-
-//         // get data from excel file
-//         let arrExcelData = await helper.getDataFromExcel("templates/cutting/" + fileName, sheet, headerRow);
-
-//         // insert data into database
-//         let savedData = [];
-//         for (let i = 0; i < arrExcelData.length; i++) {
-//             let rowData = arrExcelData[i];
-//             let row = [];
-
-//             row.push(rowData[0]);
-//             row.push(rowData[1]);
-//             row.push(rowData[2]);
-//             row.push(rowData[3]);
-//             row.push(rowData[4]);
-//             row.push(rowData[5]);
-//             row.push(rowData[6]);
-//             row.push(rowData[7]);
-//             row.push(rowData[8]);
-//             row.push(rowData[9]);
-//             row.push(rowData[10]);
-//             row.push(rowData[11]);
-//             row.push(rowData[12]);
-//             row.push(rowData[13]);
-//             row.push(rowData[14]);
-//             row.push(rowData[15]);
-//             row.push(rowData[16]);
-//             row.push(rowData[17]);
-//             row.push(rowData[18]);
-//             row.push(rowData[19]);
-//             row.push(rowData[20]);
-//             row.push(rowData[21]);
-//             row.push(rowData[22]);
-//             row.push(rowData[23]);
-//             row.push(rowData[24]);
-//             row.push(rowData[25]);
-//             row.push(rowData[26]);
-
-//             savedData.push(row);
-//         }
-
-//         // delete all data before update latest data from Inventory6
-//         let query = `TRUNCATE TABLE cutting_fr_wh_fabric_inventory`;
-//         let isDeleteOldData = await db.excuteNonQueryAsync(query);
-//         if (isDeleteOldData < 0)
-//             return res.end(JSON.stringify({ rs: false, msg: "Xóa dữ liệu cũ không thành công" }));
-
-//         let loopNumber = Math.ceil(savedData.length / 1000);
-//         for (let i = 0; i < loopNumber; i++) {
-//             let index = i * 1000;
-//             let tempList = savedData.slice(index, index + 1000);
-//             let isUploadSuccess = await cuttingService.addFabricInventoryData(tempList);
-//             if (isUploadSuccess < 0)
-//                 return res.end(JSON.stringify({ rs: false, msg: "Thêm dữ liệu mới không thành công" }));
-//             if (i == loopNumber - 1)
-//                 return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
-//         }
-
-//         // let isUploadSuccess = await cuttingService.addFabricInventoryData(savedData);
-//         // if(isUploadSuccess < 0)
-//         //     return res.end(JSON.stringify({ rs: false, msg: "Thêm dữ liệu mới không thành công" }));
-
-//         // return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
-//     } catch (error) {
-//         logHelper.writeLog("fabric_receive.saveUploadFabricInventoryDataFile", error);
-//     }
-// }
 
 module.exports.getInventoryDataDetail = async function (req, res) {
     try {

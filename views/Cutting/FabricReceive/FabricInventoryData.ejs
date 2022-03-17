@@ -146,17 +146,30 @@
                                     </div>
                                 </div>
                             </div>
-                            <label class="">Danh sách vải tồn kho</label>
+                            <div class="d-flex">
+                                <span class="w-50">
+                                    <strong>Danh sách vải tồn kho</strong> 
+                                </span>
+                                <span class="w-50 text-right">
+                                    <strong>Lastest update:</strong> 
+                                    <span id="lbLastestUpdate"></span>
+                                </span>
+                            </div>
                             <div class="col-sm-12 col-md-12 pl-0 pr-0 fabric-inventory-table">
                                 <table class="table table-hover table-bordered table-scrollable mb-0">
                                     <thead class="sticky-thead">
                                         <th>Status</th>
-                                        <th>Id</th>
                                         <th>Note</th>
-                                        <th>Item Color</th>
                                         <th>Unipack</th>
+                                        <th>Item Color</th>
+                                        <th>Lbs</th>
                                         <th>Yard</th>
                                         <th>Bin</th>
+                                        <th>Grade</th>
+                                        <th>Shade</th>
+                                        <th>QC Comment</th>
+                                        <th>With Actual</th>
+                                        <th>Vendor</th>
                                         <th></th>
                                     </thead>
                                     <tbody id="fabric-table-body">
@@ -278,8 +291,8 @@
                             <tr>
                                 <label class="drop-file-box">
                                     <span class="fa fa-cloud-upload" aria-hidden="true"></span>
-                                    <span>Nhấn vào đây để chọn tập tin <br />Maximum File Size: 5 MB  |  File Format: XLS, XLSX</span>
-                                    <input type="file" name="UploadedFile" id="fileFabricReceiveUpload" multiple onchange="uploadExcel()" accept=".xlsx, .xls" style="display: none">
+                                    <span>Nhấn vào đây để chọn tập tin <br />Maximum File Size: 5 MB  |  File Format: XLS, XLSX, XLSB</span>
+                                    <input type="file" name="UploadedFile" id="fileFabricReceiveUpload" multiple onchange="uploadExcel()" accept=".xlsx, .xls, .xlsb" style="display: none">
                                 </label>    
                             </tr>
                             <tr>

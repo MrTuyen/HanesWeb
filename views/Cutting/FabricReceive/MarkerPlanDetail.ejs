@@ -65,11 +65,12 @@
                     <div class="">
                         <div class="bg-white fabric-receive mt-1">
                             <div class="col-md-12 col-sm-12">
-                                <div class="d-flex pr-4 mt-1">
-                                    <div class="p-0">
-                                        <div class="input-group">
-                                            <a class="btn btn-success btn-sm" href='/cutting/fabric-receive'><i class="fa fa-arrow-left"></i> &nbsp; Back</a>
-                                        </div>
+                                <div class="d-flex p-0 mt-1">
+                                    <div class="w-50">
+                                        <a class="btn btn-success btn-sm" href='/cutting/fabric-receive'><i class="fa fa-arrow-left"></i> &nbsp; Back</a>
+                                    </div>
+                                    <div class="w-50 text-right">
+                                        <button class="btn btn-success btn-sm" onclick="whSubmitData()"> Submit &nbsp;<i class="fa fa-save"></i></button>
                                     </div>
                                 </div>
                                 <div class="mt-2">
@@ -129,7 +130,7 @@
                                             </div>
                                             <div class="col-md-6 text-right pr-0">
                                                 <button class="btn btn-default btn-sm" onclick="openPreviewTicket()">Preview</button>
-                                                <button class="btn btn-success btn-sm" onclick="whSubmitData()">Submit</button>
+                                                <button class="btn btn-success btn-sm" onclick="whPrepare()">Prepare</button>
                                             </div>
                                         </div>
                                         <div class="panel-body p-0">
@@ -182,7 +183,7 @@
     </div>
 
     <div class="modal fade" id="modalFabricRoll" tabindex="-1" aria-hidden="false">
-        <div class="modal-dialog modal-100-margin-top">
+        <div class="modal-dialog modal-100-margin-top-1">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="exampleModalLabel"><strong>Danh sách cuộn vải theo mã màu</strong></h4>
@@ -191,7 +192,7 @@
                     </button>
                 </div>
                 <div class="" style="background-color: #28a745; height: 3px"></div>
-                <div class="">
+                <div class="" style="height: 150px; overflow: scroll">
                     <table class="table table-bordered table-item-color mb-0">
                         <thead class="sticky-thead">
                             <tr>
@@ -224,14 +225,13 @@
                         </tr>
                     </table>
                 </div>
+                <table class="table table-bordered mb-0">
+                    <tbody id="sum-table-body">
+
+                    </tbody>
+                </table>
                 <div class="modal-body p-0">
                     <div class="panel panel-default mb-0">
-                        <!-- <div class="panel-heading d-flex pl-3 pt-2 pb-2">
-                            <div class="col-md-6 pt-2 pb-2"></div>
-                            <div class="col-md-6 text-right pr-3">
-                                <button class="btn btn-success btn-sm" onclick="addRow()"><i class="fa fa-plus"></i>&nbsp; Thêm</button>
-                            </div>
-                        </div> -->
                         <div class="panel-body p-0">
                             <div class="col-sm-12 col-md-12 pl-0 pr-0 sticky-modal-table">
                                 <table class="table table-hover table-bordered table-scrollable mb-0">
