@@ -125,10 +125,10 @@ module.exports.uploadFabricFile = function (req, res) {
 
                 await rename(tempFile.path, "templates/cutting/" + tempFile.name)
                 let sheets = [];
-                if(tempFile.name.includes("xlsb")){
+                if (tempFile.name.includes("xlsb")) {
                     sheets = helper.getListSheetFromExcel_Xlsx("templates/cutting/" + tempFile.name);
                 }
-                else{
+                else {
                     sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
                 }
                 data.push({ name: tempFile.name, sheets: sheets });
@@ -156,10 +156,10 @@ module.exports.saveUploadData = async function (req, res) {
             let eleFile = data[i];
             // get data from excel file
             let arrExcelData = [];
-            if(eleFile.file.includes("xlsb")){
+            if (eleFile.file.includes("xlsb")) {
                 arrExcelData = helper.getDataFromExcel_Xlsx("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
             }
-            else{
+            else {
                 arrExcelData = await helper.getDataFromExcel("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
             }
 
@@ -386,6 +386,13 @@ module.exports.warehouseConfirm = async function (req, res) {
         if (isUpdateSuccess <= 0)
             return res.end(JSON.stringify({ rs: false, msg: "Cập nhật note phiếu yêu cầu vải không thành công." }));
 
+        // delete all roll in cutting_fr_marker_data_plan_detail_roll before insert new
+        query = `DELETE FROM cutting_fr_marker_data_plan_detail_roll 
+                WHERE marker_plan_id = ${markerPlan.id}`;
+        let isDeleteSuccess = await db.excuteNonQueryAsync(query);
+        if (isDeleteSuccess < 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Xóa thông tin cuộn vải không thành công." }));
+
         // update inventory and insert selected roll to database
         for (let i = 0; i < markerDetailList.length; i++) {
             let eleMarkerDetail = markerDetailList[i];
@@ -429,7 +436,7 @@ module.exports.warehouseConfirm = async function (req, res) {
                 VALUES (
                     ${markerPlan.id},
                     ${eleMarkerDetail.id},
-                    '${eleRoll.id}',
+                    ${eleRoll.roll_id},
                     '${eleRoll.runip}',
                     '${eleRoll.unipack2}',
                     '${eleRoll.rcutwo}',
@@ -450,7 +457,7 @@ module.exports.warehouseConfirm = async function (req, res) {
                     '${eleRoll.rlocdp}',
                     '${eleRoll.rrstat}',
                     '${eleRoll.ruser}',
-                    '${eleRoll.qccoment}',
+                    '${eleRoll.qccomment}',
                     '${eleRoll.actual_with}',
                     '${eleRoll.with_actual}',
                     '${eleRoll.vendor}',
@@ -801,10 +808,10 @@ module.exports.uploadFabricInventoryDataFile = function (req, res) {
                 await rename(tempFile.path, "templates/cutting/" + tempFile.name)
                 // let sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
                 let sheets = [];
-                if(tempFile.name.includes("xlsb")){
+                if (tempFile.name.includes("xlsb")) {
                     sheets = helper.getListSheetFromExcel_Xlsx("templates/cutting/" + tempFile.name);
                 }
-                else{
+                else {
                     sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
                 }
                 data.push({ name: tempFile.name, sheets: sheets });
@@ -831,10 +838,10 @@ module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
             let eleFile = data[j];
             // get data from excel file
             let arrExcelData = [];
-            if(eleFile.file.includes("xlsb")){
+            if (eleFile.file.includes("xlsb")) {
                 arrExcelData = helper.getDataFromExcel_Xlsx("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
             }
-            else{
+            else {
                 arrExcelData = await helper.getDataFromExcel("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
             }
             // insert data into database

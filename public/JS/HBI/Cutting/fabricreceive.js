@@ -129,8 +129,9 @@ function getListMarkerData(){
                     <td>
                         ${
                             ele.marker_call_by == undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
-                            : ele.ccd_confirm_by == undefined ? `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
-                            : `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
+                            : ele.ccd_confirm_by != undefined ? `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
+                            : ele.wh_confirm_by != undefined ? `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
+                            : `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
                         }  
                     </td>
                     <td>

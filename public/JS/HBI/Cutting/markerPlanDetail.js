@@ -607,6 +607,10 @@ function selectMarker(){
     let rollInfo = Object.assign({}, tempRollInfo);
     rollInfo.usedYard = usedYard;
     rollInfo.markerDetailId = currentMarkerDetail.id;
+    rollInfo.marker_plan_detail_id = currentMarkerDetail.id;
+    rollInfo.markerPlanId = markerPlan.id;
+    rollInfo.marker_plan_id = markerPlan.id;
+    rollInfo.roll_id = rollInfo.id;
 
     let rootEleYard = parseFloat($(`#inventory-yard-${id}`).text());
 
@@ -624,7 +628,8 @@ function selectMarker(){
         currentNoteEle.attr("disabled", "disabled");
 
         // xóa đi cuộn vải trong danh sách tổng các cuộn vải được chọn
-        let objDelete = selectedFabricRollList.filter(x => x.id == id && x.markerDetailId == currentMarkerDetail.id)[0];
+        // let objDelete = selectedFabricRollList.filter(x => x.id == id && x.markerDetailId == currentMarkerDetail.id)[0];
+        let objDelete = selectedFabricRollList.filter(x => x.roll_id == id && x.markerDetailId == currentMarkerDetail.id)[0];
         let i = selectedFabricRollList.indexOf(objDelete);
         selectedFabricRollList.splice(i, 1);
 
