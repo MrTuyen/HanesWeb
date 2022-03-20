@@ -1,5 +1,6 @@
 var database = require('../../../database/db_sewingRealtime');
 var db = new database();
+const logHelper = require('../../../common/log.js');
 
 module.exports.getDashboard = function (req, res, next) {
     try {
@@ -52,19 +53,23 @@ module.exports.postDataSubmit = async function (req, res, ) {
         var ratioPowerOnTime = [];
         var ratioRunTime = [];
         var ratioNoLoad = [];
-        for (const x of dataSQL[0]) {
-            lableRunTime.push(x['date_s']);
-            powerOnTime.push(x['power_on_time_s']);
-            runTime.push(x['run_time_s']);
-            lossTime.push(x['loss_time_s']);
-            repairingTime.push(x['repairing_time_s']);
+        if(dataSQL != ''){
+            for (const x of dataSQL[0]) {
+                lableRunTime.push(x['date_s']);
+                powerOnTime.push(x['power_on_time_s']);
+                runTime.push(x['run_time_s']);
+                lossTime.push(x['loss_time_s']);
+                repairingTime.push(x['repairing_time_s']);
+            }
         }
-        for (const data of dataRatioSQL[0]) {
-            lableRunTimeRatio.push(data['date_s']);
-            ratioLossTime.push(data['ratio_loss_time']);
-            ratioPowerOnTime.push(data['ratio_power_on_time']);
-            ratioRunTime.push(data['ratio_run_time']);
-            ratioNoLoad.push(data['ratio_no_load']);
+        if(dataRatioSQL != ''){
+            for (const data of dataRatioSQL[0]) {
+                lableRunTimeRatio.push(data['date_s']);
+                ratioLossTime.push(data['ratio_loss_time']);
+                ratioPowerOnTime.push(data['ratio_power_on_time']);
+                ratioRunTime.push(data['ratio_run_time']);
+                ratioNoLoad.push(data['ratio_no_load']);
+            }
         }
         return res.end(JSON.stringify({
             rs: true,
@@ -140,26 +145,29 @@ module.exports.postDetailDataSubmit = async function (req, res, next) {
         var ratioRunTime = [];
         var ratioNoLoad = [];
         var lableColors = [];
-
-        for (const x of dataSQL[0]) {
-            if ((x['power_on_time_m'] == '0' || x['power_on_time_m'] == null) && (x['run_time_m'] == '0' || x['run_time_m'] == null)) {
-                lableColors.push('red')
-            } else {
-                lableColors.push('black')
+        if(dataSQL != ''){
+            for (const x of dataSQL[0]) {
+                if ((x['power_on_time_m'] == '0' || x['power_on_time_m'] == null) && (x['run_time_m'] == '0' || x['run_time_m'] == null)) {
+                    lableColors.push('red')
+                } else {
+                    lableColors.push('black')
+                };
+                lableRunTime.push(x['operation']);
+                powerOnTime.push(x['power_on_time_m']);
+                runTime.push(x['run_time_m']);
+                repairingTime.push(x['repairing_time_m']);
+                waitingTime.push(x['waiting_time_m']);
             };
-            lableRunTime.push(x['operation']);
-            powerOnTime.push(x['power_on_time_m']);
-            runTime.push(x['run_time_m']);
-            repairingTime.push(x['repairing_time_m']);
-            waitingTime.push(x['waiting_time_m']);
-        }
-        for (const data of dataRatioSQL[0]) {
-            lableRunTimeRatio.push(data['operation']);
-            ratioWaitingTime.push(data['ratio_waiting_time']);
-            ratioRepairingTime.push(data['ratio_repairing_time']);
-            ratioRunTime.push(data['ratio_run_time']);
-            ratioNoLoad.push(data['ratio_no_load']);
-        }
+        };
+        if(dataRatioSQL != ''){
+            for (const data of dataRatioSQL[0]) {
+                lableRunTimeRatio.push(data['operation']);
+                ratioWaitingTime.push(data['ratio_waiting_time']);
+                ratioRepairingTime.push(data['ratio_repairing_time']);
+                ratioRunTime.push(data['ratio_run_time']);
+                ratioNoLoad.push(data['ratio_no_load']);
+            };
+        };
         return res.end(JSON.stringify({
             rs: true,
             msg: "Thành công",

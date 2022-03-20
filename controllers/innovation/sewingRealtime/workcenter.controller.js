@@ -1,5 +1,6 @@
 var database = require('../../../database/db_sewingRealtime');
 var db = new database();
+const logHelper = require('../../../common/log.js');
 
 module.exports.getHomePage = async function (req, res, next) {
     try {
