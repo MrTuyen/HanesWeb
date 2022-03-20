@@ -30,6 +30,7 @@ router.post("/fabric-receive/ccd-confirm", fabricReceiveController.ccdConfirm)
 
 router.post("/fabric-receive/print-ticket", fabricReceiveController.printTicket)
 router.post("/fabric-receive/download-marker-data", fabricReceiveController.downloadMarkerData)
+router.post("/fabric-receive/download-roll-data", fabricReceiveController.downloadRollData)
 
 // Fabric Receive: Inventory data
 router.get("/fabric-receive/inventory-data", fabricReceiveController.getIndexInventoryData)

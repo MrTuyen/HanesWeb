@@ -752,6 +752,97 @@ module.exports.downloadMarkerData = function (req, res) {
     }
 }
 
+module.exports.downloadRollData = async function (req, res) {
+    try {
+        // parameters
+        let filterGroup = req.body.filterGroup;
+        let filterStatus = req.body.filterStatus;
+        let filterDate = req.body.filterDate;
+        let fromDate = filterDate.split(';')[0];
+        let toDate = filterDate.split(';')[1];
+
+        // execute
+        let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}')`);
+
+        // list marker plan => return id, group
+        let markerInfoList = result[0];
+        let finalResponse = [];
+        for (let i = 0; i < markerInfoList.length; i++) {
+            let ele = markerInfoList[i];
+
+            let markerDetailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${ele.id})`);
+            let rollInfo = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${ele.id}`);
+
+            if (markerDetailInfo[0] != undefined && markerDetailInfo[0].length > 1) {
+                
+                for (let j = 0; j < markerDetailInfo[0].length; j++) {
+                    let eleMarkerDetail = markerDetailInfo[0][j];
+                    
+                    let tempRoll = rollInfo.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);          
+                    if(tempRoll.length > 0){
+                        tempRoll.forEach(x =>{
+                            let row = new MarkerPlanDetailRoll(
+                                ele._group,
+                                eleMarkerDetail.wo,
+                                eleMarkerDetail.ass,
+                                ele.receive_date,
+                                eleMarkerDetail.item_color,
+                                eleMarkerDetail.yard_demand,
+                                x.unipack2,
+                                x.yard
+                            )
+
+                            finalResponse.push(row);
+                        })
+                    }
+                }
+            }
+        }
+
+
+        let jsonModel = JSON.parse(JSON.stringify(finalResponse));
+
+        let workbook = new excel.Workbook(); //creating workbook
+        let worksheet = workbook.addWorksheet('Roll Data'); //creating worksheet
+
+        //  WorkSheet Header
+        worksheet.columns = [
+            { header: 'group', key: 'group', width: 10 },
+            { header: 'receive_date', key: 'receive_date', width: 10 },
+            { header: 'wo', key: 'wo', width: 10 },
+            { header: 'ass', key: 'ass', width: 10 },
+            { header: 'item_color', key: 'item_color', width: 20 },
+            { header: 'demand_yard', key: 'demand_yard', width: 20 },
+            { header: 'unipack', key: 'unipack', width: 20 },
+            { header: 'roll_yard', key: 'roll_yard', width: 20 }
+        ];
+
+        // Add Array Rows
+        worksheet.addRows(jsonModel);
+
+        // Write to File
+        let filename = "templates/roll_data.xlsx";
+        workbook.xlsx.writeFile(filename).then(function () {
+            res.download(filename);
+        });
+    } catch (error) {
+        logHelper.writeLog("fabricreceive.downloadRollData", error);
+    }
+}
+
+class MarkerPlanDetailRoll{
+    constructor(group, wo, ass, received_date, item_color, demand_yard, unipack, roll_yard){
+        this.group = group;
+        this.wo = wo;
+        this.ass = ass;
+        this.receive_date = received_date;
+        this.item_color = item_color;
+        this.demand_yard = demand_yard;
+        this.unipack = unipack;
+        this.roll_yard = roll_yard;
+    }
+}
+
 // inventory data
 module.exports.getIndexInventoryData = function (req, res) {
     let user = req.user;

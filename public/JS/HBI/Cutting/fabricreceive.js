@@ -220,6 +220,35 @@ function downloadMarkerData(){
     });
 }
 
+function downloadRollData(){
+    let filterGroup = $("#txtFilterGroup").val();
+    let filterStatus = $("#txtFilterStatus").val();
+    let filterDate = $("#txtFilterTime").val();
+    if (filterDate.toString() == "5") {
+        filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+    }
+
+    let action = baseUrl + 'download-roll-data';
+    let datasend = {
+        filterGroup: filterGroup,
+        filterStatus: filterStatus,
+        filterDate: filterDate
+    };
+   
+    LoadingShow();
+    fetch(action, {
+        method: 'POST',
+        body: JSON.stringify(datasend),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).then(function (resp) {
+        return resp.blob();
+    }).then(function (blob) {
+        LoadingHide();
+        return download(blob, GetTodayDate() + "_Roll_Data.xlsx");
+    });
+}
 
 function uploadExcel(){
     var e = event;
