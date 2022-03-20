@@ -2,11 +2,13 @@
 // libraries
 const formidable = require('formidable');
 var fs = require('fs');
+const util = require('util');
 const helper = require('../../common/helper.js');
 const logHelper = require('../../common/log.js');
 const config = require('../../config.js');
 const constant = require('../../common/constant');
 const excel = require('exceljs');
+const xlsx = require('xlsx');
 // const pdf = require('html-pdf');
 // const fetch = require('node-fetch');
 
@@ -79,7 +81,7 @@ module.exports.getMarkerDataDetail = async function (req, res) {
                 farbicRollList.push({ itemColor: ele, rollList: result[0] })
             }
 
-            if (masterInfo[0].wh_confirm_by != undefined && masterInfo[0].wh_confirm_date != undefined) {
+            if (masterInfo[0].wh_prepare == '0') {
                 let result = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${groupId}`);
                 selectedFabricRollList.push(result);
             }
@@ -91,27 +93,50 @@ module.exports.getMarkerDataDetail = async function (req, res) {
     }
 }
 
+const rename = util.promisify(fs.rename);
 module.exports.uploadFabricFile = function (req, res) {
     try {
         // parameters
         let form = new formidable.IncomingForm();
+        let data = [];
 
-        form.parse(req, function (err, fields, file) {
+        form.parse(req, async function (err, fields, file) {
             if (err) {
                 logHelper.writeLog("fabric_receive.uploadFabricFile", err);
                 return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
             }
 
-            fs.rename(file.file.path, "templates/cutting/" + file.file.name, async function (err) {
-                if (err) {
-                    logHelper.writeLog("fabric_receive.uploadFabricFile", err);
-                    return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
+            for (var i = 0; i < Object.keys(file).length; i++) {
+                let tempFile = file[Object.keys(file)[i]];
+
+                // fs.rename(tempFile.path, "templates/cutting/" + tempFile.name, async function (err) {
+                //     if (err) {
+                //         logHelper.writeLog("fabric_receive.uploadFabricFile", err);
+                //         return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
+                //     }
+
+                //     let sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
+                //     data.push({name: tempFile.name, sheets: sheets});
+
+                //     if(data.length == Object.keys(file).length){
+                //         return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: data }));
+                //     }
+                // });
+
+                await rename(tempFile.path, "templates/cutting/" + tempFile.name)
+                let sheets = [];
+                if (tempFile.name.includes("xlsb")) {
+                    sheets = helper.getListSheetFromExcel_Xlsx("templates/cutting/" + tempFile.name);
                 }
+                else {
+                    sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
+                }
+                data.push({ name: tempFile.name, sheets: sheets });
 
-                let sheets = await helper.getListSheetFromExcel("templates/cutting/" + file.file.name);
-
-                return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: sheets }));
-            });
+                if (data.length == Object.keys(file).length) {
+                    return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: data }));
+                }
+            }
         });
 
     } catch (error) {
@@ -122,58 +147,72 @@ module.exports.uploadFabricFile = function (req, res) {
 module.exports.saveUploadData = async function (req, res) {
     try {
         // parameters
-        let sheet = req.body.sheet;
-        let headerRow = req.body.headerRow;
-        let fileName = req.body.fileName;
+        let data = req.body.listData;
 
         let user = req.user.username;
         let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
 
-        // get data from excel file
-        let arrExcelData = await helper.getDataFromExcel("templates/cutting/" + fileName, sheet, headerRow);
-
-        // clean data
-        let masterData = [];
-        for (let i = 0; i < arrExcelData.length; i++) {
-            let rowData = arrExcelData[i];
-            let group = rowData[3];
-            let insertRow = [];
-            if (group != '' && group.toLowerCase().trim() != 'không có') {
-                masterData.push(rowData);
+        for (let i = 0; i < data.length; i++) {
+            let eleFile = data[i];
+            // get data from excel file
+            let arrExcelData = [];
+            if (eleFile.file.includes("xlsb")) {
+                arrExcelData = helper.getDataFromExcel_Xlsx("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
             }
-        }
+            else {
+                arrExcelData = await helper.getDataFromExcel("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+            }
 
-        // insert to master table: only have group => take group, receive data, time, cut date, marker name, dozen value of first row
-        let fr = masterData[0];
-        let query = `INSERT INTO cutting_fr_marker_data_plan (plant, work_center, receive_date, receive_time, _group, cut_date, note, marker_call_by, marker_call_date, user_update, date_update)
+            // clean data
+            let masterData = [];
+            for (let i = 0; i < arrExcelData.length; i++) {
+                let rowData = arrExcelData[i];
+                let group = rowData[3];
+                let insertRow = [];
+                if (group != '' && group.toLowerCase().trim() != 'không có') {
+                    masterData.push(rowData);
+                }
+            }
+
+            // insert to master table: only have group => take group, receive data, time, cut date, marker name, dozen value of first row
+            let fr = masterData[0];
+            let query = `INSERT INTO cutting_fr_marker_data_plan (plant, work_center, receive_date, receive_time, _group, cut_date, note, marker_call_by, marker_call_date, user_update, date_update)
                     VALUES ('${fr[12]}', '${fr[13]}', '${new Date(fr[1]).toLocaleDateString()}', '${fr[2]}', '${fr[3]}', '${new Date(fr[8]).toLocaleDateString()}', '${fr[9]}', '${user}', '${datetime}', '${user}', '${datetime}')`;
-        let isInsertMasterSuccess = await db.excuteQueryAsync(query);
-        if (isInsertMasterSuccess.affectedRows < 0) {
-            return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
-        }
-
-        // insert to child table: contain item color => insert each item color to child table
-        let idMaster = isInsertMasterSuccess.insertId;
-        let detailData = [];
-        for (let i = 0; i < masterData.length; i++) {
-            let rowData = masterData[i];
-            let detailObj = [];
-
-            if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
-                detailObj.push(idMaster);
-                detailObj.push(rowData[4]);
-                detailObj.push(rowData[5]);
-                detailObj.push(rowData[6]);
-                detailObj.push(rowData[7]);
-                detailObj.push(rowData[10]);
-                detailObj.push(rowData[11]);
-
-                detailData.push(detailObj);
+            let isInsertMasterSuccess = await db.excuteQueryAsync(query);
+            if (isInsertMasterSuccess.affectedRows < 0) {
+                return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
             }
+
+            // insert to child table: contain item color => insert each item color to child table
+            let idMaster = isInsertMasterSuccess.insertId;
+            let detailData = [];
+            for (let i = 0; i < masterData.length; i++) {
+                let rowData = masterData[i];
+                let detailObj = [];
+
+                if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
+                    detailObj.push(idMaster);
+                    detailObj.push(rowData[4]);
+                    detailObj.push(rowData[5]);
+                    detailObj.push(rowData[6]);
+                    detailObj.push(rowData[7]);
+                    detailObj.push(rowData[10]);
+                    detailObj.push(rowData[11]);
+
+                    detailData.push(detailObj);
+                }
+            }
+            query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen) 
+                    VALUES ?`;
+            let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
         }
-        query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen) 
-        VALUES ?`;
-        let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
+
+        testIo.emit('ccd-fabric-receive-action', {
+            username: user,
+            message: {
+                actionType: constant.Enum_Action.Call
+            }
+        });
 
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
@@ -335,17 +374,24 @@ module.exports.warehouseConfirm = async function (req, res) {
         // parameters
         let markerPlan = req.body.markerPlan;
         let markerDetailList = req.body.markerDetailList;
-        let selectedRollList = req.body.selectedRollList;
+        let selectedRollList = req.body.selectedRollList ? req.body.selectedRollList : [];
 
         let insertRollFaiiList = [];
 
         // update note marker plan 
         let query = `UPDATE cutting_fr_marker_data_plan 
-                    SET note = '${markerPlan.note}'
+                    SET note = '${markerPlan.note}', wh_prepare = '0'
                     WHERE id = ${markerPlan.id}`;
         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
         if (isUpdateSuccess <= 0)
             return res.end(JSON.stringify({ rs: false, msg: "Cập nhật note phiếu yêu cầu vải không thành công." }));
+
+        // delete all roll in cutting_fr_marker_data_plan_detail_roll before insert new
+        query = `DELETE FROM cutting_fr_marker_data_plan_detail_roll 
+                WHERE marker_plan_id = ${markerPlan.id}`;
+        let isDeleteSuccess = await db.excuteNonQueryAsync(query);
+        if (isDeleteSuccess < 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Xóa thông tin cuộn vải không thành công." }));
 
         // update inventory and insert selected roll to database
         for (let i = 0; i < markerDetailList.length; i++) {
@@ -378,21 +424,19 @@ module.exports.warehouseConfirm = async function (req, res) {
                     rlstdt,
                     vender,
                     rlocdp,
-                    rdyedt,
-                    rfindt,
-                    fnd,
                     rrstat,
                     ruser,
-                    rfstyl,
-                    rshapr,
-                    rlnvar,
-                    rdylot,
+                    qccomment,
+                    actual_with,
+                    with_actual,
+                    vendor,
+                    rprtcd,
                     note
                 ) 
                 VALUES (
                     ${markerPlan.id},
                     ${eleMarkerDetail.id},
-                    '${eleRoll.id}',
+                    ${eleRoll.roll_id},
                     '${eleRoll.runip}',
                     '${eleRoll.unipack2}',
                     '${eleRoll.rcutwo}',
@@ -411,15 +455,13 @@ module.exports.warehouseConfirm = async function (req, res) {
                     '${eleRoll.rlstdt}',
                     '${eleRoll.vender}',
                     '${eleRoll.rlocdp}',
-                    '${eleRoll.rdyedt}',
-                    '${eleRoll.rfindt}',
-                    '${eleRoll.fnd}',
                     '${eleRoll.rrstat}',
                     '${eleRoll.ruser}',
-                    '${eleRoll.rfstyl}',
-                    '${eleRoll.rshapr}',
-                    '${eleRoll.rlnvar}',
-                    '${eleRoll.rdylot}', 
+                    '${eleRoll.qccomment}',
+                    '${eleRoll.actual_with}',
+                    '${eleRoll.with_actual}',
+                    '${eleRoll.vendor}',
+                    '${eleRoll.rprtcd}', 
                     '${eleRoll.note}'
                 )`;
 
@@ -563,10 +605,10 @@ module.exports.printTicket = async function (req, res) {
             }
         }
 
-        let data = { 
-            master: masterInfo[0], 
-            detail: detailInfo[0], 
-            fabricRoll: farbicRollList, 
+        let data = {
+            master: masterInfo[0],
+            detail: detailInfo[0],
+            fabricRoll: farbicRollList,
             selectedFabricRoll: selectedFabricRollList[0] ? selectedFabricRollList[0] : []
         }
         let sumYard = data.selectedFabricRoll.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
@@ -574,7 +616,7 @@ module.exports.printTicket = async function (req, res) {
         // read file and replace
         let template = fs.readFileSync('templates/print/fabricPrint.html', 'utf8');
 
-        let table1 =`<tr>
+        let table1 = `<tr>
                         <td width="25%">Received Date: ${data.master.receive_date}</td>
                         <td width="25%">Received Time: ${data.master.receive_time}</td>
                         <td width="25%">Group: ${data.master._group}</td>
@@ -596,14 +638,14 @@ module.exports.printTicket = async function (req, res) {
         let colorFlag = '';
         for (let i = 0; i < data.detail.length; i++) {
             let eleMarkerDetail = data.detail[i];
-            if(eleMarkerDetail.item_color != colorFlag){
+            if (eleMarkerDetail.item_color != colorFlag) {
                 let selectedRollList = data.selectedFabricRoll.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
                 let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
                 let rollCount = selectedRollList.length;
                 let sameColorList = data.detail.filter(x => x.item_color == eleMarkerDetail.item_color);
                 let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
 
-                if(selectedRollList.length > 0){
+                if (selectedRollList.length > 0) {
                     let str = `<tr style='background: #ced6dd'>
                         <td></td>
                         <td></td>
@@ -710,6 +752,97 @@ module.exports.downloadMarkerData = function (req, res) {
     }
 }
 
+module.exports.downloadRollData = async function (req, res) {
+    try {
+        // parameters
+        let filterGroup = req.body.filterGroup;
+        let filterStatus = req.body.filterStatus;
+        let filterDate = req.body.filterDate;
+        let fromDate = filterDate.split(';')[0];
+        let toDate = filterDate.split(';')[1];
+
+        // execute
+        let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}')`);
+
+        // list marker plan => return id, group
+        let markerInfoList = result[0];
+        let finalResponse = [];
+        for (let i = 0; i < markerInfoList.length; i++) {
+            let ele = markerInfoList[i];
+
+            let markerDetailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${ele.id})`);
+            let rollInfo = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${ele.id}`);
+
+            if (markerDetailInfo[0] != undefined && markerDetailInfo[0].length > 1) {
+                
+                for (let j = 0; j < markerDetailInfo[0].length; j++) {
+                    let eleMarkerDetail = markerDetailInfo[0][j];
+                    
+                    let tempRoll = rollInfo.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);          
+                    if(tempRoll.length > 0){
+                        tempRoll.forEach(x =>{
+                            let row = new MarkerPlanDetailRoll(
+                                ele._group,
+                                eleMarkerDetail.wo,
+                                eleMarkerDetail.ass,
+                                ele.receive_date,
+                                eleMarkerDetail.item_color,
+                                eleMarkerDetail.yard_demand,
+                                x.unipack2,
+                                x.yard
+                            )
+
+                            finalResponse.push(row);
+                        })
+                    }
+                }
+            }
+        }
+
+
+        let jsonModel = JSON.parse(JSON.stringify(finalResponse));
+
+        let workbook = new excel.Workbook(); //creating workbook
+        let worksheet = workbook.addWorksheet('Roll Data'); //creating worksheet
+
+        //  WorkSheet Header
+        worksheet.columns = [
+            { header: 'group', key: 'group', width: 10 },
+            { header: 'receive_date', key: 'receive_date', width: 10 },
+            { header: 'wo', key: 'wo', width: 10 },
+            { header: 'ass', key: 'ass', width: 10 },
+            { header: 'item_color', key: 'item_color', width: 20 },
+            { header: 'demand_yard', key: 'demand_yard', width: 20 },
+            { header: 'unipack', key: 'unipack', width: 20 },
+            { header: 'roll_yard', key: 'roll_yard', width: 20 }
+        ];
+
+        // Add Array Rows
+        worksheet.addRows(jsonModel);
+
+        // Write to File
+        let filename = "templates/roll_data.xlsx";
+        workbook.xlsx.writeFile(filename).then(function () {
+            res.download(filename);
+        });
+    } catch (error) {
+        logHelper.writeLog("fabricreceive.downloadRollData", error);
+    }
+}
+
+class MarkerPlanDetailRoll{
+    constructor(group, wo, ass, received_date, item_color, demand_yard, unipack, roll_yard){
+        this.group = group;
+        this.wo = wo;
+        this.ass = ass;
+        this.receive_date = received_date;
+        this.item_color = item_color;
+        this.demand_yard = demand_yard;
+        this.unipack = unipack;
+        this.roll_yard = roll_yard;
+    }
+}
+
 // inventory data
 module.exports.getIndexInventoryData = function (req, res) {
     let user = req.user;
@@ -752,25 +885,33 @@ module.exports.uploadFabricInventoryDataFile = function (req, res) {
     try {
         // parameters
         let form = new formidable.IncomingForm();
+        let data = [];
 
-        form.parse(req, function (err, fields, file) {
+        form.parse(req, async function (err, fields, file) {
             if (err) {
                 logHelper.writeLog("fabric_receive.uploadFabricInventoryDataFile", err);
                 return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
             }
 
-            fs.rename(file.file.path, "templates/cutting/" + file.file.name, async function (err) {
-                if (err) {
-                    logHelper.writeLog("fabric_receive.uploadFabricInventoryDataFile", err);
-                    return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
+            for (var i = 0; i < Object.keys(file).length; i++) {
+                let tempFile = file[Object.keys(file)[i]];
+
+                await rename(tempFile.path, "templates/cutting/" + tempFile.name)
+                // let sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
+                let sheets = [];
+                if (tempFile.name.includes("xlsb")) {
+                    sheets = helper.getListSheetFromExcel_Xlsx("templates/cutting/" + tempFile.name);
                 }
+                else {
+                    sheets = await helper.getListSheetFromExcel("templates/cutting/" + tempFile.name);
+                }
+                data.push({ name: tempFile.name, sheets: sheets });
 
-                let sheets = await helper.getListSheetFromExcel("templates/cutting/" + file.file.name);
-
-                return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: sheets }));
-            });
+                if (data.length == Object.keys(file).length) {
+                    return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: data }));
+                }
+            }
         });
-
     } catch (error) {
         logHelper.writeLog("fabric_receive.uploadFabricInventoryDataFile", error);
     }
@@ -779,68 +920,75 @@ module.exports.uploadFabricInventoryDataFile = function (req, res) {
 module.exports.saveUploadFabricInventoryDataFile = async function (req, res) {
     try {
         // parameters
-        let sheet = req.body.sheet;
-        let headerRow = req.body.headerRow;
-        let fileName = req.body.fileName;
+        let data = req.body.listData;
 
         let user = req.user.username;
-        let datetime = helper.getDateTimeNow();
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
 
-        // get data from excel file
-        let arrExcelData = await helper.getDataFromExcel("templates/cutting/" + fileName, sheet, headerRow);
+        for (let j = 0; j < data.length; j++) {
+            let eleFile = data[j];
+            // get data from excel file
+            let arrExcelData = [];
+            if (eleFile.file.includes("xlsb")) {
+                arrExcelData = helper.getDataFromExcel_Xlsx("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+            }
+            else {
+                arrExcelData = await helper.getDataFromExcel("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+            }
+            // insert data into database
+            let savedData = [];
+            for (let i = 0; i < arrExcelData.length; i++) {
+                let rowData = arrExcelData[i];
+                let row = [];
 
-        // insert data into database
-        let savedData = [];
-        for (let i = 0; i < arrExcelData.length; i++) {
-            let rowData = arrExcelData[i];
-            let row = [];
+                row.push(rowData[0]);
+                row.push(rowData[1]);
+                row.push(rowData[2]);
+                row.push(rowData[3]);
+                row.push(rowData[4]);
+                row.push(rowData[5]);
+                row.push(rowData[6]);
+                row.push(rowData[7]);
+                row.push(rowData[8]);
+                row.push(rowData[9]);
+                row.push(rowData[10]);
+                row.push(rowData[11]);
+                row.push(rowData[12]);
+                row.push(rowData[13]);
+                row.push(rowData[14]);
+                row.push(rowData[15]);
+                row.push(rowData[16]);
+                row.push(rowData[17]);
+                row.push(rowData[18]);
+                row.push(rowData[19]);
+                row.push(rowData[20]);
+                row.push(rowData[21]);
+                row.push(rowData[22]);
+                row.push(rowData[23]);
+                row.push(rowData[24]);
 
-            row.push(rowData[0]);
-            row.push(rowData[1]);
-            row.push(rowData[2]);
-            row.push(rowData[3]);
-            row.push(rowData[4]);
-            row.push(rowData[5]);
-            row.push(rowData[6]);
-            row.push(rowData[7]);
-            row.push(rowData[8]);
-            row.push(rowData[9]);
-            row.push(rowData[10]);
-            row.push(rowData[11]);
-            row.push(rowData[12]);
-            row.push(rowData[13]);
-            row.push(rowData[14]);
-            row.push(rowData[15]);
-            row.push(rowData[16]);
-            row.push(rowData[17]);
-            row.push(rowData[18]);
-            row.push(rowData[19]);
-            row.push(rowData[20]);
-            row.push(rowData[21]);
-            row.push(rowData[22]);
-            row.push(rowData[23]);
-            row.push(rowData[24]);
-            row.push(rowData[25]);
-            row.push(rowData[26]);
+                row.push(user);
+                row.push(datetime);
 
-            savedData.push(row);
-        }
+                savedData.push(row);
+            }
 
-        // delete all data before update latest data from Inventory6
-        let query = `TRUNCATE TABLE cutting_fr_wh_fabric_inventory`;
-        let isDeleteOldData = await db.excuteNonQueryAsync(query);
-        if (isDeleteOldData < 0)
-            return res.end(JSON.stringify({ rs: false, msg: "Xóa dữ liệu cũ không thành công" }));
+            // delete all data before update latest data from Inventory6
+            let query = `TRUNCATE TABLE cutting_fr_wh_fabric_inventory`;
+            let isDeleteOldData = await db.excuteNonQueryAsync(query);
+            if (isDeleteOldData < 0)
+                return res.end(JSON.stringify({ rs: false, msg: "Xóa dữ liệu cũ không thành công" }));
 
-        let loopNumber = Math.ceil(savedData.length / 1000);
-        for (let i = 0; i < loopNumber; i++) {
-            let index = i * 1000;
-            let tempList = savedData.slice(index, index + 1000);
-            let isUploadSuccess = await cuttingService.addFabricInventoryData(tempList);
-            if (isUploadSuccess < 0)
-                return res.end(JSON.stringify({ rs: false, msg: "Thêm dữ liệu mới không thành công" }));
-            if (i == loopNumber - 1)
-                return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+            let loopNumber = Math.ceil(savedData.length / 1000);
+            for (let i = 0; i < loopNumber; i++) {
+                let index = i * 1000;
+                let tempList = savedData.slice(index, index + 1000);
+                let isUploadSuccess = await cuttingService.addFabricInventoryData(tempList);
+                if (isUploadSuccess < 0)
+                    return res.end(JSON.stringify({ rs: false, msg: "Thêm dữ liệu mới không thành công" }));
+                if (i == loopNumber - 1)
+                    return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+            }
         }
 
         // let isUploadSuccess = await cuttingService.addFabricInventoryData(savedData);
@@ -863,7 +1011,7 @@ module.exports.getInventoryDataDetail = async function (req, res) {
         if (!requestInfo)
             return res.end(JSON.stringify({ rs: false, msg: "Không tìm thấy thông tin phiếu yêu cầu" }));
 
-        return res.end(JSON.stringify({ rs: true, msg: "", data: requestInfo}));
+        return res.end(JSON.stringify({ rs: true, msg: "", data: requestInfo }));
     }
     catch (error) {
         logHelper.writeLog("fabricreceive.getInventoryDataDetail", error);

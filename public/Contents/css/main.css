@@ -104,6 +104,11 @@ textarea {
     margin: 50px auto;
 }
 
+.modal-100-margin-top-1 {
+    width: 100%;
+    margin: 10px auto;
+}
+
 .mdl-tabs__tab-bar a {
     text-decoration: none;
 }
@@ -159,6 +164,16 @@ input[type="checkbox"]{
 
 .display-none{
     display: none;
+}
+
+.drop-file-box {
+    display: block;
+    border: 1px dashed #d9dedb;
+    padding: 20px 0;
+    width: 100%;
+    cursor: pointer;
+    text-align: center;
+    color: #676867;
 }
 
 @media (max-width: 575.98px) {

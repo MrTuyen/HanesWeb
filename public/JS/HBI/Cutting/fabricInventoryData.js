@@ -98,12 +98,17 @@ function getInventoryData(intPage){
                 let ele = data[i];
                 html += `<tr>
                     <td>${ele.status == 0 ? "" : "Đã sử dụng"}</td>
-                    <td>${ele.id}</td>
                     <td>${ele.note ? ele.note : ''}</td>
-                    <td>${ele.item_color}</td>
                     <td>${ele.unipack2}</td>
+                    <td>${ele.item_color}</td>
+                    <td>${ele.rfinwt}</td>
                     <td>${ele.yard}</td>
                     <td>${ele.rlocbr}</td>
+                    <td>${ele.rgrade}</td>
+                    <td>${ele.shade}</td>
+                    <td>${ele.qccomment}</td>
+                    <td>${ele.with_actual}</td>
+                    <td>${ele.vendor}</td>
                     <td>
                         <button class='btn btn-primary btn-sm' onclick="openModalUpdateRoll(${ele.id})">Update</button>
                     </td>
@@ -119,6 +124,9 @@ function getInventoryData(intPage){
             $("#txtTotalPage").text(totalPage);
             $(".paging-textbox").val(intPage);
             $(".pagination-current").text(`${(currentPage - 1) * itemPerPage  + 1} - ${currentPage * itemPerPage > totalRow ? totalRow : currentPage * itemPerPage} trong ${totalRow} bản ghi`);
+        
+            let lastestUpdate = data ? data[0].date_update : "";
+            $("#lbLastestUpdate").text(lastestUpdate);
         }
         else {
             toastr.error(response.msg, "Thất bại");
@@ -180,11 +188,94 @@ function updateRoll(){
     });
 }
 
+// function uploadExcel(){
+//     var e = event;
+//     var fileName = e.target.files[0].name;
+//     $('.fileUploadName').text(fileName);
+
+//     if (window.FormData !== undefined) {
+
+//         var fileUpload = $("#fileFabricReceiveUpload").get(0);
+//         var files = fileUpload.files;
+
+//         // Create FormData object
+//         var fileData = new FormData();
+
+//         // Looping over all files and add it to FormData object
+//         for (var i = 0; i < files.length; i++) {
+//             fileData.append("file", files[i]);
+//         }
+
+//         LoadingShow();
+//         $.ajax({
+//             url: baseUrl + 'upload-fabric-inventory-file',
+//             method: 'POST',
+//             contentType: false,
+//             processData: false,
+//             data: fileData,
+//             success: function (result) {
+//                 LoadingHide();
+//                 result = JSON.parse(result);
+//                 if (result.rs) {
+//                     var listSheet = result.data
+//                     var options = "";
+//                     for (var i = 0; i < listSheet.length; i++) {
+//                         let item = listSheet[i];
+//                         options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
+//                     }
+
+//                     $(".selected-sheet").html("").append(options);
+//                     $(".selected-header").focus();
+//                     console.log(result.msg);
+//                 }
+//                 else {
+//                     LoadingHide();
+//                     toastr.error(result.msg);
+//                 }
+//             },
+//             error: function (err) {
+//                 toastr.error(err.statusText);
+//             }
+//         });
+//     } else {
+//         toastr.error("FormData is not supported.");
+//     }
+// }
+
+// function saveUploadData(){
+//     // form data
+//     let sheet = $("#selected-sheet").val();
+//     let headerRow = $("#selected-header").val();
+//     let fileName = $("#fileUploadName").text();
+
+//     // send to server
+//     let action = baseUrl + 'save-upload-fabric-inventory-data';
+//     let datasend = {
+//         sheet: sheet,
+//         headerRow: headerRow,
+//         fileName: fileName
+//     };
+//     LoadingShow();
+//     PostDataAjax(action, datasend, function (response) {
+//         LoadingHide();
+//         if (response.rs) {
+//             toastr.success(response.msg, "Thành công")
+//             $("#modalUploadInventoryData").modal('hide');
+//             setTimeout(function(){
+//                 getInventoryData(currentPage);
+//             }, 1000);
+//         }
+//         else {
+//             toastr.error(response.msg, "Thất bại");
+//         }
+//     });
+// }
+
 function uploadExcel(){
     var e = event;
     var fileName = e.target.files[0].name;
     $('.fileUploadName').text(fileName);
-
+    
     if (window.FormData !== undefined) {
 
         var fileUpload = $("#fileFabricReceiveUpload").get(0);
@@ -195,7 +286,7 @@ function uploadExcel(){
 
         // Looping over all files and add it to FormData object
         for (var i = 0; i < files.length; i++) {
-            fileData.append("file", files[i]);
+            fileData.append("file" + i, files[i]);
         }
 
         LoadingShow();
@@ -209,23 +300,42 @@ function uploadExcel(){
                 LoadingHide();
                 result = JSON.parse(result);
                 if (result.rs) {
-                    var listSheet = result.data
-                    var options = "";
-                    for (var i = 0; i < listSheet.length; i++) {
-                        let item = listSheet[i];
-                        options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
+                    var listFiles = result.data
+                    let html = '';
+                    for (var i = 0; i < listFiles.length; i++){
+                        let ele = listFiles[i];
+
+                        let options = "";
+                        for (var j = 0; j < ele.sheets.length; j++) {
+                            let item = ele.sheets[j];
+                            if(item.sheetname == 'Upload-YCV')
+                                options += "<option value =" + item.id + " selected>" + item.sheetname + "</option>";
+                            else 
+                                options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
+                        }
+
+                        html += `<tr id='tr-file-${ele.name}'>
+                            <td class='fileName'>${ele.name}</td>
+                            <td>
+                                <select class='form-control sheetName'>${options}</select>
+                            </td>
+                            <td>
+                                <input type='number' class='form-control headerRow' min='1' value='1' />
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-success" onclick="deleteRow({name: '${ele.name}'})"><i class="fa fa-close"></i></button>
+                            </td>
+                        </tr>`;
                     }
 
-                    $(".selected-sheet").html("").append(options);
-                    $(".selected-header").focus();
-                    console.log(result.msg);
+                    $("#file-table-body").append(html);
                 }
                 else {
-                    LoadingHide();
                     toastr.error(result.msg);
                 }
             },
             error: function (err) {
+                LoadingHide();
                 toastr.error(err.statusText);
             }
         });
@@ -234,18 +344,45 @@ function uploadExcel(){
     }
 }
 
+function deleteRow(file){
+    // let listFiles = [...$('input:file#fileFabricReceiveUpload')[0].files];
+    // let removeEle = listFiles.filter(x => x.name == file.name);
+    // let index = listFiles.indexOf(removeEle);
+    // listFiles.splice(index, 1)
+
+    // $('input:file#fileFabricReceiveUpload')[0].files = listFiles;
+
+    $(event.currentTarget).parent().parent().remove();
+}
+
 function saveUploadData(){
-    // form data
-    let sheet = $("#selected-sheet").val();
-    let headerRow = $("#selected-header").val();
-    let fileName = $("#fileUploadName").text();
+
+    let fileList = $(".fileName");
+    let sheetList = $(".sheetName");
+    let headerList = $(".headerRow");
+    let listData = [];
+
+    for (let i = 0; i < fileList.length; i++) {
+        file = $(fileList[i]).text();
+        sheet = $(sheetList[i]).val();
+        header = $(headerList[i]).val();
+
+        listData.push({
+            file: file,
+            sheet: sheet,
+            header: header,
+        });
+    }
+
+    if(listData.length <= 0){
+        toastr.warning("Không có tập tin cần upload", "Warning");
+        return false;
+    }
 
     // send to server
     let action = baseUrl + 'save-upload-fabric-inventory-data';
     let datasend = {
-        sheet: sheet,
-        headerRow: headerRow,
-        fileName: fileName
+        listData: listData
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {

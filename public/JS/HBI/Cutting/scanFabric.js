@@ -98,6 +98,9 @@ function getMarkerPlanDetail(){
                 $("#lbSumRoll").text(selectedFabricRollList.length);
                 let obj = selectedFabricRollList.filter(x => x.scanned_time != undefined).length;
                 $("#lbCounted").text(obj);
+                if(obj == selectedFabricRollList.length){
+                    $("#lbCounted").removeClass("text-danger").addClass("text-success");
+                }
             }, 500);
         }
         else {
@@ -301,6 +304,9 @@ function scanBarcode() {
             $(`#scanned-time-${code}-${roll.marker_plan_detail_id}`).text(scannedTime);
             let count = parseInt($("#lbCounted").text()) + 1;
             $("#lbCounted").text(count);
+            if(selectedFabricRollList.length == count){
+                $("#lbCounted").removeClass("text-danger").addClass("text-success");
+            }
         }
         else {
             toastr.error("Bạn chưa nhập mã cuộn vải /Roll code can not blank.");

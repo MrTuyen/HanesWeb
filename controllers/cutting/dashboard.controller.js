@@ -206,7 +206,10 @@ module.exports.getStackBarMachineData = async function (req, res) {
                         // Tính lại idle_time
                         if(result95[0]){
                             for (let j = 1; j < result95[0].length; j++) {
-                                result95[0][j].idle_time = Math.abs(result95[0][j].start_time - result95[0][j - 1].end_time) / (1000 * 60);
+                                // Loại bỏ trường hợp bất thường, thời gian kết thúc các bản ghi giống nhau
+                                if(result95[0][j + 1] && result95[0][j].end_time.toString() != result95[0][j + 1].end_time.toString()){
+                                    result95[0][j].gap_time = Math.abs(result95[0][j].start_time - result95[0][j - 1].end_time) / (1000 * 60);
+                                }
                             }
                         }
 
@@ -297,7 +300,10 @@ module.exports.getStackBarMachineData = async function (req, res) {
                         if(tempResult[0] !== undefined){
                             let tempData = tempResult[0];
                             for (let j = 1; j < tempData.length; j++) {
-                                tempData[j].gap_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
+                                // Loại bỏ trường hợp bất thường, thời gian kết thúc các bản ghi giống nhau
+                                if(tempData[j + 1] && tempData[j].end_time.toString() != tempData[j + 1].end_time.toString()){
+                                    tempData[j].gap_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
+                                }
                             }
                             result95.push(tempData);
                         }
@@ -330,7 +336,10 @@ module.exports.getStackBarMachineData = async function (req, res) {
                         if(tempResult[0] !== undefined){
                             let tempData = tempResult[0];
                             for (let j = 1; j < tempData.length; j++) {
-                                tempData[j].gap_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
+                                // Loại bỏ trường hợp bất thường, thời gian kết thúc các bản ghi giống nhau
+                                if(tempData[j + 1] && tempData[j].end_time.toString() != tempData[j + 1].end_time.toString()){
+                                    tempData[j].gap_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
+                                }
                             }
                             result95.push(tempData);
                         }

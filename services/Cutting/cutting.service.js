@@ -61,15 +61,15 @@ CuttingService.addFabricInventoryData = async function(objDTO){
             rlstdt,
             vender,
             rlocdp,
-            rdyedt,
-            rfindt,
-            fnd,
             rrstat,
             ruser,
-            rfstyl,
-            rshapr,
-            rlnvar,
-            rdylot
+            qccomment,
+            actual_with,
+            with_actual,
+            vendor,
+            rprtcd,
+            user_update,
+            date_update
         ) 
         VALUES ?`;
 
