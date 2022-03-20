@@ -1,9 +1,11 @@
 var database = require('../../../database/db_sewingRealtime');
 var db = new database();
+const logHelper = require('../../../common/log.js');
 
 module.exports.getLosstime = async function (req, res, next) {
     try {
         let result = await db.QueryAsync(`CALL procedure_losstime('All','All','');`);
+        console.log(result);
         res.render('Innovation/sewingRealtime/losstime', today = result);
     } catch (error) {
         logHelper.writeLog("innovation.sewingRealtime.getLosstime", error);
