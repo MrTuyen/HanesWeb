@@ -97,9 +97,9 @@ function getListMarkerData(){
 
             for (let i = 0; i < data.length; i++) {
                 let ele = data[i];
-        
+                let isCanceled = ele.cancel_date ? "background: #ed776e" : "";
                 // add row to table
-                html += `<tr class='tr-${ele.id}'>
+                html += `<tr class='tr-${ele.id}' style='${isCanceled}'>
                     <td>${ele.id}</td>
                     <td>${ele.receive_date}</td>
                     <td>${ele.receive_time}</td>
@@ -113,14 +113,14 @@ function getListMarkerData(){
                     </td>
                     <td>
                         ${
-                            ele.marker_call_by == undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
+                            ele.cancel_date != undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
                             : ele.marker_call_by == undefined ? `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
                             : `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
                         }  
                     </td>
                     <td>
                         ${
-                            ele.marker_call_by == undefined ?  `<div class='rounded-circle white' id='wh-circle-${ele.id}'></div>`
+                            ele.cancel_date != undefined ?  `<div class='rounded-circle white' id='wh-circle-${ele.id}'></div>`
                             : (ele.wh_prepare == '0' && ele.wh_confirm_by == undefined) ? `<div class='rounded-circle yellow' id='wh-circle-${ele.id}'></div>`
                             : ele.wh_confirm_by != undefined ? `<div class='rounded-circle green' id='wh-circle-${ele.id}'></div>`
                             : `<div class='rounded-circle red' id='wh-circle-${ele.id}'></div>`
@@ -128,7 +128,7 @@ function getListMarkerData(){
                     </td>
                     <td>
                         ${
-                            ele.marker_call_by == undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
+                            ele.cancel_date != undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
                             : ele.ccd_confirm_by != undefined ? `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
                             : ele.wh_confirm_by != undefined ? `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
                             : `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`

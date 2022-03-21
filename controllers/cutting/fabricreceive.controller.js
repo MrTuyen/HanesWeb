@@ -781,7 +781,8 @@ module.exports.downloadRollData = async function (req, res) {
                     let tempRoll = rollInfo.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);          
                     if(tempRoll.length > 0){
                         tempRoll.forEach(x =>{
-                            let row = new MarkerPlanDetailRoll(
+                            let row = new MarkerPlanDetailRoll
+                            (
                                 ele._group,
                                 eleMarkerDetail.wo,
                                 eleMarkerDetail.ass,
@@ -795,10 +796,24 @@ module.exports.downloadRollData = async function (req, res) {
                             finalResponse.push(row);
                         })
                     }
+                    else{
+                        let row = new MarkerPlanDetailRoll
+                        (
+                            ele._group,
+                            eleMarkerDetail.wo,
+                            eleMarkerDetail.ass,
+                            ele.receive_date,
+                            eleMarkerDetail.item_color,
+                            eleMarkerDetail.yard_demand,
+                            "",
+                            ""
+                        )
+
+                        finalResponse.push(row);
+                    }
                 }
             }
         }
-
 
         let jsonModel = JSON.parse(JSON.stringify(finalResponse));
 

@@ -101,6 +101,8 @@ function getMarkerPlanDetail(){
                     ele.markerDetailId = ele.marker_plan_detail_id;
                     ele.markerPlanId = ele.marker_plan_id;
                     ele.usedYard = ele.yard;
+
+                    //ele.id = ele.roll_id;
                 })
             }
 
@@ -113,90 +115,114 @@ function getMarkerPlanDetail(){
             $("#txtNote").val(master.note);
 
             let html = '';
-            if(markerPlan.wh_confirm_by){
-                $("#table2").css("display", "block");
-                $("#table1").css("display", "none");
+            // if(markerPlan.wh_confirm_by){
+            //     $("#table2").css("display", "block");
+            //     $("#table1").css("display", "none");
 
-                let html = '';
-                let colorFlag = '';
-                for (let i = 0; i < markerDetailList.length; i++) {
-                    let eleMarkerDetail = markerDetailList[i];
-                    if(eleMarkerDetail.item_color != colorFlag){
-                        let selectedRollList = selectedSavedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
-                        let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
-                        let rollCount = selectedRollList.length;
-                        let sameColorList = markerDetailList.filter(x => x.item_color == eleMarkerDetail.item_color);
-                        let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
+            //     let html = '';
+            //     let colorFlag = '';
+            //     for (let i = 0; i < markerDetailList.length; i++) {
+            //         let eleMarkerDetail = markerDetailList[i];
+            //         if(eleMarkerDetail.item_color != colorFlag){
+            //             let selectedRollList = selectedSavedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
+            //             let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+            //             let rollCount = selectedRollList.length;
+            //             let sameColorList = markerDetailList.filter(x => x.item_color == eleMarkerDetail.item_color);
+            //             let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
 
-                        if(selectedRollList.length){
-                            let str = `<tr style='background: #ced6dd'>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>${rollCount} cuộn</td>
-                                <td><span class='text-danger'>${sumYard}</span> / ${sumDemandYard}</td>
-                                <td colspan='4'></td>
-                                <td><span id=''></span></td>
-                                <td><span id=''></span></td>
-                            </tr>`;
+            //             if(selectedRollList.length){
+            //                 let str = `<tr style='background: #ced6dd'>
+            //                     <td></td>
+            //                     <td></td>
+            //                     <td></td>
+            //                     <td></td>
+            //                     <td></td>
+            //                     <td>${rollCount} cuộn</td>
+            //                     <td><span class='text-danger'>${sumYard}</span> / ${sumDemandYard}</td>
+            //                     <td colspan='4'></td>
+            //                     <td><span id=''></span></td>
+            //                     <td><span id=''></span></td>
+            //                 </tr>`;
 
-                            for (let j = 0; j < selectedRollList.length; j++) {
-                                let eleRoll = selectedRollList[j];
-                                str += `<tr>
-                                    <td>${j + 1}</td>
-                                    <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
-                                    <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
-                                    <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
-                                    <td>${sameColorList[j] ? sameColorList[j].yard_demand : ''}</td>
-                                    <td>${eleRoll.unipack2}</td>
-                                    <td>${eleRoll.yard}</td>
-                                    <td>${eleRoll.rfinwt}</td>
-                                    <td>${eleRoll.rgrade}</td>
-                                    <td>${eleRoll.rlocbr}</td>
-                                    <td>${eleRoll.shade}</td>
-                                    <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
-                                    <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
-                                </tr>`;
-                            }
-                            str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
-                            html += str;
+            //                 for (let j = 0; j < selectedRollList.length; j++) {
+            //                     let eleRoll = selectedRollList[j];
+            //                     str += `<tr>
+            //                         <td>${j + 1}</td>
+            //                         <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
+            //                         <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
+            //                         <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
+            //                         <td>${sameColorList[j] ? sameColorList[j].yard_demand : ''}</td>
+            //                         <td>${eleRoll.unipack2}</td>
+            //                         <td>${eleRoll.yard}</td>
+            //                         <td>${eleRoll.rfinwt}</td>
+            //                         <td>${eleRoll.rgrade}</td>
+            //                         <td>${eleRoll.rlocbr}</td>
+            //                         <td>${eleRoll.shade}</td>
+            //                         <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
+            //                         <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
+            //                     </tr>`;
+            //                 }
+            //                 str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
+            //                 html += str;
+            //             }
+            //         }
+            //         colorFlag = eleMarkerDetail.item_color;
+            //     }
+
+            //     $("#table2-fabric-table-body").html('');
+            //     $("#table2-fabric-table-body").append(html);
+            // }
+            // else{
+            //     $("#table1").css("display", "block");
+            //     $("#table2").css("display", "none");
+
+            //     let colorFlag = "";
+            //     for (let i = 0; i < detail.length; i++) {
+            //         let ele = detail[i];
+            //         html += `<tr id='tr-${ele.id}'>
+            //             <td>${ele.id}</td>
+            //             <td>${ele.wo}</td>
+            //             <td>${ele.ass}</td>
+            //             <td>${ele.item_color}</td>
+            //             <td>${ele.yard_demand}</td>
+            //             <td style='text-align: -webkit-right'>
+            //                 ${
+            //                     ele.item_color != colorFlag ?
+            //                     `<a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Select</a>`
+            //                     : 
+            //                     ``
+            //                 }
+            //             </td>
+            //         </tr>`;
+            //         colorFlag = ele.item_color;
+            //     }
+
+            //     $("#fabric-table-body").html('');
+            //     $("#fabric-table-body").append(html);
+            // }
+
+            $("#table1").css("display", "block");
+            $("#table2").css("display", "none");
+
+            let colorFlag = "";
+            for (let i = 0; i < detail.length; i++) {
+                let ele = detail[i];
+                html += `<tr id='tr-${ele.id}'>
+                    <td>${ele.id}</td>
+                    <td>${ele.wo}</td>
+                    <td>${ele.ass}</td>
+                    <td>${ele.item_color}</td>
+                    <td>${ele.yard_demand}</td>
+                    <td style='text-align: -webkit-right'>
+                        ${
+                            ele.item_color != colorFlag ?
+                            `<a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Select</a>`
+                            : 
+                            ``
                         }
-                    }
-                    colorFlag = eleMarkerDetail.item_color;
-                }
-
-                $("#table2-fabric-table-body").html('');
-                $("#table2-fabric-table-body").append(html);
-            }
-            else{
-                $("#table1").css("display", "block");
-                $("#table2").css("display", "none");
-
-                let colorFlag = "";
-                for (let i = 0; i < detail.length; i++) {
-                    let ele = detail[i];
-                    html += `<tr id='tr-${ele.id}'>
-                        <td>${ele.id}</td>
-                        <td>${ele.wo}</td>
-                        <td>${ele.ass}</td>
-                        <td>${ele.item_color}</td>
-                        <td>${ele.yard_demand}</td>
-                        <td style='text-align: -webkit-right'>
-                            ${
-                                ele.item_color != colorFlag ?
-                                `<a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Select</a>`
-                                : 
-                                ``
-                            }
-                        </td>
-                    </tr>`;
-                    colorFlag = ele.item_color;
-                }
-
-                $("#fabric-table-body").html('');
-                $("#fabric-table-body").append(html);
+                    </td>
+                </tr>`;
+                colorFlag = ele.item_color;
             }
 
             $("#fabric-table-body").html('');
@@ -332,7 +358,7 @@ var currentFabricRollList = []; // danh sách cuộn vải theo item color cụ 
 var currentMarkerDetail = {}; // marker detail hiện tại khi chọn để select các cuộn vải
 var sum = 0; // biến tạm lưu tổng số yard của 1 marker detail
 function OpenModalMarkerDetail(markerDetail){
-
+    console.log(selectedFabricRollList);
     // general information
     let sameItemColorList = markerDetailList.filter(x => x.item_color == markerDetail.item_color);
     let sumYard = sameItemColorList.reduce((a, b) => a + b.yard_demand, 0);
@@ -635,6 +661,8 @@ function selectMarker(){
 
         $(`#inventory-yard-${id}`).text(rootEleYard + parseFloat(usedYard));
     }
+
+    console.log(selectedFabricRollList);
 
     // tính tổng số yard các cuộn vải theo chi tiết marker
     $("#txtFabricRollYard").text(selectedFabricRollList.filter(x => x.markerDetailId == currentMarkerDetail.id).reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
