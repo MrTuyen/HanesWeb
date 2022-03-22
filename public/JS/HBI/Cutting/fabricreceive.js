@@ -182,6 +182,11 @@ function getListMarkerData(){
                     }
                     RunTime(ele.id, totalMinutes);
                 }
+                else{
+                    var counterTime = new Date(ele.ccd_confirm_date) - new Date(ele.marker_call_date);
+                    let totalMinutes = Math.round(counterTime / (1000 * 60));
+                    $("#action-time-" + ele.id).text(totalMinutes);
+                }
             }
         }
         else {

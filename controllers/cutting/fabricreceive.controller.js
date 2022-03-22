@@ -386,6 +386,8 @@ module.exports.warehouseConfirm = async function (req, res) {
         if (isUpdateSuccess <= 0)
             return res.end(JSON.stringify({ rs: false, msg: "Cập nhật note phiếu yêu cầu vải không thành công." }));
 
+        let scannedRollList = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${markerPlan.id}`);
+ 
         // delete all roll in cutting_fr_marker_data_plan_detail_roll before insert new
         query = `DELETE FROM cutting_fr_marker_data_plan_detail_roll 
                 WHERE marker_plan_id = ${markerPlan.id}`;
@@ -400,70 +402,143 @@ module.exports.warehouseConfirm = async function (req, res) {
 
             for (let j = 0; j < rollList.length; j++) {
                 let eleRoll = rollList[j];
+                let existScannedRoll = scannedRollList.filter(x => x.unipack2 == eleRoll.unipack2);
+                if(existScannedRoll.length > 0){
+                    eleRoll.scanned_time = existScannedRoll[0].scanned_time;
+                }
+                let scannedTime = eleRoll.scanned_time ? `${eleRoll.scanned_time}` : null;
 
                 // insert to cutting_fr_marker_data_plan_detail_roll table
-                query = `INSERT INTO cutting_fr_marker_data_plan_detail_roll (
-                    marker_plan_id,
-                    marker_plan_detail_id,
-                    roll_id,
-                    runip,
-                    unipack2,
-                    rcutwo,
-                    rffsty,
-                    item_color,
-                    rcutwd,
-                    rcolor,
-                    rfinwt,
-                    yard,
-                    rlocbr,
-                    rgrade,
-                    shade,
-                    vendor_lot,
-                    po_number,
-                    rccust,
-                    rlstdt,
-                    vender,
-                    rlocdp,
-                    rrstat,
-                    ruser,
-                    qccomment,
-                    actual_with,
-                    with_actual,
-                    vendor,
-                    rprtcd,
-                    note
-                ) 
-                VALUES (
-                    ${markerPlan.id},
-                    ${eleMarkerDetail.id},
-                    ${eleRoll.roll_id},
-                    '${eleRoll.runip}',
-                    '${eleRoll.unipack2}',
-                    '${eleRoll.rcutwo}',
-                    '${eleRoll.rffsty}',
-                    '${eleRoll.item_color}',
-                    '${eleRoll.rcutwd}',
-                    '${eleRoll.rcolor}',
-                    ${eleRoll.rfinwt},
-                    ${eleRoll.usedYard},
-                    '${eleRoll.rlocbr}',
-                    '${eleRoll.rgrade}',
-                    '${eleRoll.shade}',
-                    '${eleRoll.vendor_lot}',
-                    '${eleRoll.po_number}',
-                    '${eleRoll.rccust}',
-                    '${eleRoll.rlstdt}',
-                    '${eleRoll.vender}',
-                    '${eleRoll.rlocdp}',
-                    '${eleRoll.rrstat}',
-                    '${eleRoll.ruser}',
-                    '${eleRoll.qccomment}',
-                    '${eleRoll.actual_with}',
-                    '${eleRoll.with_actual}',
-                    '${eleRoll.vendor}',
-                    '${eleRoll.rprtcd}', 
-                    '${eleRoll.note}'
-                )`;
+                if(scannedTime == null){
+                    query = `INSERT INTO cutting_fr_marker_data_plan_detail_roll (
+                        marker_plan_id,
+                        marker_plan_detail_id,
+                        roll_id,
+                        runip,
+                        unipack2,
+                        rcutwo,
+                        rffsty,
+                        item_color,
+                        rcutwd,
+                        rcolor,
+                        rfinwt,
+                        yard,
+                        rlocbr,
+                        rgrade,
+                        shade,
+                        vendor_lot,
+                        po_number,
+                        rccust,
+                        rlstdt,
+                        vender,
+                        rlocdp,
+                        rrstat,
+                        ruser,
+                        qccomment,
+                        actual_with,
+                        with_actual,
+                        vendor,
+                        rprtcd,
+                        note
+                    ) 
+                    VALUES (
+                        ${markerPlan.id},
+                        ${eleMarkerDetail.id},
+                        ${eleRoll.roll_id},
+                        '${eleRoll.runip}',
+                        '${eleRoll.unipack2}',
+                        '${eleRoll.rcutwo}',
+                        '${eleRoll.rffsty}',
+                        '${eleRoll.item_color}',
+                        '${eleRoll.rcutwd}',
+                        '${eleRoll.rcolor}',
+                        ${eleRoll.rfinwt},
+                        ${eleRoll.usedYard},
+                        '${eleRoll.rlocbr}',
+                        '${eleRoll.rgrade}',
+                        '${eleRoll.shade}',
+                        '${eleRoll.vendor_lot}',
+                        '${eleRoll.po_number}',
+                        '${eleRoll.rccust}',
+                        '${eleRoll.rlstdt}',
+                        '${eleRoll.vender}',
+                        '${eleRoll.rlocdp}',
+                        '${eleRoll.rrstat}',
+                        '${eleRoll.ruser}',
+                        '${eleRoll.qccomment}',
+                        '${eleRoll.actual_with}',
+                        '${eleRoll.with_actual}',
+                        '${eleRoll.vendor}',
+                        '${eleRoll.rprtcd}', 
+                        '${eleRoll.note}'
+                    )`;
+                }
+                else{
+                    query = `INSERT INTO cutting_fr_marker_data_plan_detail_roll (
+                        marker_plan_id,
+                        marker_plan_detail_id,
+                        roll_id,
+                        runip,
+                        unipack2,
+                        rcutwo,
+                        rffsty,
+                        item_color,
+                        rcutwd,
+                        rcolor,
+                        rfinwt,
+                        yard,
+                        rlocbr,
+                        rgrade,
+                        shade,
+                        vendor_lot,
+                        po_number,
+                        rccust,
+                        rlstdt,
+                        vender,
+                        rlocdp,
+                        rrstat,
+                        ruser,
+                        qccomment,
+                        actual_with,
+                        with_actual,
+                        vendor,
+                        rprtcd,
+                        note,
+                        scanned_time
+                    ) 
+                    VALUES (
+                        ${markerPlan.id},
+                        ${eleMarkerDetail.id},
+                        ${eleRoll.roll_id},
+                        '${eleRoll.runip}',
+                        '${eleRoll.unipack2}',
+                        '${eleRoll.rcutwo}',
+                        '${eleRoll.rffsty}',
+                        '${eleRoll.item_color}',
+                        '${eleRoll.rcutwd}',
+                        '${eleRoll.rcolor}',
+                        ${eleRoll.rfinwt},
+                        ${eleRoll.usedYard},
+                        '${eleRoll.rlocbr}',
+                        '${eleRoll.rgrade}',
+                        '${eleRoll.shade}',
+                        '${eleRoll.vendor_lot}',
+                        '${eleRoll.po_number}',
+                        '${eleRoll.rccust}',
+                        '${eleRoll.rlstdt}',
+                        '${eleRoll.vender}',
+                        '${eleRoll.rlocdp}',
+                        '${eleRoll.rrstat}',
+                        '${eleRoll.ruser}',
+                        '${eleRoll.qccomment}',
+                        '${eleRoll.actual_with}',
+                        '${eleRoll.with_actual}',
+                        '${eleRoll.vendor}',
+                        '${eleRoll.rprtcd}', 
+                        '${eleRoll.note}', 
+                        '${scannedTime}'
+                    )`;
+                }
 
                 let isInsertRollSuccess = await db.excuteInsertReturnIdAsync(query);
                 if (isInsertRollSuccess < 0) {
@@ -498,28 +573,47 @@ async function ccdSend(req, res, groupId) {
         }
 
         // check the ticket has been called or not
-        if (objMarker[0].ccd_confirm_by != undefined && objMarker[0].ccd_confirm_date != undefined) {
-            return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được ccd xác nhận hoàn thành/ This ticket has been confirmed by ccd" }));
+        // if (objMarker[0].ccd_confirm_by != undefined && objMarker[0].ccd_confirm_date != undefined) {
+        //     return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được ccd xác nhận hoàn thành/ This ticket has been confirmed by ccd" }));
+        // }
+        // else {
+        //     query = `UPDATE cutting_fr_marker_data_plan 
+        //             SET ccd_confirm_date = '${datetime}', ccd_confirm_by = '${user}'
+        //             WHERE id = ${groupId}`;
+        //     let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        //     if (isUpdateSuccess <= 0) {
+        //         return res.end(JSON.stringify({ rs: false, msg: "Ccd xác nhận xảy ra lỗi/ The ticket has not beend confirmed by CCD successful" }));
+        //     }
+        //     else {
+        //         testIo.emit('ccd-fabric-receive-action', {
+        //             username: user,
+        //             message: {
+        //                 groupId: groupId,
+        //                 actionType: constant.Enum_Action.CCDSend
+        //             }
+        //         });
+
+        //         return res.end(JSON.stringify({ rs: true, msg: "Ccd xác nhận thành công/ The ticket has been confirmed by CCD successful" }));
+        //     }
+        // }
+
+        query = `UPDATE cutting_fr_marker_data_plan 
+                SET ccd_confirm_date = '${datetime}', ccd_confirm_by = '${user}'
+                WHERE id = ${groupId}`;
+        let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        if (isUpdateSuccess <= 0) {
+            return res.end(JSON.stringify({ rs: false, msg: "Ccd xác nhận xảy ra lỗi/ The ticket has not beend confirmed by CCD successful" }));
         }
         else {
-            query = `UPDATE cutting_fr_marker_data_plan 
-                    SET ccd_confirm_date = '${datetime}', ccd_confirm_by = '${user}'
-                    WHERE id = ${groupId}`;
-            let isUpdateSuccess = await db.excuteNonQueryAsync(query);
-            if (isUpdateSuccess <= 0) {
-                return res.end(JSON.stringify({ rs: false, msg: "Ccd xác nhận xảy ra lỗi/ The ticket has not beend confirmed by CCD successful" }));
-            }
-            else {
-                testIo.emit('ccd-fabric-receive-action', {
-                    username: user,
-                    message: {
-                        groupId: groupId,
-                        actionType: constant.Enum_Action.CCDSend
-                    }
-                });
+            testIo.emit('ccd-fabric-receive-action', {
+                username: user,
+                message: {
+                    groupId: groupId,
+                    actionType: constant.Enum_Action.CCDSend
+                }
+            });
 
-                return res.end(JSON.stringify({ rs: true, msg: "Ccd xác nhận thành công/ The ticket has been confirmed by CCD successful" }));
-            }
+            return res.end(JSON.stringify({ rs: true, msg: "Ccd xác nhận thành công/ The ticket has been confirmed by CCD successful" }));
         }
     } catch (error) {
         logHelper.writeLog("fabric_receive.ccdCall", error);
@@ -599,7 +693,12 @@ module.exports.printTicket = async function (req, res) {
                 farbicRollList.push({ itemColor: ele, rollList: result[0] })
             }
 
-            if (masterInfo[0].wh_confirm_by != undefined && masterInfo[0].wh_confirm_date != undefined) {
+            // if (masterInfo[0].wh_confirm_by != undefined && masterInfo[0].wh_confirm_date != undefined) {
+            //     let result = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${groupId}`);
+            //     selectedFabricRollList.push(result);
+            // }
+
+            if (masterInfo[0].wh_prepare == '0') {
                 let result = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${groupId}`);
                 selectedFabricRollList.push(result);
             }
@@ -787,6 +886,7 @@ module.exports.downloadRollData = async function (req, res) {
                                 eleMarkerDetail.wo,
                                 eleMarkerDetail.ass,
                                 ele.receive_date,
+                                ele.cut_date,
                                 eleMarkerDetail.item_color,
                                 eleMarkerDetail.yard_demand,
                                 x.unipack2,
@@ -803,6 +903,7 @@ module.exports.downloadRollData = async function (req, res) {
                             eleMarkerDetail.wo,
                             eleMarkerDetail.ass,
                             ele.receive_date,
+                            ele.cut_date,
                             eleMarkerDetail.item_color,
                             eleMarkerDetail.yard_demand,
                             "",
@@ -824,6 +925,7 @@ module.exports.downloadRollData = async function (req, res) {
         worksheet.columns = [
             { header: 'group', key: 'group', width: 10 },
             { header: 'receive_date', key: 'receive_date', width: 10 },
+            { header: 'cut_date', key: 'cut_date', width: 10 },
             { header: 'wo', key: 'wo', width: 10 },
             { header: 'ass', key: 'ass', width: 10 },
             { header: 'item_color', key: 'item_color', width: 20 },
@@ -844,13 +946,13 @@ module.exports.downloadRollData = async function (req, res) {
         logHelper.writeLog("fabricreceive.downloadRollData", error);
     }
 }
-
 class MarkerPlanDetailRoll{
-    constructor(group, wo, ass, received_date, item_color, demand_yard, unipack, roll_yard){
+    constructor(group, wo, ass, received_date, cut_date, item_color, demand_yard, unipack, roll_yard){
         this.group = group;
         this.wo = wo;
         this.ass = ass;
         this.receive_date = received_date;
+        this.cut_date = cut_date;
         this.item_color = item_color;
         this.demand_yard = demand_yard;
         this.unipack = unipack;
