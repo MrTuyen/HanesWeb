@@ -28,6 +28,10 @@ router.get("/fabric-receive/scan-marker-data-detail", fabricReceiveController.ge
 router.post("/fabric-receive/warehouse-confirm", fabricReceiveController.warehouseConfirm)
 router.post("/fabric-receive/ccd-confirm", fabricReceiveController.ccdConfirm)
 
+// Marker update
+router.get("/fabric-receive/marker-update", fabricReceiveController.getIndexMarkerUpdate)
+
+// Index
 router.post("/fabric-receive/print-ticket", fabricReceiveController.printTicket)
 router.post("/fabric-receive/download-marker-data", fabricReceiveController.downloadMarkerData)
 router.post("/fabric-receive/download-roll-data", fabricReceiveController.downloadRollData)

@@ -33,12 +33,13 @@ module.exports.getMarkerData = async function (req, res) {
         // parameters
         let filterGroup = req.body.filterGroup;
         let filterStatus = req.body.filterStatus;
+        let filterWeek = req.body.filterWeek ? req.body.filterWeek : 0;
         let filterDate = req.body.filterDate;
         let fromDate = filterDate.split(';')[0];
         let toDate = filterDate.split(';')[1];
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}')`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}', ${filterWeek})`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -798,12 +799,13 @@ module.exports.downloadMarkerData = function (req, res) {
         // parameters
         let filterGroup = req.body.filterGroup;
         let filterStatus = req.body.filterStatus;
+        let filterWeek = req.body.filterWeek ? req.body.filterWeek : 0;
         let filterDate = req.body.filterDate;
         let fromDate = filterDate.split(';')[0];
         let toDate = filterDate.split(';')[1];
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}')`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}', ${filterWeek})`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -856,12 +858,13 @@ module.exports.downloadRollData = async function (req, res) {
         // parameters
         let filterGroup = req.body.filterGroup;
         let filterStatus = req.body.filterStatus;
+        let filterWeek = req.body.filterWeek ? req.body.filterWeek : 0;
         let filterDate = req.body.filterDate;
         let fromDate = filterDate.split(';')[0];
         let toDate = filterDate.split(';')[1];
 
         // execute
-        let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}')`);
+        let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}', ${filterWeek})`);
 
         // list marker plan => return id, group
         let markerInfoList = result[0];
@@ -946,6 +949,12 @@ module.exports.downloadRollData = async function (req, res) {
         logHelper.writeLog("fabricreceive.downloadRollData", error);
     }
 }
+
+module.exports.getIndexMarkerUpdate = function (req, res) {
+    let user = req.user;
+    res.render('Cutting/FabricReceive/MarkerUpdate', { user: user });
+}
+
 class MarkerPlanDetailRoll{
     constructor(group, wo, ass, received_date, cut_date, item_color, demand_yard, unipack, roll_yard){
         this.group = group;

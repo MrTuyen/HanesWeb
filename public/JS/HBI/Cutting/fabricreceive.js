@@ -62,8 +62,25 @@ $(document).ready(function () {
     });
 
     // get list marker data
+    changeViewType();
     getListMarkerData();
 })
+
+function changeViewType() {
+    $(`#dateValue`).css("display", "none");
+    $(`#weekValue`).css("display", "none");
+    let viewType = $(`#cbViewType`).is(":checked");
+    if (!viewType) {
+        $(`#dateValue`).css("display", "none");
+        $(`#weekValue`).css("display", "block");
+        $(`#txtFilterWeek`).focus();
+        $(`#txtFilterWeek`).val(new Date().getWeekNumber());
+    }
+    else {
+        $(`#dateValue`).css("display", "block");
+        $(`#weekValue`).css("display", "none");
+    }
+}
 
 // Setup change time to 5 option
 function changeDateFilter(){
@@ -77,16 +94,26 @@ function changeDateFilter(){
 function getListMarkerData(){
     let filterGroup = $("#txtFilterGroup").val();
     let filterStatus = $("#txtFilterStatus").val();
-    let filterDate = $("#txtFilterTime").val();
-    if (filterDate.toString() == "5") {
-        filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+
+    let filterDate = '';
+    let filterWeek = '';
+    let viewType = $("#cbViewType").is(":checked"); // Select date or week
+    if (viewType) {
+        filterDate = $("#txtFilterTime").val();
+        if (filterDate.toString() == "5") {
+            filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+        }
+    }
+    else{
+        filterWeek = $("#txtFilterWeek").val();
     }
 
     let action = baseUrl + 'get-marker-data';
     let datasend = {
         filterGroup: filterGroup,
         filterStatus: filterStatus,
-        filterDate: filterDate
+        filterDate: filterDate,
+        filterWeek: filterWeek
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
@@ -97,7 +124,7 @@ function getListMarkerData(){
 
             for (let i = 0; i < data.length; i++) {
                 let ele = data[i];
-                let isCanceled = ele.cancel_date ? "background: #ed776e" : "";
+                let isCanceled = ele.cancel_date ? "background: #fbc8c4" : "";
                 // add row to table
                 html += `<tr class='tr-${ele.id}' style='${isCanceled}'>
                     <td>${ele.id}</td>
@@ -140,7 +167,8 @@ function getListMarkerData(){
                     <td>
                         <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='printTicket(${ele.id})'>Print</button>
                         <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
-                        <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD scan</a>
+                        <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/marker-update?group=${ele.id}">Marker</a>
+                        <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD</a>
                         <a class='btn btn-sm btn-primary ${wh_display}' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
                     </td>
                 </tr>`;
@@ -198,16 +226,25 @@ function getListMarkerData(){
 function downloadMarkerData(){
     let filterGroup = $("#txtFilterGroup").val();
     let filterStatus = $("#txtFilterStatus").val();
-    let filterDate = $("#txtFilterTime").val();
-    if (filterDate.toString() == "5") {
-        filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+    let filterDate = '';
+    let filterWeek = '';
+    let viewType = $("#cbViewType").is(":checked"); // Select date or week
+    if (viewType) {
+        filterDate = $("#txtFilterTime").val();
+        if (filterDate.toString() == "5") {
+            filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+        }
+    }
+    else{
+        filterWeek = $("#txtFilterWeek").val();
     }
 
     let action = baseUrl + 'download-marker-data';
     let datasend = {
         filterGroup: filterGroup,
         filterStatus: filterStatus,
-        filterDate: filterDate
+        filterDate: filterDate,
+        filterWeek: filterWeek
     };
    
     LoadingShow();
@@ -228,16 +265,25 @@ function downloadMarkerData(){
 function downloadRollData(){
     let filterGroup = $("#txtFilterGroup").val();
     let filterStatus = $("#txtFilterStatus").val();
-    let filterDate = $("#txtFilterTime").val();
-    if (filterDate.toString() == "5") {
-        filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+    let filterDate = '';
+    let filterWeek = '';
+    let viewType = $("#cbViewType").is(":checked"); // Select date or week
+    if (viewType) {
+        filterDate = $("#txtFilterTime").val();
+        if (filterDate.toString() == "5") {
+            filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+        }
+    }
+    else{
+        filterWeek = $("#txtFilterWeek").val();
     }
 
     let action = baseUrl + 'download-roll-data';
     let datasend = {
         filterGroup: filterGroup,
         filterStatus: filterStatus,
-        filterDate: filterDate
+        filterDate: filterDate,
+        filterWeek: filterWeek
     };
    
     LoadingShow();
