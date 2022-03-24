@@ -955,6 +955,111 @@ module.exports.getIndexMarkerUpdate = function (req, res) {
     res.render('Cutting/FabricReceive/MarkerUpdate', { user: user });
 }
 
+module.exports.markerUpdate = async function (req, res) {
+    try {
+        // parameters
+        let id = req.body.id;
+        let receivedDate = req.body.receivedDate;
+        let receivedTime = req.body.receivedTime;
+        let cutDate = req.body.cutDate;
+
+        // update some general information marker plan 
+        let query = `UPDATE cutting_fr_marker_data_plan 
+                    SET receive_date = '${receivedDate}', receive_time = '${receivedTime}', cut_date = '${cutDate}'
+                    WHERE id = ${id}`;
+        let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        if (isUpdateSuccess <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Cập nhật thông tin phiếu yêu cầu vải không thành công." }));
+        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.markerUpdate", error);
+    }
+}
+
+
+module.exports.saveUpdateUploadData = async function (req, res) {
+    try {
+        // parameters
+        let id = req.body.id;
+        let data = req.body.listData;
+
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
+
+        for (let i = 0; i < data.length; i++) {
+            let eleFile = data[i];
+            // get data from excel file
+            let arrExcelData = [];
+            if (eleFile.file.includes("xlsb")) {
+                arrExcelData = helper.getDataFromExcel_Xlsx("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+            }
+            else {
+                arrExcelData = await helper.getDataFromExcel("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+            }
+
+            // clean data
+            let updateDetailData = [];
+            for (let i = 0; i < arrExcelData.length; i++) {
+                let rowData = arrExcelData[i];
+                let group = rowData[3];
+                if (group != '' && group.toLowerCase().trim() != 'không có') {
+                    updateDetailData.push(rowData);
+                }
+            }
+
+            let markerDetailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${id})`);
+            markerDetailInfo = markerDetailInfo[0];
+            let detailData = [];
+            for (let i = 0; i < updateDetailData.length; i++) {
+                let rowData = updateDetailData[i];
+                let detailObj = [];
+                let isExistObj = markerDetailInfo.filter(x => x.wo == rowData[4] && x.ass == rowData[5] && x.item_color == rowData[6]);
+                if(isExistObj && isExistObj.length > 0){ // update
+                    let delIndex = markerDetailInfo.indexOf(isExistObj[0]);
+                    markerDetailInfo.splice(delIndex, 1);
+                    
+                    query = `UPDATE cutting_fr_marker_data_plan_detail  
+                            SET yard_demand = ${rowData[7]}, marker_name = '${rowData[10]}', dozen = '${rowData[11]}'
+                            WHERE id = ${isExistObj[0].id}`;
+                    let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+                }
+                else{ // insert
+                    if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
+                        detailObj.push(id);
+                        detailObj.push(rowData[4]);
+                        detailObj.push(rowData[5]);
+                        detailObj.push(rowData[6]);
+                        detailObj.push(rowData[7]);
+                        detailObj.push(rowData[10]);
+                        detailObj.push(rowData[11]);
+    
+                        detailData.push(detailObj);
+                    }
+                }
+            }
+            
+            // delete 
+            if(markerDetailInfo.length > 0){
+                query = `DELETE FROM cutting_fr_marker_data_plan_detail WHERE id IN (${markerDetailInfo.map(x => x.id)})`;
+                let isDeleteDetailSuccess = await db.excuteNonQueryAsync(query);
+
+                query = `DELETE FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_detail_id IN (${markerDetailInfo.map(x => x.id)})`;
+                let isDeleteRollSuccess = await db.excuteNonQueryAsync(query);
+            }
+           
+            if(detailData.length > 0){
+                query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen) 
+                    VALUES ?`;
+                let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
+            }
+        }
+
+        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.saveUploadData", error);
+    }
+}
+
 class MarkerPlanDetailRoll{
     constructor(group, wo, ass, received_date, cut_date, item_color, demand_yard, unipack, roll_yard){
         this.group = group;

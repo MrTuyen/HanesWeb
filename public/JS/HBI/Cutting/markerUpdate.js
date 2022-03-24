@@ -63,7 +63,7 @@ $(document).ready(function () {
 
     // init datepicker for all input date type
     $('.isDate').datepicker({
-        format: "dd/mm/yyyy",
+        format: "mm/dd/yyyy",
         clear: true
     });
 
@@ -71,13 +71,14 @@ $(document).ready(function () {
     getMarkerPlanDetail();
 })
 
+var queryStr = getUrlVars(window.location.href);
+
 var fabricRollList = []; // danh sách dạng key value lưu trữ key là item color. value là danh sách các cuộn vải theo item color
 var markerDetailList = []; // danh sách lưu trữ danh sách các mã vải
 var selectedFabricRollList = []; // danh sách tổng các cuộn vải được chọn của cả phiếu
 var selectedSavedFabricRollList = []; // danh sách tổng các cuộn vải được chọn của cả phiếu
 var markerPlan = {};
 function getMarkerPlanDetail(){
-    var queryStr = getUrlVars(window.location.href);
     let groupId = queryStr.group;
     // send to server
     let action = baseUrl + 'get-marker-data-detail';
@@ -139,6 +140,218 @@ function getMarkerPlanDetail(){
             toastr.error(response.msg, "Thất bại");
         }
     });
+}
+
+function markerUpdate(){
+    let groupId = queryStr.group;
+    let txtReceiveDate = $("#txtReceiveDate");
+    let txtReceiveTime = $("#txtReceiveTime");
+    let txtCutDate = $("#txtCutDate");
+
+    if (!CheckNullOrEmpty(txtReceiveDate, "Ngày nhận không được để trống / Received date can not empty"))
+        return false;
+    if (!CheckNullOrEmpty(txtReceiveTime, "Giờ nhận không được để trống / Received time can not empty"))
+        return false;
+    if (!CheckNullOrEmpty(txtCutDate, "Ngày cắt không được để trống / Cut date can not empty"))
+        return false;
+
+    let action = baseUrl + 'marker-update';
+    let datasend = {
+        id: groupId,
+        receivedDate: txtReceiveDate.val(),
+        receivedTime: txtReceiveTime.val(),
+        cutDate: txtCutDate.val()
+    }
+
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if(response.rs){
+            toastr.success(response.msg, "Thành công");
+        }
+        else{
+            toastr.error(response.msg, "Thất bại");
+        }
+    })
+}
+
+function uploadExcel(){
+    var e = event;
+    var fileName = e.target.files[0].name;
+    $('.fileUploadName').text(fileName);
+    
+    if (window.FormData !== undefined) {
+
+        var fileUpload = $("#fileFabricReceiveUpload").get(0);
+        var files = fileUpload.files;
+
+        // Create FormData object
+        var fileData = new FormData();
+
+        // Looping over all files and add it to FormData object
+        for (var i = 0; i < files.length; i++) {
+            fileData.append("file" + i, files[i]);
+        }
+
+        LoadingShow();
+        $.ajax({
+            url: baseUrl + 'upload-fabric-file',
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            data: fileData,
+            success: function (result) {
+                LoadingHide();
+                result = JSON.parse(result);
+                if (result.rs) {
+                    var listFiles = result.data
+                    let html = '';
+                    for (var i = 0; i < listFiles.length; i++){
+                        let ele = listFiles[i];
+
+                        let options = "";
+                        for (var j = 0; j < ele.sheets.length; j++) {
+                            let item = ele.sheets[j];
+                            if(item.sheetname == 'Upload-YCV')
+                                options += "<option value =" + item.id + " selected>" + item.sheetname + "</option>";
+                            else 
+                                options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
+                        }
+
+                        html += `<tr id='tr-file-${ele.name}'>
+                            <td class='fileName'>${ele.name}</td>
+                            <td>
+                                <select class='form-control sheetName'>${options}</select>
+                            </td>
+                            <td>
+                                <input type='number' class='form-control headerRow' min='1' value='1' />
+                            </td>
+                        </tr>`;
+                    }
+
+                    $("#file-table-body").append(html);
+                }
+                else {
+                    toastr.error(result.msg);
+                }
+            },
+            error: function (err) {
+                LoadingHide();
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("FormData is not supported.");
+    }
+}
+
+function saveUploadData(){
+    let groupId = queryStr.group;
+    let fileList = $(".fileName");
+    let sheetList = $(".sheetName");
+    let headerList = $(".headerRow");
+    let listData = [];
+
+    for (let i = 0; i < fileList.length; i++) {
+        file = $(fileList[i]).text();
+        sheet = $(sheetList[i]).val();
+        header = $(headerList[i]).val();
+
+        listData.push({
+            file: file,
+            sheet: sheet,
+            header: header,
+        });
+    }
+
+    if(listData.length <= 0){
+        toastr.warning("Không có tập tin cần upload", "Warning");
+        return false;
+    }
+
+    // send to server
+    let action = baseUrl + 'save-update-upload-data';
+    let datasend = {
+        id: groupId,
+        listData: listData
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if (response.rs) {
+            toastr.success(response.msg, "Thành công")
+            $("#modalUploadData").modal('hide');
+            getMarkerPlanDetail();
+        }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
+
+function openPreviewTicket(){
+    $("#modalPreviewTicket").modal("show");
+    getMarkerPlanDetailPreview();
+}
+
+function getMarkerPlanDetailPreview(){
+     
+    $("#txtPReceiveDate").val(markerPlan.receive_date);
+    $("#txtPReceiveTime").val(markerPlan.receive_time);
+    $("#txtPGroup").val(markerPlan._group);
+    $("#txtPCutDate").val(markerPlan.cut_date);
+    $("#txtPCreatedDate").val(markerPlan.date_update);
+    $("#txtPWeek").val(new Date(markerPlan.date_update).getWeekNumber());
+    $("#txtPNote").val(markerPlan.note);
+
+    let html = '';
+    let colorFlag = '';
+    for (let i = 0; i < markerDetailList.length; i++) {
+        let eleMarkerDetail = markerDetailList[i];
+        if(eleMarkerDetail.item_color != colorFlag){
+            let selectedRollList = selectedFabricRollList.filter(x => x.markerDetailId == eleMarkerDetail.id);
+            let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0);
+            let rollCount = selectedRollList.length;
+            let sameColorList = markerDetailList.filter(x => x.item_color == eleMarkerDetail.item_color);
+            let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
+
+            if(selectedRollList.length > 0){
+                let str = `<tr style='background: #ced6dd'>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>${rollCount} cuộn</td>
+                    <td><span class='text-danger'>${sumYard}</span> / ${sumDemandYard}</td>
+                    <td colspan='4'></td>
+                </tr>`;
+
+                for (let j = 0; j < selectedRollList.length; j++) {
+                    let eleRoll = selectedRollList[j];
+                    str += `<tr>
+                        <td>${j + 1}</td>
+                        <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
+                        <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
+                        <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
+                        <td>${sameColorList[j] ? sameColorList[j].yard_demand : ''}</td>
+                        <td>${eleRoll.unipack2}</td>
+                        <td>${eleRoll.usedYard}</td>
+                        <td>${eleRoll.rfinwt}</td>
+                        <td>${eleRoll.rgrade}</td>
+                        <td>${eleRoll.rlocbr}</td>
+                        <td>${eleRoll.shade}</td>
+                    </tr>`;
+                }
+                str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
+                html += str;
+            }
+        }
+        colorFlag = eleMarkerDetail.item_color;
+    }
+    
+    $("#preview-fabric-table-body").html('');
+    $("#preview-fabric-table-body").append(html);
 }
 
 // #endregion

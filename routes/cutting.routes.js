@@ -30,6 +30,9 @@ router.post("/fabric-receive/ccd-confirm", fabricReceiveController.ccdConfirm)
 
 // Marker update
 router.get("/fabric-receive/marker-update", fabricReceiveController.getIndexMarkerUpdate)
+router.post("/fabric-receive/marker-update", fabricReceiveController.markerUpdate)
+router.post("/fabric-receive/save-update-upload-data", fabricReceiveController.saveUpdateUploadData)
+
 
 // Index
 router.post("/fabric-receive/print-ticket", fabricReceiveController.printTicket)
