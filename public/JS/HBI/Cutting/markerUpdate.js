@@ -147,6 +147,7 @@ function markerUpdate(){
     let txtReceiveDate = $("#txtReceiveDate");
     let txtReceiveTime = $("#txtReceiveTime");
     let txtCutDate = $("#txtCutDate");
+    let txtNote = $("#txtNote");
 
     if (!CheckNullOrEmpty(txtReceiveDate, "Ngày nhận không được để trống / Received date can not empty"))
         return false;
@@ -160,7 +161,8 @@ function markerUpdate(){
         id: groupId,
         receivedDate: txtReceiveDate.val(),
         receivedTime: txtReceiveTime.val(),
-        cutDate: txtCutDate.val()
+        cutDate: txtCutDate.val(),
+        note: txtNote.val()
     }
 
     LoadingShow();

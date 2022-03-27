@@ -33,10 +33,10 @@ $(document).on('click', '.day', function (e) {
 
 // For select2 open then focus on input search
 $(document).on('select2:open', () => {
-    if (!event.target.multiple) { 
+    if (!event.target.multiple) {
         let ele = $('.select2-container--open .select2-search--dropdown .select2-search__field').last()[0];
-        if(ele)
-            ele.focus() 
+        if (ele)
+            ele.focus()
     }
 });
 
@@ -83,15 +83,15 @@ function changeViewType() {
 }
 
 // Setup change time to 5 option
-function changeDateFilter(){
+function changeDateFilter() {
     let val = this.event.target.value;
-    if (val.toString() == "5") 
+    if (val.toString() == "5")
         $("#filterTime").css("display", "block");
     else
         $("#filterTime").css("display", "none");
 }
 
-function getListMarkerData(){
+function getListMarkerData() {
     let filterGroup = $("#txtFilterGroup").val();
     let filterStatus = $("#txtFilterStatus").val();
 
@@ -104,7 +104,7 @@ function getListMarkerData(){
             filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
         }
     }
-    else{
+    else {
         filterWeek = $("#txtFilterWeek").val();
     }
 
@@ -126,6 +126,9 @@ function getListMarkerData(){
                 let ele = data[i];
                 let isCanceled = ele.cancel_date ? "background: #fbc8c4" : "";
                 // add row to table
+                  // <td style="vertical-align: middle">
+                    //     <span class="txtTime" id="action-time-${ele.id}"></span>
+                    // </td>
                 html += `<tr class='tr-${ele.id}' style='${isCanceled}'>
                     <td>${ele.id}</td>
                     <td>${ele.receive_date}</td>
@@ -135,40 +138,41 @@ function getListMarkerData(){
                     <td id="call-date-${ele.id}">
                         ${ele.marker_call_date == undefined ? "" : ele.marker_call_date}
                     </td>
-                    <td style="vertical-align: middle">
-                        <span class="txtTime" id="action-time-${ele.id}"></span>
+                    <td>
+                        ${ele.cancel_date != undefined ? `<div class='rounded-circle white' id='marker-circle-${ele.id}'></div>`
+                        : ele.marker_call_by == undefined ? `<div class='rounded-circle red' id='marker-circle-${ele.id}'></div>`
+                            : `<div class='rounded-circle green' id='marker-circle-${ele.id}'></div>`
+                    }  
                     </td>
                     <td>
-                        ${
-                            ele.cancel_date != undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
-                            : ele.marker_call_by == undefined ? `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
-                            : `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
-                        }  
-                    </td>
-                    <td>
-                        ${
-                            ele.cancel_date != undefined ?  `<div class='rounded-circle white' id='wh-circle-${ele.id}'></div>`
-                            : (ele.wh_prepare == '0' && ele.wh_confirm_by == undefined) ? `<div class='rounded-circle yellow' id='wh-circle-${ele.id}'></div>`
+                        ${ele.cancel_date != undefined ? `<div class='rounded-circle white' id='wh-circle-${ele.id}'></div>`
+                        : (ele.wh_prepare == '0' && ele.wh_confirm_by == undefined) ? `<div class='rounded-circle yellow' id='wh-circle-${ele.id}'></div>`
                             : ele.wh_confirm_by != undefined ? `<div class='rounded-circle green' id='wh-circle-${ele.id}'></div>`
-                            : `<div class='rounded-circle red' id='wh-circle-${ele.id}'></div>`
-                        }
+                                : `<div class='rounded-circle red' id='wh-circle-${ele.id}'></div>`
+                    }
                     </td>
                     <td>
-                        ${
-                            ele.cancel_date != undefined ?  `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
-                            : ele.ccd_confirm_by != undefined ? `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
+                        ${ele.cancel_date != undefined ? `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
+                        : ele.ccd_confirm_by != undefined ? `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
                             : ele.wh_confirm_by != undefined ? `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
-                            : `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
-                        }  
+                                : `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
+                    }  
                     </td>
                     <td>
-                        ${ele.note}
+                        ${ele.cancel_date != undefined ? `<div class='rounded-circle white' id='issue-circle-${ele.id}'></div>`
+                        : ele.issue_date == undefined ? `<div class='rounded-circle red' id='issue-circle-${ele.id}'></div>`
+                            : `<div class='rounded-circle green' id='issue-circle-${ele.id}'></div>`
+                    }  
+                    </td>
+                    <td>
+                        ${ele.cancel_reason != undefined ? ele.cancel_reason : ele.note}
                     </td>
                     <td>
                         <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='printTicket(${ele.id})'>Print</button>
                         <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
                         <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/marker-update?group=${ele.id}">Marker</a>
                         <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD</a>
+                        <button class='btn btn-sm btn-primary ${wh_display}' data-groupId='${ele.id}' onclick='issue(${ele.id})'>ISSUE</button>
                         <a class='btn btn-sm btn-primary ${wh_display}' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
                     </td>
                 </tr>`;
@@ -179,43 +183,38 @@ function getListMarkerData(){
             $("#lbSumMarkerData").text(data.length);
             $("#lbLastestUpdate").text(data[0].marker_call_date);
 
-            for (let i = 0; i < data.length; i++) {
-                let ele = data[i];
-                // checking marker was called then continue counting if called
-                let totalMinutes = 0;
-                let now = new Date();
-                if (ele.marker_call_date != undefined && ele.ccd_confirm_date == undefined)
-                {
-                    var callDate = new Date(ele.marker_call_date);
-                    var nextDay = callDate.addDays(1); // 6:00 next day from call day
-                    if (now > nextDay)
-                    {
-                        var days = now.getDate() - callDate.getDate();
-                        var counterTime = now - callDate;
-                        totalMinutes = Math.round(counterTime / (1000 * 60)) - 480 * days; // 480 = 8 * 60 from 22h previous day to 06h next day
-                    }
-                    else
-                    {
-                        var maxCallDate = new Date(callDate.formatDateMMDDYYYY() + " 22:00:00"); // 22:00
-                        if (now > maxCallDate)
-                        {
-                            var counterTime = maxCallDate - callDate;
-                            totalMinutes = Math.round(counterTime / (1000 * 60));
-                        }
-                        else
-                        {
-                            var counterTime = now - callDate;
-                            totalMinutes = Math.round(counterTime / (1000 * 60));
-                        }
-                    }
-                    RunTime(ele.id, totalMinutes);
-                }
-                else{
-                    var counterTime = new Date(ele.ccd_confirm_date) - new Date(ele.marker_call_date);
-                    let totalMinutes = Math.round(counterTime / (1000 * 60));
-                    $("#action-time-" + ele.id).text(totalMinutes);
-                }
-            }
+            // for (let i = 0; i < data.length; i++) {
+            //     let ele = data[i];
+            //     // checking marker was called then continue counting if called
+            //     let totalMinutes = 0;
+            //     let now = new Date();
+            //     if (ele.marker_call_date != undefined && ele.ccd_confirm_date == undefined) {
+            //         var callDate = new Date(ele.marker_call_date);
+            //         var nextDay = callDate.addDays(1); // 6:00 next day from call day
+            //         if (now > nextDay) {
+            //             var days = now.getDate() - callDate.getDate();
+            //             var counterTime = now - callDate;
+            //             totalMinutes = Math.round(counterTime / (1000 * 60)) - 480 * days; // 480 = 8 * 60 from 22h previous day to 06h next day
+            //         }
+            //         else {
+            //             var maxCallDate = new Date(callDate.formatDateMMDDYYYY() + " 22:00:00"); // 22:00
+            //             if (now > maxCallDate) {
+            //                 var counterTime = maxCallDate - callDate;
+            //                 totalMinutes = Math.round(counterTime / (1000 * 60));
+            //             }
+            //             else {
+            //                 var counterTime = now - callDate;
+            //                 totalMinutes = Math.round(counterTime / (1000 * 60));
+            //             }
+            //         }
+            //         RunTime(ele.id, totalMinutes);
+            //     }
+            //     else {
+            //         var counterTime = new Date(ele.ccd_confirm_date) - new Date(ele.marker_call_date);
+            //         let totalMinutes = Math.round(counterTime / (1000 * 60));
+            //         $("#action-time-" + ele.id).text(totalMinutes);
+            //     }
+            // }
         }
         else {
             toastr.error(response.msg, "Thất bại");
@@ -223,7 +222,7 @@ function getListMarkerData(){
     });
 }
 
-function downloadMarkerData(){
+function downloadMarkerData() {
     let filterGroup = $("#txtFilterGroup").val();
     let filterStatus = $("#txtFilterStatus").val();
     let filterDate = '';
@@ -235,7 +234,7 @@ function downloadMarkerData(){
             filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
         }
     }
-    else{
+    else {
         filterWeek = $("#txtFilterWeek").val();
     }
 
@@ -246,7 +245,7 @@ function downloadMarkerData(){
         filterDate: filterDate,
         filterWeek: filterWeek
     };
-   
+
     LoadingShow();
     fetch(action, {
         method: 'POST',
@@ -262,7 +261,7 @@ function downloadMarkerData(){
     });
 }
 
-function downloadRollData(){
+function downloadRollData() {
     let filterGroup = $("#txtFilterGroup").val();
     let filterStatus = $("#txtFilterStatus").val();
     let filterDate = '';
@@ -274,7 +273,7 @@ function downloadRollData(){
             filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
         }
     }
-    else{
+    else {
         filterWeek = $("#txtFilterWeek").val();
     }
 
@@ -285,7 +284,7 @@ function downloadRollData(){
         filterDate: filterDate,
         filterWeek: filterWeek
     };
-   
+
     LoadingShow();
     fetch(action, {
         method: 'POST',
@@ -301,11 +300,11 @@ function downloadRollData(){
     });
 }
 
-function uploadExcel(){
+function uploadExcel() {
     var e = event;
     var fileName = e.target.files[0].name;
     $('.fileUploadName').text(fileName);
-    
+
     if (window.FormData !== undefined) {
 
         var fileUpload = $("#fileFabricReceiveUpload").get(0);
@@ -332,15 +331,15 @@ function uploadExcel(){
                 if (result.rs) {
                     var listFiles = result.data
                     let html = '';
-                    for (var i = 0; i < listFiles.length; i++){
+                    for (var i = 0; i < listFiles.length; i++) {
                         let ele = listFiles[i];
 
                         let options = "";
                         for (var j = 0; j < ele.sheets.length; j++) {
                             let item = ele.sheets[j];
-                            if(item.sheetname == 'Upload-YCV')
+                            if (item.sheetname == 'Upload-YCV')
                                 options += "<option value =" + item.id + " selected>" + item.sheetname + "</option>";
-                            else 
+                            else
                                 options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
                         }
 
@@ -374,7 +373,7 @@ function uploadExcel(){
     }
 }
 
-function deleteRow(file){
+function deleteRow(file) {
     // let listFiles = [...$('input:file#fileFabricReceiveUpload')[0].files];
     // let removeEle = listFiles.filter(x => x.name == file.name);
     // let index = listFiles.indexOf(removeEle);
@@ -385,7 +384,7 @@ function deleteRow(file){
     $(event.currentTarget).parent().parent().remove();
 }
 
-function saveUploadData(){
+function saveUploadData() {
 
     let fileList = $(".fileName");
     let sheetList = $(".sheetName");
@@ -404,7 +403,7 @@ function saveUploadData(){
         });
     }
 
-    if(listData.length <= 0){
+    if (listData.length <= 0) {
         toastr.warning("Không có tập tin cần upload", "Warning");
         return false;
     }
@@ -430,11 +429,37 @@ function saveUploadData(){
     });
 }
 
+function issue(id) {
+    swal("Bạn có chắc phiếu này đã được issue? R U sure this ticket has been issued?", {
+        buttons: ["No", "Yes!"],
+    })
+        .then((willDelete) => {
+            if (willDelete) {
+                // Call to server
+                LoadingShow();
+                var action = baseUrl + 'issue-update';
+                var datasend = {
+                    id: id
+                };
+
+                PostDataAjax(action, datasend, function (response) {
+                    LoadingHide();
+                    if (response.rs) {
+                        toastr.success(response.msg);
+                    }
+                    else {
+                        toastr.error(response.msg);
+                    }
+                });
+            }
+        });
+}
+
 // Interval array
 var arrInterval = [];
 
 // Action
-function Action(actionType){
+function Action(actionType) {
     var ele = $(event.target);
     var groupId = "";
     var cancelReason = "";
@@ -514,7 +539,7 @@ function Call(groupId, message) {
 }
 
 // CCDSend click: Change CCD to yellow
-function CCDSend(groupId){
+function CCDSend(groupId) {
     CCDChange(groupId, "yellow");
 }
 
@@ -543,9 +568,9 @@ function WHChange(groupId, color) {
     $("#wh-circle-" + groupId).css("background", color);
 }
 
-function printTicket(groupId){
+function printTicket(groupId) {
     // form data
-  
+
     // send to server
     let action = baseUrl + 'print-ticket';
     let datasend = {
@@ -580,7 +605,7 @@ function RunTime(groupId, clickTime) {
     }
 
     var myInterval = setInterval(Timer, 1000 * 60);
-    arrInterval.push({ groupId: groupId, id : myInterval });
+    arrInterval.push({ groupId: groupId, id: myInterval });
 }
 
 // Clear interval
@@ -610,9 +635,9 @@ socket.on('ccd-fabric-receive-action', (data) => {
     let groupId = message.groupId;
     switch (message.actionType) {
         case Enum_Kanban_Action.Cancel:
-            Cancel(groupId);  
+            Cancel(groupId);
             break;
-        case Enum_Kanban_Action.Call:                
+        case Enum_Kanban_Action.Call:
             //Call(groupId, message);
             getListMarkerData();
             break;

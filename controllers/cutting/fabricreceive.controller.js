@@ -962,10 +962,11 @@ module.exports.markerUpdate = async function (req, res) {
         let receivedDate = req.body.receivedDate;
         let receivedTime = req.body.receivedTime;
         let cutDate = req.body.cutDate;
+        let note = req.body.note;
 
         // update some general information marker plan 
         let query = `UPDATE cutting_fr_marker_data_plan 
-                    SET receive_date = '${receivedDate}', receive_time = '${receivedTime}', cut_date = '${cutDate}'
+                    SET receive_date = '${receivedDate}', receive_time = '${receivedTime}', cut_date = '${cutDate}', note = '${note}'
                     WHERE id = ${id}`;
         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
         if (isUpdateSuccess <= 0)
@@ -1057,6 +1058,26 @@ module.exports.saveUpdateUploadData = async function (req, res) {
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.saveUploadData", error);
+    }
+}
+
+module.exports.issueUpdate = async function (req, res) {
+    try {
+        // parameters
+        let id = req.body.id;
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
+
+        // update some general information marker plan 
+        let query = `UPDATE cutting_fr_marker_data_plan 
+                    SET issue_date = '${datetime}', issue_by = '${user}'
+                    WHERE id = ${id}`;
+        let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        if (isUpdateSuccess <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Cập nhật thông tin phiếu yêu cầu vải không thành công." }));
+        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.issueUpdate", error);
     }
 }
 
