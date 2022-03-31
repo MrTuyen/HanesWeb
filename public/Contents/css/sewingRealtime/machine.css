@@ -10,7 +10,7 @@
 }
 
 body {
-    /* background-image: url(../images/plant.jpg); */
+    background-image: url(../images/plant.jpg);
     background-repeat: no-repeat;
     background-size: cover;
     color: #fff;
@@ -19,14 +19,13 @@ body {
 
 .title {
     text-align: center;
-    margin: 30px 0px;
+    margin: 0px 0px;
     color:black;
-    font-size:5vh;
 }
 
 .main {
     position: relative;
-    margin: 15vh 0px 27vh 0px;
+    margin: 10vh 0px 27vh 0px;
     animation-name: leftMove;
     animation-duration: .2s;
 }
@@ -46,11 +45,11 @@ body {
     background: #ecf0f1fa;
     color: #34495e;
     border-radius: 10px;
-    border: 3px solid #27ae60;
+    border: 2px solid #27ae60;
 }
 .machine-location:hover{
- cursor: pointer;
- border: 3px solid #8e44ad;
+ cursor: pointer !important;
+ border: 2px solid #8e44ad !important;
 }
 .machine-no {
     left: 5px;
@@ -111,6 +110,35 @@ body {
     position: absolute;
     font-size: 0.8vw;
 }
+.note{
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    margin: 30px 0;
+    color: black;
+}
+.note-off{
+    margin: 0 20px;
+    color: #d0dad4;
+}
+.note-on{
+    color: #2ecc71;
+    text-align: center;
+    margin: 0 20px;
+}
+.note-error{
+    color: #e74c3c;
+    text-align: center;
+    margin: 0 20px;
+}
+.note-repair{
+    color: #f1c40f;
+    text-align: center;
+    margin: 0 20px;
+}
+.note-empty{
+    margin: 0 20px;
+}
 
 .machine-modal {
     border-radius: 10px;
@@ -130,6 +158,10 @@ body {
     font-size: .8em;
 }
 
+.modal-body-on{
+    background-color: #2980b9;
+    color: #fff;
+}
 .modal-body-run {
     background-color: #27ae60;
     color: #fff;

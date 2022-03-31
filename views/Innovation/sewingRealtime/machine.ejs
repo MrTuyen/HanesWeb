@@ -25,7 +25,13 @@
                 <% } else {%>
                     <h1 style="color:#ecf0f1; text-align:center;">COMING SOON ....</h1>
                     <% }%>
-
+                    <div class="note">
+                        <div ><i class="note-off fas fa-square"></i>: máy đang tắt</div>
+                        <div><i class="note-on fas fa-square"></i>: máy đang bật</div>
+                        <div><i class="note-error fas fa-square"></i>: máy hỏng</div>
+                        <div><i class="note-repair fas fa-square"></i>: máy đang sửa</div>
+                        <div><i class="note-empty emty-icon fas fa-unlink"></i>: không có máy</div>
+                      </div>
                         <div class="machine-modal modal fade" id="modal-machine" tabindex="-1"
                             aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="machine-modal modal-dialog modal-dialog-centered">
