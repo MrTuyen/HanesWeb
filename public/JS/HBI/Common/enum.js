@@ -21,7 +21,8 @@ var Enum_Kanban_Action = {
     Call: 2,
     CCDSend: 3,
     WHSend: 4,
-    Complete: 5
+    Complete: 5,
+    Issue: 6
 }
 
 // Request Type enum

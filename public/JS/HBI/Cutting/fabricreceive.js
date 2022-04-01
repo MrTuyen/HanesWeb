@@ -94,7 +94,6 @@ function changeDateFilter() {
 function getListMarkerData() {
     let filterGroup = $("#txtFilterGroup").val();
     let filterStatus = $("#txtFilterStatus").val();
-
     let filterDate = '';
     let filterWeek = '';
     let viewType = $("#cbViewType").is(":checked"); // Select date or week
@@ -446,6 +445,7 @@ function issue(id) {
                     LoadingHide();
                     if (response.rs) {
                         toastr.success(response.msg);
+                        
                     }
                     else {
                         toastr.error(response.msg);
@@ -568,6 +568,11 @@ function WHChange(groupId, color) {
     $("#wh-circle-" + groupId).css("background", color);
 }
 
+// IssueChange change color
+function IssueChange(groupId, color) {
+    $("#issue-circle-" + groupId).css("background", color);
+}
+
 function printTicket(groupId) {
     // form data
 
@@ -646,6 +651,9 @@ socket.on('ccd-fabric-receive-action', (data) => {
             break;
         case Enum_Kanban_Action.WHSend:
             WHSend(groupId);
+            break;
+        case Enum_Kanban_Action.Issue:
+            IssueChange(groupId, "green");
             break;
         default: Refresh(); break;
     }

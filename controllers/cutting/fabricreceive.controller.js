@@ -1075,6 +1075,14 @@ module.exports.issueUpdate = async function (req, res) {
         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
         if (isUpdateSuccess <= 0)
             return res.end(JSON.stringify({ rs: false, msg: "Cập nhật thông tin phiếu yêu cầu vải không thành công." }));
+
+        testIo.emit('ccd-fabric-receive-action', {
+            username: user,
+            message: {
+                groupId: id,
+                actionType: constant.Enum_Action.Issue
+            }
+        });
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.issueUpdate", error);
