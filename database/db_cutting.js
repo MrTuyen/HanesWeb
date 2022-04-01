@@ -54,7 +54,7 @@ class Database {
             return result.affectedRows;
         }
         catch (error) {
-            logHelper.writeLog("excuteNonQueryAsync", error);
+            logHelper.writeLog("excuteNonQueryAsync", error + "/\n" + queryString);
             return null;
         }
       
