@@ -4,6 +4,7 @@ const dashboardController = require("../controllers/cutting/dashboard.controller
 const authController = require("../middleware/auth.controller");
 const offstandardController = require("../controllers/cutting/offstandard.controller");
 const fabricReceiveController = require("../controllers/cutting/fabricreceive.controller");
+const mixsolveController = require("../controllers/cutting/mixsolve.controller");
 
 // Dashboard
 router.get("/", dashboardController.getIndex)
@@ -28,6 +29,15 @@ router.get("/fabric-receive/scan-marker-data-detail", fabricReceiveController.ge
 router.post("/fabric-receive/warehouse-confirm", fabricReceiveController.warehouseConfirm)
 router.post("/fabric-receive/ccd-confirm", fabricReceiveController.ccdConfirm)
 
+// Marker team update
+router.get("/fabric-receive/marker-update", fabricReceiveController.getIndexMarkerUpdate)
+router.post("/fabric-receive/marker-update", fabricReceiveController.markerUpdate)
+router.post("/fabric-receive/save-update-upload-data", fabricReceiveController.saveUpdateUploadData)
+
+// Issue team update
+router.post("/fabric-receive/issue-update", fabricReceiveController.issueUpdate)
+
+// Index
 router.post("/fabric-receive/print-ticket", fabricReceiveController.printTicket)
 router.post("/fabric-receive/download-marker-data", fabricReceiveController.downloadMarkerData)
 router.post("/fabric-receive/download-roll-data", fabricReceiveController.downloadRollData)
@@ -48,5 +58,8 @@ router.post('/IsExistedOffStandardTracking', offstandardController.isExistedOffS
 router.post('/InsertOffStandardTracking', offstandardController.insertOffStandardTracking)
 router.post('/CloseOffStandardTracking', offstandardController.closeOffStandardTracking)
 router.post("/ie-confirm-offstandard", offstandardController.ieConfirmOfStandard)
+
+// Mixsolve
+router.get("/MixSolve", mixsolveController.getIndex)
 
 module.exports = router;

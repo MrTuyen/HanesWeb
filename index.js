@@ -3425,12 +3425,15 @@ app.post('/Cutting/Payroll_Search/Alert', function (req, res) {
     if (req.isAuthenticated()) {
         var date = req.body.date;
         var datefrom = req.body.datefrom;
+        var groupName = req.body.group;
+        groupF = groupName.substring(0, 3);
+        groupT = groupName.substring(4, 7);
         con5.getConnection(function (err, connection) {
             if (err) {
                 throw err;
             }
-            sql = "SELECT TICKET, OLD_EMPLOYEE, OLD_FILE, NEW_EMPLOYEE, NEW_FILE, STATUS FROM bundleticket_alert WHERE OLD_TimeUpdate>='" + datefrom + " 00:00:00' and OLD_TimeUpdate<='" + date + " 23:59:59' "
-                + " AND NEW_EMPLOYEE!=OLD_EMPLOYEE and MID(OLD_FILE, 7, 1)!=MID(NEW_FILE, 7, 1) AND HOUR(OLD_TimeUpdate)!=HOUR(New_TIMEUPDATE) and (STATUS='Y' or STATUS='N') order by status desc, OLD_FILE;"
+            sql = "SELECT TICKET, OLD_EMPLOYEE, OLD_FILE, NEW_EMPLOYEE, NEW_FILE, STATUS FROM bundleticket_alert WHERE NEW_FILE like '" + groupName + "%' and OLD_TimeUpdate>='" + datefrom + " 00:00:00' and OLD_TimeUpdate<='" + date + " 23:59:59' "
+                    + " AND NEW_EMPLOYEE!=OLD_EMPLOYEE and OLD_FILE != NEW_FILE and OLD_TimeUpdate != New_TIMEUPDATE and (STATUS='Y' or STATUS='N') order by status desc, OLD_FILE;"
             connection.query(sql, function (err, result, fields) {
                 connection.release();
                 if (err) throw err;

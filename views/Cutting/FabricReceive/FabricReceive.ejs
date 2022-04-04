@@ -12,12 +12,14 @@
     <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
     <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
     <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
+    <link rel="stylesheet" href="/Contents/libs/toggle-switch/toggle-switch.css">
     <link rel="stylesheet" href="/Contents/css/main.css">
 
     <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
     <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
     <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script src="/Contents/libs/swal.min.js"></script>
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
@@ -137,31 +139,50 @@
                                                                     <option value="1"> Active </option>
                                                                     <option value="2"> Done </option>
                                                                     <option value="3"> Canceled </option>
-                                                                    <option value=""> All </option>
+                                                                    <option value="" selected> All </option>
                                                                 </select>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div>
-                                                        <div class="w-100">
-                                                            <p class="mb-1"><strong>Created Date</strong></p>
-                                                            <select class="form-control w-100" name="" id="txtFilterTime" onchange="changeDateFilter()">
-
-                                                            </select>
+                                                    <div class="w-100">
+                                                        <p class="mb-1"><strong>View Type</strong></p>
+                                                        <div class="switch-block">
+                                                            <label class="switch-light switch-candy d-inline">
+                                                                <input type="checkbox" name="" id="cbViewType" checked onchange="changeViewType()" />
+                                                                <span>
+                                                                    <span>Week</span>
+                                                                    <span>Day</span>
+                                                                    <a></a>
+                                                                </span>
+                                                            </label>
                                                         </div>
                                                     </div>
-                                                    <div id="filterTime" style="display: none">
-                                                        <div class="d-flex">
-                                                            <div class="">
-                                                                <p class="mb-1"><strong>From Date</strong></p>
-                                                                <input type="text" class="form-control w-100 isDate" id="txtFilterFrom" />
-                                                            </div>
-                                                            <div class="ml-2">
-                                                                <p class="mb-1"><strong>To Date</strong></p>
-                                                                <input type="text" class="form-control w-100 isDate" id="txtFilterTo" />
+                                                    <div class="w-100" id="weekValue">
+                                                        <p class="mb-1"><strong>Week Value</strong></p>
+                                                        <input type="number" class="form-control w-100" id="txtFilterWeek">
+                                                    </div>
+                                                    <div class="w-100" id="dateValue">
+                                                        <div>
+                                                            <div class="w-100">
+                                                                <p class="mb-1"><strong>Created Date</strong></p>
+                                                                <select class="form-control w-100" name="" id="txtFilterTime" onchange="changeDateFilter()">
+    
+                                                                </select>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                        <div id="filterTime" style="display: none">
+                                                            <div class="d-flex">
+                                                                <div class="">
+                                                                    <p class="mb-1"><strong>From Date</strong></p>
+                                                                    <input type="text" class="form-control w-100 isDate" id="txtFilterFrom" />
+                                                                </div>
+                                                                <div class="ml-2">
+                                                                    <p class="mb-1"><strong>To Date</strong></p>
+                                                                    <input type="text" class="form-control w-100 isDate" id="txtFilterTo" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>                                               
                                                     <div class="justify-content-between align-items-center mt-3 text-right">
                                                         <button type="button" class="btn btn-light btn-sm <%= wh_disabled %>" onclick="downloadRollData()">WH Download</button>
                                                         <button type="button" class="btn btn-light btn-sm <%= ccd_disabled %>" onclick="downloadMarkerData()">Download</button>
@@ -183,7 +204,7 @@
                                     </span>
                                 </div>
                                 <div class="col-sm-12 col-md-12 pl-0 pr-0 scanned-table">
-                                    <table class="table table-hover table-bordered table-scrollable mb-0 table-kanban">
+                                    <table class="table table-bordered table-scrollable mb-0 table-kanban">
                                         <thead class="sticky-thead">
                                             <th>#</th>
                                             <th>Received Date</th>
@@ -191,10 +212,11 @@
                                             <th>Group</th>
                                             <th>Cut Date</th>
                                             <th>Marker Call Date</th>
-                                            <th>Call Time</th>
+                                            <!-- <th>Call Time</th> -->
                                             <th>Marker Status</th>
                                             <th>WH Status</th>
                                             <th>CCD Status</th>
+                                            <th>ISS Status</th>
                                             <th>Note</th>
                                             <th></th>
                                         </thead>
@@ -212,7 +234,7 @@
     </div>
 
     <!-- Modal upload excel -->
-    <div class="modal fade" id="modalUploadData" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="modalUploadData" aria-labelledby="exampleModalLabel" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -261,77 +283,8 @@
         </div>
     </div>
 
-    <!-- <div class="modal fade" id="modalUploadData" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel"><strong>Upload dữ liệu yêu cầu vải</strong></h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="" style="background-color: #28a745; height: 3px"></div>
-                <div class="modal-body">
-                    <table class="w-100">
-                        <tbody>
-                            <tr>
-                                <td>
-                                    <table>
-                                        <tbody>
-                                            <tr>
-                                                <td>File: </td>
-                                                <td>
-                                                    <div class="ml-3 upload-btn-wrapper">
-                                                        <button class="btn btn-light" style="width: 116px;">Click here</button>
-                                                        <input type="file" name="UploadedFile" id="fileFabricReceiveUpload" multiple onchange="uploadExcel()" accept=".xlsx, .xls">
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sheet: </td>
-                                                <td>
-                                                    <div class="ml-3 upload-btn-wrapper">
-                                                        <select class="form-control selected-sheet" id="selected-sheet" style="width: 116px;"></select>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Header row: </td>
-                                                <td>
-                                                    <div class="ml-3 upload-btn-wrapper">
-                                                        <input type="text" name="name" class="form-control" id="selected-header" value="1" style="width: 116px">
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                                <td>
-                                    <table>
-                                        <tbody>
-                                            <tr>
-                                                <td>Your selected file: </td>
-                                                <td><span class="label label-warning ml-3 fileUploadName" id="fileUploadName"></span></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer pr-0">
-                    <div class="col-sm-12 col-md-12">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-success" onclick="saveUploadData()">Submit</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> -->
-
      <!-- Modal add reason -->
-     <div id="modalReason" class="modal fade" role="dialog">
+     <div id="modalReason" class="modal fade" tabindex="-1" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
