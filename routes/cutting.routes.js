@@ -4,6 +4,7 @@ const dashboardController = require("../controllers/cutting/dashboard.controller
 const authController = require("../middleware/auth.controller");
 const offstandardController = require("../controllers/cutting/offstandard.controller");
 const fabricReceiveController = require("../controllers/cutting/fabricreceive.controller");
+const mixsolveController = require("../controllers/cutting/mixsolve.controller");
 
 // Dashboard
 router.get("/", dashboardController.getIndex)
@@ -57,5 +58,8 @@ router.post('/IsExistedOffStandardTracking', offstandardController.isExistedOffS
 router.post('/InsertOffStandardTracking', offstandardController.insertOffStandardTracking)
 router.post('/CloseOffStandardTracking', offstandardController.closeOffStandardTracking)
 router.post("/ie-confirm-offstandard", offstandardController.ieConfirmOfStandard)
+
+// Mixsolve
+router.get("/MixSolve", mixsolveController.getIndex)
 
 module.exports = router;

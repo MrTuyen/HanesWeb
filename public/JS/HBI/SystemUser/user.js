@@ -61,7 +61,10 @@ function getAllUser(){
                         + "<td width='20%'>"+ ele.Name +"</td>"
                         + "<td width='20%'>"+ ele.Email +"</td>"
                         + "<td width='20%'>"+ ele.Department +"</td>"
-                        + "<td width='10%'><a href='javascript:void(0)' onclick='getUserDetail("+ele.IdSystem+")'><i class='fa fa-edit' style='font-size: 14px'></i></a></td>"
+                        + "<td width='10%'>"
+                            + "<a href='javascript:void(0)' onclick='getUserDetail("+ele.IdSystem+")'><i class='fa fa-edit' style='font-size: 14px'></i></a>"
+                            + "&nbsp;&nbsp;<a href='javascript:void(0)' onclick='deleteUser("+ele.IdSystem+")'><i class='fa fa-trash' style='font-size: 14px'></i></a>"
+                        + "</td>"
                         + "</tr>";
             }
             $("#user-table-body").html('');
@@ -180,6 +183,34 @@ function updateUser(){
             toastr.error(response.msg, "Thất bại");
         }
     });
+}
+
+// delete user
+function deleteUser(id) {
+    swal("Bạn có chắc xóa user này không? R U sure delete this user?", {
+        buttons: ["No", "Yes!"],
+    })
+        .then((willDelete) => {
+            if (willDelete) {
+                // Call to server
+                LoadingShow();
+                var action = baseUrl + 'delete';
+                var datasend = {
+                    id: id
+                };
+
+                PostDataAjax(action, datasend, function (response) {
+                    LoadingHide();
+                    if (response.rs) {
+                        toastr.success(response.msg);
+                        getAllUser();
+                    }
+                    else {
+                        toastr.error(response.msg);
+                    }
+                });
+            }
+        });
 }
 
 // get user detail
