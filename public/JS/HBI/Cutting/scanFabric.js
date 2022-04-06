@@ -143,17 +143,61 @@ function getMarkerPlanDetailPreview(){
 
     let html = '';
     let colorFlag = '';
-    for (let i = 0; i < markerDetailList.length; i++) {
-        let eleMarkerDetail = markerDetailList[i];
-        if(eleMarkerDetail.item_color != colorFlag){
-            let selectedRollList = selectedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
+    let finalResponse = [];
+    for (let j = 0; j < markerDetailList.length; j++) {
+        let eleMarkerDetail = markerDetailList[j];
+        let tempRoll = selectedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);          
+        if(tempRoll.length > 0){
+            tempRoll.forEach(x =>{
+                let row = new MarkerPlanDetailRoll
+                (
+                    eleMarkerDetail.id,
+                    eleMarkerDetail.item_color,
+                    eleMarkerDetail.wo,
+                    eleMarkerDetail.ass,
+                    eleMarkerDetail.yard_demand,
+                    x.unipack2,
+                    x.yard,
+                    x.rfinwt,
+                    x.rgrade,
+                    x.rlocbr,
+                    x.shade,
+                    x.scanned_time
+                )
+                finalResponse.push(row);
+            })
+        }
+        else{
+            let row = new MarkerPlanDetailRoll
+            (
+                eleMarkerDetail.id,
+                eleMarkerDetail.item_color,
+                eleMarkerDetail.wo,
+                eleMarkerDetail.ass,
+                eleMarkerDetail.yard_demand,
+                "",
+                "",
+                "",
+                "",
+                "",
+                ""
+            )
+            finalResponse.push(row);
+        }
+    }
+    
+    for (let i = 0; i < finalResponse.length; i++) {
+        let ele = finalResponse[i];
+        let str = '';
+        if(ele.item_color != colorFlag){
+            let selectedRollList = selectedFabricRollList.filter(x => x.marker_plan_detail_id == ele.id);
             let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
             let rollCount = selectedRollList.length;
-            let sameColorList = markerDetailList.filter(x => x.item_color == eleMarkerDetail.item_color);
+            let sameColorList = markerDetailList.filter(x => x.item_color == ele.item_color);
             let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
 
-            if(selectedRollList.length > 0){
-                let str = `<tr style='background: #ced6dd'>
+            str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
+            str += `<tr style='background: #ced6dd'>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -165,34 +209,44 @@ function getMarkerPlanDetailPreview(){
                     <td><span id=''></span></td>
                     <td><span id=''></span></td>
                 </tr>`;
-
-                for (let j = 0; j < selectedRollList.length; j++) {
-                    let eleRoll = selectedRollList[j];
-                    str += `<tr>
-                        <td>${j + 1}</td>
-                        <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
-                        <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
-                        <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
-                        <td>${sameColorList[j] ? sameColorList[j].yard_demand : ''}</td>
-                        <td>${eleRoll.unipack2}</td>
-                        <td>${eleRoll.yard}</td>
-                        <td>${eleRoll.rfinwt}</td>
-                        <td>${eleRoll.rgrade}</td>
-                        <td>${eleRoll.rlocbr}</td>
-                        <td>${eleRoll.shade}</td>
-                        <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}-${eleRoll.marker_plan_detail_id}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
-                        <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}-${eleRoll.marker_plan_detail_id}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
-                    </tr>`;
-                }
-                str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
-                html += str;
-            }
+            str += `<tr>
+                <td>${i + 1}</td>
+                <td>${ele.item_color}</td>
+                <td>${ele.wo}</td>
+                <td>${ele.ass}</td>
+                <td>${ele.demand_yard}</td>
+                <td>${ele.unipack}</td>
+                <td>${ele.yard}</td>
+                <td>${ele.lbs}</td>
+                <td>${ele.grade}</td>
+                <td>${ele.location}</td>
+                <td>${ele.shade}</td>
+                <td><span class='scanned-status' id='scanned-status-${ele.unipack}-${ele.id}'>${ele.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
+                <td><span class='scanned-time' id='scanned-time-${ele.unipack}-${ele.id}'>${ele.scanned_time ? ele.scanned_time : ""}</span></td>
+            </tr>`;   
         }
-        colorFlag = eleMarkerDetail.item_color;
+        else{
+            str += `<tr>
+                <td>${i + 1}</td>
+                <td>${ele.item_color}</td>
+                <td>${ele.wo}</td>
+                <td>${ele.ass}</td>
+                <td>${ele.demand_yard}</td>
+                <td>${ele.unipack}</td>
+                <td>${ele.yard}</td>
+                <td>${ele.lbs}</td>
+                <td>${ele.grade}</td>
+                <td>${ele.location}</td>
+                <td>${ele.shade}</td>
+                <td><span class='scanned-status' id='scanned-status-${ele.unipack}-${ele.id}'>${ele.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
+                <td><span class='scanned-time' id='scanned-time-${ele.unipack}-${ele.id}'>${ele.scanned_time ? ele.scanned_time : ""}</span></td>
+            </tr>`;          
+        }
+        html += str;
+        colorFlag = ele.item_color;
     }
-    
-    $("#preview-fabric-table-body").html('');
-    $("#preview-fabric-table-body").append(html);
+
+    $("#preview-fabric-table-body").html('').append(html);
 }
 
 // function getMarkerPlanDetailPreview(){
@@ -206,49 +260,58 @@ function getMarkerPlanDetailPreview(){
 //     $("#txtPNote").val(markerPlan.note);
 
 //     let html = '';
+//     let colorFlag = '';
 //     for (let i = 0; i < markerDetailList.length; i++) {
 //         let eleMarkerDetail = markerDetailList[i];
-//         let selectedRollList = selectedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
-//         let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
-//         let rollCount = selectedRollList.length;
-//         let str = `<tr style='background: #ced6dd'>
-//             <td>${i + 1}</td>
-//             <td>${eleMarkerDetail.item_color}</td>
-//             <td>${eleMarkerDetail.wo}</td>
-//             <td>${eleMarkerDetail.ass}</td>
-//             <td>${rollCount} cuộn</td>
-//             <td><span class='text-danger'>${sumYard}</span> / ${eleMarkerDetail.yard_demand}</td>
-//             <td colspan='4'></td>
-//             <td><span id=''></span></td>
-//             <td><span id=''></span></td>
-//         </tr>`;
-//         for (let j = 0; j < selectedRollList.length; j++) {
-//             let eleRoll = selectedRollList[j];
-//             str += `<tr>
-//                 <td></td>
-//                 <td></td>
-//                 <td></td>
-//                 <td></td>
-//                 <td>${eleRoll.unipack2}</td>
-//                 <td>${eleRoll.yard}</td>
-//                 <td>${eleRoll.rfinwt}</td>
-//                 <td>${eleRoll.rgrade}</td>
-//                 <td>${eleRoll.rlocbr}</td>
-//                 <td>${eleRoll.shade}</td>
-//                 <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}-${eleRoll.marker_plan_detail_id}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
-//                 <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}-${eleRoll.marker_plan_detail_id}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
-//             </tr>`;
-//         }
-//         str += '<tr><td colspan="20">&nbsp;</td></tr>';
+//         if(eleMarkerDetail.item_color != colorFlag){
+//             let selectedRollList = selectedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
+//             let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+//             let rollCount = selectedRollList.length;
+//             let sameColorList = markerDetailList.filter(x => x.item_color == eleMarkerDetail.item_color);
+//             let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
 
-//         html += str;
+//             if(selectedRollList.length > 0){
+//                 let str = `<tr style='background: #ced6dd'>
+//                     <td></td>
+//                     <td></td>
+//                     <td></td>
+//                     <td></td>
+//                     <td></td>
+//                     <td>${rollCount} cuộn</td>
+//                     <td><span class='text-danger'>${sumYard}</span> / ${sumDemandYard}</td>
+//                     <td colspan='4'></td>
+//                     <td><span id=''></span></td>
+//                     <td><span id=''></span></td>
+//                 </tr>`;
+
+//                 for (let j = 0; j < selectedRollList.length; j++) {
+//                     let eleRoll = selectedRollList[j];
+//                     str += `<tr>
+//                         <td>${j + 1}</td>
+//                         <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
+//                         <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
+//                         <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
+//                         <td>${sameColorList[j] ? sameColorList[j].yard_demand : ''}</td>
+//                         <td>${eleRoll.unipack2}</td>
+//                         <td>${eleRoll.yard}</td>
+//                         <td>${eleRoll.rfinwt}</td>
+//                         <td>${eleRoll.rgrade}</td>
+//                         <td>${eleRoll.rlocbr}</td>
+//                         <td>${eleRoll.shade}</td>
+//                         <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}-${eleRoll.marker_plan_detail_id}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
+//                         <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}-${eleRoll.marker_plan_detail_id}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
+//                     </tr>`;
+//                 }
+//                 str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
+//                 html += str;
+//             }
+//         }
+//         colorFlag = eleMarkerDetail.item_color;
 //     }
     
 //     $("#preview-fabric-table-body").html('');
 //     $("#preview-fabric-table-body").append(html);
 // }
-
-// Action
 
 function Action(groupId){
     // Call to server
@@ -275,7 +338,6 @@ function Action(groupId){
         }
     });
 }
-
 
 function scanBarcode() {
     if (event.which === 13 || event.key == 'Enter') {
@@ -314,9 +376,21 @@ function scanBarcode() {
     }
 }
 
-// cal sum yard from selected fabric roll list
-function calSumYard(arr){
-    
+class MarkerPlanDetailRoll{
+    constructor(id, item_color, wo, ass, demand_yard, unipack, yard, lbs, grade, location, shade, scanned_time){
+        this.id = id;
+        this.item_color = item_color;
+        this.wo = wo;
+        this.ass = ass;
+        this.demand_yard = demand_yard;
+        this.unipack = unipack;
+        this.yard = yard;
+        this.lbs = lbs;
+        this.grade = grade;
+        this.location = location;
+        this.shade = shade;
+        this.scanned_time = scanned_time;
+    }
 }
 
 // #endregion
@@ -422,28 +496,6 @@ function deleteRow(wo, rollCode){
     $(`#tr-${wo}-${rollCode}`).remove();
     let count = parseInt($("#lbCounted").text()) - 1;
     $("#lbCounted").text(count);
-}
-
-function loadHistory(){
-    // form data
-    let filterDate = $("#txtFilterTime").val();
-    if (filterDate.toString() == "5") {
-        filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
-    }
-
-    // send to server
-    let action = baseUrl + 'get-history';
-    let datasend = {
-        filterDate: filterDate
-    };
-    PostDataAjax(action, datasend, function (response) {
-        if (response.rs) {
-            
-        }
-        else {
-            toastr.error(response.msg, "Thất bại");
-        }
-    });
 }
 
 // #region Socket

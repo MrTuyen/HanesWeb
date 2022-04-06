@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mix Solve</title>
@@ -46,19 +47,14 @@
                                 </div>
 
                                 <div class="" style="width: 100px; margin-right: 50px;">
-                                    <p class="mb-3"><strong>Zone</strong></p>
-                                    <select class="form-control w-100" name="" id="txtZone" onchange="getLineByZone()">
-                                        
+                                    <p class="mb-3"><strong>Line</strong></p>
+                                    <select class="form-control w-100" name="" id="txt_group">
+                                        <option value="XAR95">XAR95</option>
+                                        <option value="XPR95">XPR95</option>
+                                        <option value="CUT95">CUT95</option>
                                     </select>
                                 </div>
 
-                                <div class="" style="width: 100px; margin-right: 50px;">
-                                    <p class="mb-3"><strong>Line</strong></p>
-                                    <select class="form-control w-100" name="" id="txt_group">
-                                        
-                                    </select>
-                                </div>
-                                
                                 <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" id="btn_search">
                                     <i class="material-icons">search</i>
                                 </button>
@@ -131,6 +127,6 @@
 <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
 <script src="/JS/HBI/Common/commonFactory.js"></script>
 <script src="/JS/HBI/Common/enum.js"></script>
-<script src="/JS/HBI/Production/mixsolve.js"></script>
+<script src="/JS/HBI/Cutting/mixsolve.js"></script>
 
 </html>

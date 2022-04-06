@@ -97,6 +97,29 @@ module.exports.updateUser = function (req, res) {
     }
 }
 
+module.exports.deleteUser = function (req, res) {
+    try {
+        //parameters
+        let id = req.body.id;
+
+        // execute
+        let query = `DELETE FROM setup_user
+                    WHERE IdSystem = ${id}`;
+
+        db.excuteQuery(query, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                res.end(JSON.stringify({ rs: true, msg: "Thành công", data: result.data }));
+            }
+        });
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.deleteUser", error);
+    }
+}
+
 module.exports.changePassword = function (req, res) {
     try {
         //parameters

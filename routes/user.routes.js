@@ -10,6 +10,7 @@ router.post("/get", userController.getUser)
 router.get("/:id", userController.getUserDetail)
 router.post("/add", userController.addUser)
 router.post("/update", userController.updateUser)
+router.post("/delete", userController.deleteUser)
 router.post("/download", userController.downloadUser)
 router.post("/change-password", userController.changePassword)
 
