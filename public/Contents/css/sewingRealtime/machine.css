@@ -10,7 +10,8 @@
 }
 
 body {
-    background-image: url(../images/plant.jpg);
+    /* background-image: url(../images/plant.jpg); */
+    background-color: #ecf0f1;
     background-repeat: no-repeat;
     background-size: cover;
     color: #fff;
@@ -18,9 +19,11 @@ body {
 }
 
 .title {
+    padding-bottom: 20px;
     text-align: center;
     margin: 0px 0px;
-    color:black;
+    color:#34495e;
+    text-shadow: 2px 2px #bdc3c7;
 }
 
 .main {
@@ -34,6 +37,7 @@ body {
     100% {left:0px; top:0px;}
   }
 .line {
+    padding-bottom: 10px;
     margin: 5px 20px;
 }
 .machine-location {
@@ -46,6 +50,7 @@ body {
     color: #34495e;
     border-radius: 10px;
     border: 2px solid #27ae60;
+    box-shadow: 2px 2px #bdc3c7;
 }
 .machine-location:hover{
  cursor: pointer !important;

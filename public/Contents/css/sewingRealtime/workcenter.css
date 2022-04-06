@@ -9,7 +9,8 @@
 }
 
 body {
-  background-image: url(../images/plant.jpg);
+  background-color: #ecf0f1;
+  /* background-image: url(../images/plant.jpg); */
   background-repeat: no-repeat;
   background-size: cover;
   color: #fff;
@@ -24,6 +25,8 @@ p {
   margin: 0;
 }
 .wc-title {
+  color: #34495e;
+  text-shadow: 2px 2px #bdc3c7;
   text-align: center;
   margin: 0;
 }
@@ -48,6 +51,7 @@ p {
   border: 3px solid rgb(202, 47, 47);
   background: #8e44ad;
   font-size: 2vw;
+  box-shadow: 4px 4px #bdc3c7;
 }
 .wc-content-edit {
   height: 8.3vh;
@@ -61,6 +65,7 @@ p {
   border: 3px solid #fff;
   background: #2980b9;
   font-size: 2vw;
+  box-shadow: 4px 4px #bdc3c7;
 }
 .wc-content-edit:hover{
   color: #34495e;
@@ -80,6 +85,7 @@ p {
   border: 3px solid #16a085;
   background-color: #ecf0f1;
   font-size: 1.5vw;
+  box-shadow: 4px 4px #bdc3c7;
 }
 
 .wc-content-line:hover {
