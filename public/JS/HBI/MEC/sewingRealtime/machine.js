@@ -131,17 +131,14 @@ myModal.addEventListener('show.bs.modal', function () {
       },
       dataType: 'json',
     }).done(function (response) {
-      document.getElementById('operation').innerHTML = response.machineData[0]['operation'];
-      document.getElementById('title').innerHTML = response.machineData[0]['title'];
-      document.getElementById('on-time').innerHTML = response.machineData[0]['power_on_time_s'];
-      document.getElementById('run-time').innerHTML = response.machineData[0]['run_time_s'];
-      document.getElementById('machine-tag').innerHTML = response.machineData[0]['tag'];
-      document.getElementById('loss-time').innerHTML = response.machineData[0]['loss_time_s'];
+        document.getElementById('operation').innerHTML = response.machineData[0]['operation'];
+        document.getElementById('title').innerHTML = response.machineData[0]['title'];
+        document.getElementById('run-time').innerHTML = response.machineData[0]['run_time_s'];
+        document.getElementById('machine-tag').innerHTML = response.machineData[0]['tag'];
+        document.getElementById('loss-time').innerHTML = response.machineData[0]['loss_time_s'];
     })
   } else {
     document.getElementById('operation').innerHTML = '';
-    document.getElementById('title').innerHTML = '';
-    document.getElementById('power_on_time_s').innerHTML = '';
     document.getElementById('run-time').innerHTML = '';
     document.getElementById('machine-tag').innerHTML = '';
     document.getElementById('loss-time').innerHTML = '';
