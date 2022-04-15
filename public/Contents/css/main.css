@@ -176,6 +176,14 @@ input[type="checkbox"]{
     color: #676867;
 }
 
+.swal-button--confirm{
+    background-color: #5cb85c;
+}
+
+.swal-button--confirm:not([disabled]):hover {
+    background-color: #5cb85c;
+}
+
 @media (max-width: 575.98px) {
     .part-img {
         width: 100%;

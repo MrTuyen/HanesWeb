@@ -8,6 +8,34 @@ const baseUrl = "/cutting/fabric-receive/";
 const userLogin = JSON.parse(localStorage.getItem("user"));
 var wh_display = (userLogin.dept == Enum_Department.Warehouse || userLogin.position == "Admin") ? "" : "display-none";
 var ccd_display = (userLogin.dept == Enum_Department.Cutting || userLogin.position == "Admin") ? "" : "display-none";
+const statusList = [
+    {
+        index: 1, value : 'Active'
+    },
+    {
+        index: 2, value : 'Done'
+    },
+    {
+        index: 3, value : 'Canceled'
+    },
+    {
+        index: 0, value : 'All'
+    }
+]
+
+const warehouseStatusList = [
+    {
+        index: 0, value : 'Prepared'
+    },
+    {
+        index: 1, value : 'Done'
+    },
+    {
+        index: 3, value : 'All'
+    }
+]
+
+const filterLocalStorage = "cutting_fr_filter";
 
 // #endregion
 
@@ -15,7 +43,7 @@ var ccd_display = (userLogin.dept == Enum_Department.Cutting || userLogin.positi
 
 // Refresh data
 function Refresh() {
-    window.location.href = '/';
+    window.location.href = '/cutting/fabric-receive';
 }
 
 // Configure some plugin to work properly
@@ -62,9 +90,43 @@ $(document).ready(function () {
     });
 
     // get list marker data
+    if(localStorage.getItem(filterLocalStorage) != null){
+        let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+        $("#txtFilterGroup").val(filter ? filter.filterGroup : '');
+        $("#txtFilterStatus").val(filter ? filter.filterStatus : '');
+        $("#txtFilterWarehouseStatus").val(filter ? filter.filterWarehouseStatus : '');
+        
+        if(filter.viewType){
+            $("#cbViewType").attr('checked', true);
+        }else{
+            $("#cbViewType").attr('checked', false);
+        }
+
+        displayFilter();
+    }
     changeViewType();
     getListMarkerData();
 })
+
+function deleteFilter(obj){
+    let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+    filter[obj.key] = '';
+    localStorage.setItem(filterLocalStorage, JSON.stringify(filter));
+    Refresh();
+}
+
+function displayFilter(){
+    if(localStorage.getItem(filterLocalStorage) != null){
+        let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+        let statusVal = statusList.filter(x => x.index == filter.filterStatus)[0].value;
+        let warehouseStatusVal = warehouseStatusList.filter(x => x.index == filter.filterWarehouseStatus)[0].value;
+        let filterGroup = filter.filterGroup ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterGroup'})">${filter.filterGroup}<i class="fa fa-times"></i></span>` : "";
+        let filterStatus = filter.filterStatus ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterStatus'})">${statusVal}<i class="fa fa-times"></i></span>` : "";
+        let filterWarehouseStatus = filter.filterWarehouseStatus ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterWarehouseStatus'})">${warehouseStatusVal}<i class="fa fa-times"></i></span>` : "";
+
+        $("#filter-area").html(filterGroup + filterStatus + filterWarehouseStatus);
+    }
+}
 
 function changeViewType() {
     $(`#dateValue`).css("display", "none");
@@ -93,6 +155,7 @@ function changeDateFilter() {
 
 function getListMarkerData() {
     let filterGroup = $("#txtFilterGroup").val();
+    let filterWarehouseStatus = $("#txtFilterWarehouseStatus").val();
     let filterStatus = $("#txtFilterStatus").val();
     let filterDate = '';
     let filterWeek = '';
@@ -112,8 +175,13 @@ function getListMarkerData() {
         filterGroup: filterGroup,
         filterStatus: filterStatus,
         filterDate: filterDate,
-        filterWeek: filterWeek
+        filterWeek: filterWeek,
+        filterWarehouseStatus: filterWarehouseStatus,
+        viewType: viewType
     };
+
+    localStorage.setItem(filterLocalStorage, JSON.stringify(datasend));
+    displayFilter();
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
         LoadingHide();
@@ -223,6 +291,7 @@ function getListMarkerData() {
 
 function downloadMarkerData() {
     let filterGroup = $("#txtFilterGroup").val();
+    let filterWarehouseStatus = $("#txtFilterWarehouseStatus").val();
     let filterStatus = $("#txtFilterStatus").val();
     let filterDate = '';
     let filterWeek = '';
@@ -242,7 +311,8 @@ function downloadMarkerData() {
         filterGroup: filterGroup,
         filterStatus: filterStatus,
         filterDate: filterDate,
-        filterWeek: filterWeek
+        filterWeek: filterWeek,
+        filterWarehouseStatus: filterWarehouseStatus
     };
 
     LoadingShow();
@@ -262,6 +332,7 @@ function downloadMarkerData() {
 
 function downloadRollData() {
     let filterGroup = $("#txtFilterGroup").val();
+    let filterWarehouseStatus = $("#txtFilterWarehouseStatus").val();
     let filterStatus = $("#txtFilterStatus").val();
     let filterDate = '';
     let filterWeek = '';
@@ -281,7 +352,8 @@ function downloadRollData() {
         filterGroup: filterGroup,
         filterStatus: filterStatus,
         filterDate: filterDate,
-        filterWeek: filterWeek
+        filterWeek: filterWeek,
+        filterWarehouseStatus: filterWarehouseStatus
     };
 
     LoadingShow();
@@ -373,13 +445,6 @@ function uploadExcel() {
 }
 
 function deleteRow(file) {
-    // let listFiles = [...$('input:file#fileFabricReceiveUpload')[0].files];
-    // let removeEle = listFiles.filter(x => x.name == file.name);
-    // let index = listFiles.indexOf(removeEle);
-    // listFiles.splice(index, 1)
-
-    // $('input:file#fileFabricReceiveUpload')[0].files = listFiles;
-
     $(event.currentTarget).parent().parent().remove();
 }
 
@@ -421,6 +486,117 @@ function saveUploadData() {
             getListMarkerData();
             $("#file-table-body").html('');
             $("#fileFabricReceiveUpload").val('');
+        }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
+
+function uploadExcelReturnData() {
+    if (window.FormData !== undefined) {
+
+        var fileUpload = $("#fileFabricReturnUpload").get(0);
+        var files = fileUpload.files;
+
+        // Create FormData object
+        var fileData = new FormData();
+
+        // Looping over all files and add it to FormData object
+        for (var i = 0; i < files.length; i++) {
+            fileData.append("file" + i, files[i]);
+        }
+
+        LoadingShow();
+        $.ajax({
+            url: baseUrl + 'upload-fabric-file',
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            data: fileData,
+            success: function (result) {
+                LoadingHide();
+                result = JSON.parse(result);
+                if (result.rs) {
+                    var listFiles = result.data
+                    let html = '';
+                    for (var i = 0; i < listFiles.length; i++) {
+                        let ele = listFiles[i];
+
+                        let options = "";
+                        for (var j = 0; j < ele.sheets.length; j++) {
+                            let item = ele.sheets[j];
+                            if (item.sheetname == 'Upload-YCV')
+                                options += "<option value =" + item.id + " selected>" + item.sheetname + "</option>";
+                            else
+                                options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
+                        }
+
+                        html += `<tr id='tr-file-${ele.name}'>
+                            <td class='fileName'>${ele.name}</td>
+                            <td>
+                                <select class='form-control sheetName'>${options}</select>
+                            </td>
+                            <td>
+                                <input type='number' class='form-control headerRow' min='1' value='1' />
+                            </td>
+                        </tr>`;
+                    }
+
+                    $("#return-file-table-body").append(html);
+                }
+                else {
+                    toastr.error(result.msg);
+                }
+            },
+            error: function (err) {
+                LoadingHide();
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("FormData is not supported.");
+    }
+}
+
+function saveUploadReturnData() {
+
+    let fileList = $(".fileName");
+    let sheetList = $(".sheetName");
+    let headerList = $(".headerRow");
+    let listData = [];
+
+    for (let i = 0; i < fileList.length; i++) {
+        file = $(fileList[i]).text();
+        sheet = $(sheetList[i]).val();
+        header = $(headerList[i]).val();
+
+        listData.push({
+            file: file,
+            sheet: sheet,
+            header: header,
+        });
+    }
+
+    if (listData.length <= 0) {
+        toastr.warning("Không có tập tin cần upload", "Warning");
+        return false;
+    }
+
+    // send to server
+    let action = baseUrl + 'save-upload-return-data';
+    let datasend = {
+        listData: listData
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if (response.rs) {
+            toastr.success(response.msg, "Thành công")
+            $("#modalUploadReturnData").modal('hide');
+            getListMarkerData();
+            $("#file-table-body").html('');
+            $("#fileFabricReturnUpload").val('');
         }
         else {
             toastr.error(response.msg, "Thất bại");

@@ -21,6 +21,7 @@ router.post("/fabric-receive/add-record", fabricReceiveController.addScannedReco
 router.post("/fabric-receive/get-history", fabricReceiveController.getHistory)
 router.post("/fabric-receive/upload-fabric-file", fabricReceiveController.uploadFabricFile)
 router.post("/fabric-receive/save-upload-data", fabricReceiveController.saveUploadData)
+router.post("/fabric-receive/save-upload-return-data", fabricReceiveController.saveUploadReturnData)
 router.post("/fabric-receive/get-marker-data", fabricReceiveController.getMarkerData)
 router.get("/fabric-receive/marker-data-detail", fabricReceiveController.getIndexMarkerDataDetail)
 router.post("/fabric-receive/get-marker-data-detail", fabricReceiveController.getMarkerDataDetail)
@@ -50,6 +51,14 @@ router.post("/fabric-receive/get-inventory-data", fabricReceiveController.getInv
 router.get("/fabric-receive/get-inventory-data-detail/:id", fabricReceiveController.getInventoryDataDetail)
 router.post("/fabric-receive/update-inventory-data-detail", fabricReceiveController.updateInventoryDataDetail)
 router.post("/fabric-receive/download-inventory-data", fabricReceiveController.downloadInventoryData)
+router.post("/fabric-receive/get-inventory-data-tts", fabricReceiveController.getInventoryDataTTS)
+
+// Fabric Receive: Return data
+router.get("/fabric-receive/return-data", fabricReceiveController.getIndexReturnData)
+router.post("/fabric-receive/get-return-data", fabricReceiveController.getReturnData)
+router.get("/fabric-receive/return-data-detail", fabricReceiveController.getIndexReturnDataDetail)
+router.post("/fabric-receive/get-return-data-detail", fabricReceiveController.getReturnDataDetail)
+router.post("/fabric-receive/wh-confirm-return", fabricReceiveController.whConfirmReturn)
 
 // Offstandard
 router.get("/OffStandard", offstandardController.getOffStandardPage)
