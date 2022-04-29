@@ -67,6 +67,7 @@ module.exports.getMarkerDataDetail = async function (req, res) {
         // execute
         // master data info
         let masterInfo = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan WHERE id = ${groupId}`);
+        masterInfo = masterInfo[0];
 
         // item-color detail info
         let detailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${groupId})`);
@@ -80,19 +81,38 @@ module.exports.getMarkerDataDetail = async function (req, res) {
 
             for (let i = 0; i < itemColorList.length; i++) {
                 let ele = itemColorList[i];
-                let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 10000, '', '${ele}', '', '')`);
-                farbicRollList.push({ itemColor: ele, rollList: result[0] })
+                let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 10000, '', '${ele}', '', '', '${masterInfo.plant}')`);
+                farbicRollList.push({ itemColor: ele, rollList: result[0].filter(x => x.rgrade == '1') });
             }
 
-            if (masterInfo[0].wh_prepare == '0') {
+            if (masterInfo.wh_prepare == '0') {
                 let result = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${groupId}`);
                 selectedFabricRollList.push(result);
             }
 
-            return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: { master: masterInfo[0], detail: detailInfo[0], fabricRoll: farbicRollList, selectedFabricRoll: selectedFabricRollList[0] } }));
+            return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: { master: masterInfo, detail: detailInfo[0], fabricRoll: farbicRollList, selectedFabricRoll: selectedFabricRollList[0] } }));
         }
     } catch (error) {
         logHelper.writeLog("fabric_receive.getMarkerDataDetail", error);
+        res.end(JSON.stringify({ rs: false, msg: error.message }));
+    }
+}
+
+module.exports.getOtherSelectedRoll = async function (req, res) {
+    try {
+        // parameters
+        let itemColor = req.body.itemColor;
+        let markerPlanId = req.body.markerPlanId;
+
+        // execute
+        let detailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Used_Roll ('${itemColor}', ${markerPlanId})`);
+
+        // fabric roll info follow item-color
+        let otherSelectedFabricRollList = detailInfo[0];
+        return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: otherSelectedFabricRollList}));
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.getOtherSelectedRoll", error);
+        res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -181,9 +201,21 @@ module.exports.saveUploadData = async function (req, res) {
                 }
             }
 
-            // insert to master table: only have group => take group, receive data, time, cut date, marker name, dozen value of first row
+            // insert to master table: only have group => take group, receive data, time, cut date, marker name, dozen value of first row                 
             let fr = masterData[0];
-            let query = `INSERT INTO cutting_fr_marker_data_plan (
+            let query = `SELECT id
+                        FROM cutting_fr_marker_data_plan 
+                        WHERE _group = '${fr[3]}'
+                            AND cancel_by IS NULL
+                            AND parentTicketId != 0`;
+
+            let objMarkerPlan = await db.excuteQueryAsync(query);
+            // if exist record with the same group name and it is not be canceled so system will not insert the record
+            if (objMarkerPlan.length > 0) {
+                continue;
+            }
+
+            query = `INSERT INTO cutting_fr_marker_data_plan (
                     plant, 
                     work_center, 
                     receive_date, 
@@ -257,6 +289,7 @@ module.exports.saveUploadData = async function (req, res) {
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.saveUploadData", error);
+        res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -351,6 +384,12 @@ async function cancel(req, res, groupId, cancelReason, cancelStep) {
         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
         if (isUpdateSuccess <= 0)
             return res.end(JSON.stringify({ rs: false, msg: "Hủy phiếu cấp vải không thành công." }));
+
+        // delete all fabric roll if selected before deleting
+        // query = `DELETE FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${groupId}`;
+        // let isDeleteSuccess = await db.excuteNonQueryAsync(query);
+        // if (isDeleteSuccess <= 0)
+        //     return res.end(JSON.stringify({ rs: false, msg: "Hủy phiếu cấp vải không thành công." }));
 
         testIo.emit('ccd-fabric-receive-action', {
             username: user,
@@ -729,7 +768,7 @@ module.exports.printTicket = async function (req, res) {
 
             for (let i = 0; i < itemColorList.length; i++) {
                 let ele = itemColorList[i];
-                let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 10000, '', '${ele}', '', '')`);
+                let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 10000, '', '${ele}', '', '', '${masterInfo[0].plant}')`);
                 farbicRollList.push({ itemColor: ele, rollList: result[0] })
             }
 
@@ -910,6 +949,7 @@ module.exports.downloadRollData = async function (req, res) {
         let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}', ${filterWeek}, '${filterWarehouseStatus}')`);
 
         // list marker plan => return id, group
+        // let markerInfoList = result[0].filter(x => x.cancel_date != null);
         let markerInfoList = result[0];
         let finalResponse = [];
         for (let i = 0; i < markerInfoList.length; i++) {
@@ -936,7 +976,9 @@ module.exports.downloadRollData = async function (req, res) {
                                     eleMarkerDetail.item_color,
                                     eleMarkerDetail.yard_demand,
                                     x.unipack2,
-                                    x.yard
+                                    x.yard,
+                                    x.note,
+                                    ele.cancel_date == null ? "" : "Yes"
                                 )
 
                             finalResponse.push(row);
@@ -953,7 +995,9 @@ module.exports.downloadRollData = async function (req, res) {
                                 eleMarkerDetail.item_color,
                                 eleMarkerDetail.yard_demand,
                                 "",
-                                ""
+                                "",
+                                "", 
+                                ele.cancel_date == null ? "" : "Yes"
                             )
 
                         finalResponse.push(row);
@@ -977,7 +1021,9 @@ module.exports.downloadRollData = async function (req, res) {
             { header: 'item_color', key: 'item_color', width: 20 },
             { header: 'demand_yard', key: 'demand_yard', width: 20 },
             { header: 'unipack', key: 'unipack', width: 20 },
-            { header: 'roll_yard', key: 'roll_yard', width: 20 }
+            { header: 'roll_yard', key: 'roll_yard', width: 20 },
+            { header: 'note', key: 'note', width: 20 },
+            { header: 'is_cancel', key: 'status', width: 20 }
         ];
 
         // Add Array Rows
@@ -1142,7 +1188,7 @@ module.exports.issueUpdate = async function (req, res) {
 }
 
 class MarkerPlanDetailRoll {
-    constructor(group, wo, ass, received_date, cut_date, item_color, demand_yard, unipack, roll_yard) {
+    constructor(group, wo, ass, received_date, cut_date, item_color, demand_yard, unipack, roll_yard, note, status) {
         this.group = group;
         this.wo = wo;
         this.ass = ass;
@@ -1152,6 +1198,8 @@ class MarkerPlanDetailRoll {
         this.demand_yard = demand_yard;
         this.unipack = unipack;
         this.roll_yard = roll_yard;
+        this.note = note;
+        this.status = status;
     }
 }
 
@@ -1170,9 +1218,10 @@ module.exports.getInventoryData = async function (req, res) {
         let itemColor = req.body.itemColor;
         let itemStatus = req.body.status;
         let itemNote = req.body.note;
+        let plant = req.body.plant;
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (${currentPage}, ${itemPerPage}, '${unipack}', '${itemColor}', '${itemStatus}', '${itemNote}')`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (${currentPage}, ${itemPerPage}, '${unipack}', '${itemColor}', '${itemStatus}', '${itemNote}', '${plant}')`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -1318,7 +1367,6 @@ module.exports.getInventoryDataTTS = async function (req, res) {
         let user = req.user.username;
         let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
 
-
         // delete all data before update latest data from Inventory6
         let query = `TRUNCATE TABLE cutting_fr_wh_fabric_inventory`;
         let isDeleteOldData = await db.excuteNonQueryAsync(query);
@@ -1330,7 +1378,7 @@ module.exports.getInventoryDataTTS = async function (req, res) {
             pythonPath: 'python',
             scriptPath: './public/Python/Cutting/FabricReceive',
             pythonOptions: ['-u'], // get print results in real-time
-            args: [user, datetime]
+            args: [JSON.stringify({account: config.TTS_Account, password: config.TTS_Password, user: user, datetime: datetime})]
         };
 
         let shell = new PythonShell('getInventoryFromTTS.py', options);
@@ -1390,9 +1438,10 @@ module.exports.downloadInventoryData = function (req, res) {
         let itemColor = req.body.itemColor;
         let itemStatus = req.body.status;
         let itemNote = req.body.note;
+        let plant = req.body.plant;
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 50000, '${unipack}', '${itemColor}', '${itemStatus}', '${itemNote}')`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (1, 50000, '${unipack}', '${itemColor}', '${itemStatus}', '${itemNote}', '${plant}')`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -1463,7 +1512,6 @@ module.exports.getIndexReturnDataDetail = function (req, res) {
     res.render('Cutting/FabricReceive/FabricReturnDataDetail', { user: user });
 }
 
-
 module.exports.getReturnDataDetail = async function (req, res) {
     try {
         // parameters
@@ -1486,10 +1534,19 @@ module.exports.getReturnDataDetail = async function (req, res) {
 module.exports.whConfirmReturn = async function (req, res) {
     try {
         // parameters
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
         let selectedRollList = req.body.selectedRollList;
 
-        let updateRollFailList = [];
+        // update note marker plan 
+        let query = `UPDATE cutting_fr_return_fabric_roll 
+                    SET wh_confirm_date = '${datetime}', wh_confirm_by = '${user}'
+                    WHERE id = ${selectedRollList[0].master_id}`;
+        let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        if (isUpdateSuccess <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Cập nhật phiếu return không thành công." }));
 
+        let updateRollFailList = [];
         // update inventory and insert selected roll to database
         for (let j = 0; j < selectedRollList.length; j++) {
             let eleRoll = selectedRollList[j];
@@ -1497,7 +1554,7 @@ module.exports.whConfirmReturn = async function (req, res) {
             if (eleRoll.scanned_time != '') {
                 // update scanned time to cutting_fr_marker_data_plan_detail_roll table
                 query = `UPDATE cutting_fr_return_fabric_roll_detail
-                SET scanned_time = '${eleRoll.scanned_time}'
+                SET scanned_time = '${eleRoll.scanned_time}', location = '${eleRoll.location}'
                 WHERE id = ${eleRoll.id}`;
 
                 let isUpdateRollSuccess = await db.excuteNonQueryAsync(query);
@@ -1513,6 +1570,37 @@ module.exports.whConfirmReturn = async function (req, res) {
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.whConfirmReturn", error);
+    }
+}
+
+module.exports.cancelReturnData = async function (req, res) {
+    try {
+        // parameters
+        let id = req.body.id;
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
+
+        // update note marker plan 
+        let query = `UPDATE cutting_fr_return_fabric_roll 
+                    SET status = 1, cancel_date = '${datetime}', cancel_by = '${user}'
+                    WHERE id = ${id}`;
+        let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        if (isUpdateSuccess <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Cập nhật phiếu return không thành công." }));
+
+        // update inventory and insert selected roll to database
+        query = `UPDATE cutting_fr_return_fabric_roll_detail
+                SET status = 1
+                WHERE master_id = ${id}`;
+
+        let isUpdateRollSuccess = await db.excuteNonQueryAsync(query);
+        if (isUpdateRollSuccess <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "Cập nhật chi tiết phiếu return không thành công." }));
+     
+        return res.end(JSON.stringify({ rs: true, msg: "Cập nhật phiếu return thành công" }));
+    } catch (error) {
+        logHelper.writeLog("fabric_receive.whConfirmReturn", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -1550,7 +1638,7 @@ module.exports.saveUploadReturnData = async function (req, res) {
                     date_update
                 )
                 VALUES (
-                    '${eleFile.file}_${eleFile.sheet}_${eleFile.header}', 
+                    '${fr[8]}', 
                     '${user}',
                     '${datetime}'
                 )`;
@@ -1564,6 +1652,9 @@ module.exports.saveUploadReturnData = async function (req, res) {
             let detailData = [];
             for (let i = 0; i < masterData.length; i++) {
                 let rowData = masterData[i];
+                if(rowData[2].length <= 0){
+                    continue;
+                }
                 let detailObj = [];
 
                 detailObj.push(idMaster);
@@ -1578,8 +1669,18 @@ module.exports.saveUploadReturnData = async function (req, res) {
 
                 detailData.push(detailObj);
             }
-            query = `INSERT INTO cutting_fr_return_fabric_roll_detail (master_id, _group, item_color, unipack_receive, wo, return_qty_lbs, return_qty_yard, unipack_return, note) 
-                    VALUES ?`;
+            query = `INSERT INTO cutting_fr_return_fabric_roll_detail (
+                    master_id, 
+                    _group, 
+                    item_color, 
+                    unipack_receive, 
+                    unipack_return, 
+                    return_qty_lbs, 
+                    return_qty_yard, 
+                    wo,
+                    note
+                ) 
+                VALUES ?`;
             let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
         }
 
@@ -1589,58 +1690,136 @@ module.exports.saveUploadReturnData = async function (req, res) {
     }
 }
 
-// cutting scan
-module.exports.getIndexScanMarkerDataDetail = async function (req, res) {
-    res.render('Cutting/FabricReceive/ScanFabric');
+// report dashboard
+module.exports.getReportDashboard = function (req, res) {
+    let user = req.user;
+    res.render('Cutting/FabricReceive/Dashboard', { user: user });
 }
 
-module.exports.addScannedRecord = async function (req, res) {
+module.exports.getReportData = async function (req, res) {
     try {
         // parameters
-        let data = req.body.data;
-
-        let user = req.user.username;
-        let datetime = helper.getDateTimeNow();
-
-        // execute
-        let arr = [];
-        for (let i = 0; i < data.length; i++) {
-            let eleArr = [];
-            let ele = data[i];
-            for (let j = 0; j < Object.values(ele).length; j++) {
-                eleArr.push(Object.values(ele)[j]);
-            }
-            eleArr.push(user);
-            eleArr.push(datetime);
-            arr.push(eleArr);
-        }
-
-        let isAddSuccess = await cuttingService.addScannedRecord(arr);
-        if (isAddSuccess <= 0)
-            return res.end(JSON.stringify({ rs: false, msg: "Thêm thông tin scan vải không thành công." }));
-
-        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
-    } catch (error) {
-        logHelper.writeLog("fabric_receive.addScannedRecord", error);
-    }
-}
-
-module.exports.getHistory = async function (req, res) {
-    try {
-        // parameters
+        let filterGroup = req.body.filterGroup;
+        let filterWeek = req.body.filterWeek ? req.body.filterWeek : 0;
         let filterDate = req.body.filterDate;
+        let fromDate = filterDate.split(';')[0];
+        let toDate = filterDate.split(';')[1];
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_History ('${filterDate.split(";")[0]}', '${filterDate.split(";")[1]}')`, function (result) {
-            if (!result.rs) {
-                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+        // Lấy ra những nhóm thỏa mãn điều kiện lọc
+        let returnData = [];
+        let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Report_Data ('${filterGroup}', '${fromDate}', '${toDate}', ${filterWeek})`);
+        let markerList = result[0];
+        if(markerList.length > 0)
+        { 
+            let listMarkerId = markerList.map(x => x.id);
+            // Lấy tất cả marker yêu cầu thêm
+            let query = `SELECT * FROM cutting_fr_marker_data_plan WHERE parentTicketId IN (${listMarkerId})`;
+            let additionalMarkerList = await db.excuteQueryAsync(query);
+            let additionalMarkerId = additionalMarkerList.map(x => x.id);
+
+            // Lấy tất cả marker detail
+            listMarkerId = listMarkerId.concat(additionalMarkerId);
+            query = `SELECT * FROM cutting_fr_marker_data_plan_detail WHERE group_id IN (${listMarkerId})`;
+            let markerDetailList = await db.excuteQueryAsync(query);
+
+            // Lấy tất cả cuộn vải được chọn
+            query = `SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id IN (${listMarkerId})`;
+            let rollList = await db.excuteQueryAsync(query);
+
+            // Lấy tất cả cuộn vải return
+            let unipackList = rollList.map(x => x.unipack2);
+            query = `SELECT * FROM cutting_fr_return_fabric_roll_detail WHERE status != 1 AND unipack_receive IN (${unipackList})`;
+            let returnRollList = await db.excuteQueryAsync(query);
+
+            // Xử lý lấy ra những thông tin cần thiết ra model
+            for (let i = 0; i < markerList.length; i++) {
+                let marker = markerList[i]; // master data
+
+                // additional request
+                let additionalMarker = additionalMarkerList != undefined ? additionalMarkerList.filter(x => x.parentTicketId == marker.id) : [];
+                let additionalMarkerDetail = [];
+                let additionalRoll = [];
+                if(additionalMarker.length > 0){
+                    additionalMarker.map(k => k.id).forEach(function(id){
+                        let tmpArr = markerDetailList.filter(x => x.group_id == id);
+                        additionalMarkerDetail = additionalMarkerDetail.concat(tmpArr);
+                    })
+
+                    additionalMarker.map(k => k.id).forEach(function(id){
+                        let tmpArr = rollList.filter(x => x.marker_plan_id == id);
+                        additionalRoll = additionalRoll.concat(tmpArr);
+                    })
+                }
+
+                // main request
+                let markerDetail = markerDetailList.filter(x => x.group_id == marker.id);
+                markerDetail = helper.sortArrayByKey(markerDetail, "item_color");
+                let colorFlag = ""; // mark item_color is same then sum same item_color
+                for (let j = 0; j < markerDetail.length; j++) {
+                    let eleMarkerDetail = markerDetail[j];
+                    if(colorFlag != eleMarkerDetail.item_color){
+                        let markerSameItemColor = markerDetail.filter(x => x.item_color == eleMarkerDetail.item_color);
+                        let totalYard = markerSameItemColor.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
+
+                        // additional
+                        let markerDetailAddMore = additionalMarkerDetail.filter(x => x.item_color == eleMarkerDetail.item_color);
+                        let rollAddMore = additionalRoll.filter(x => x.item_color == eleMarkerDetail.item_color);
+
+                        // master
+                        let selectedRoll = rollList.filter(x => x.marker_plan_id == marker.id && x.item_color == eleMarkerDetail.item_color);
+
+                        // return
+                        let sumSelectedRoll = rollAddMore.concat(selectedRoll);
+                        let returnRoll = [];
+                        if(sumSelectedRoll.length > 0){
+                            sumSelectedRoll.map(x => x.unipack2).forEach(function(unipack){
+                                let tmpArr = returnRollList.filter(x => x.unipack_receive == unipack && x.item_color == eleMarkerDetail.item_color);
+                                returnRoll = returnRoll.concat(tmpArr);
+                            })
+                        }
+
+                        // final result
+                        let warehouseSupply = selectedRoll.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+                        let requestMoreSupply = rollAddMore.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
+                        let returnQty = returnRoll.reduce((a, b) => parseFloat(a) + parseFloat(b.return_qty_yard), 0);
+                        let difference = (parseFloat(eleMarkerDetail.yard_demand) + returnQty) - (warehouseSupply + requestMoreSupply);
+                        let rmObj = new ReportMarker(
+                            marker.id,
+                            marker._group,
+                            eleMarkerDetail.item_color,
+                            totalYard,
+                            warehouseSupply,
+                            markerDetailAddMore.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0),
+                            requestMoreSupply,
+                            warehouseSupply + requestMoreSupply,
+                            returnQty,
+                            difference
+                        );
+                        returnData.push(rmObj);
+                    }       
+                    colorFlag = eleMarkerDetail.item_color;
+                }
             }
-            else {
-                res.end(JSON.stringify({ rs: true, msg: "Thành công", data: result.data }));
-            }
-        });
+        }
+        res.end(JSON.stringify({ rs: true, msg: "Thành công", data: {master: markerList, detail: returnData} }));
     } catch (error) {
-        logHelper.writeLog("fabric_receive.getHistory", error);
+        logHelper.writeLog("fabric_receive.getMarkerData", error);
+        res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
+class ReportMarker {
+    constructor(marker_plan_id, group, item_color, marker_request, warehouse_supply, request_more, request_more_supply, total_warehouse_supply, return_qty, diference){
+        this.marker_plan_id = marker_plan_id;
+        this.group = group;
+        this.item_color = item_color;
+        this.marker_request = marker_request;
+        this.warehouse_supply = warehouse_supply;
+        this.request_more = request_more;
+        this.request_more_supply = request_more_supply;
+        this.total_warehouse_supply = total_warehouse_supply;
+        this.return_qty = return_qty;
+        this.diference = diference;
+    }
+}

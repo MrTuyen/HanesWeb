@@ -1,3 +1,4 @@
+require('dotenv').config();
 var mysql = require('mysql');
 var dateFormat = require('dateformat');
 const logHelper = require('./common/log.js');
@@ -103,7 +104,9 @@ app.use(
         parameterLimit:50000
     })
 )
-app.use(express.json())
+app.use(express.json());
+var compression = require('compression');
+app.use(compression());
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);

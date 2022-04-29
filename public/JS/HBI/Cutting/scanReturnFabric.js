@@ -105,13 +105,17 @@ function getMarkerPlanDetail() {
                 <td>${ele._group}</td>
                 <td>${ele.item_color}</td>
                 <td>${ele.unipack_receive}</td>
-                <td>${ele.wo}</td>
+                <td>${ele.unipack_return}</td>
                 <td>${ele.return_qty_lbs}</td>
                 <td>${ele.return_qty_yard}</td>
-                <td>${ele.unipack_return}</td>
+                <td>${ele.wo}</td>
                 <td>${ele.note}</td>
                 <td><span class='scanned-status' id='scanned-status-${ele.unipack_return}'>${ele.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
-                <td><span class='scanned-time' id='scanned-time-${ele.unipack_return}'>${ele.scanned_time ? ele.scanned_time : ""}</span></td>`
+                <td><span class='scanned-time' id='scanned-time-${ele.unipack_return}'>${ele.scanned_time ? ele.scanned_time : ""}</span></td>
+                <td>
+                    <input type='text' class='text-center location' data-id='${ele.unipack_return}' onchange="locationChange()" id='location-${ele.unipack_return}' value='${ele.location ? ele.location : ""}'>
+                </td>
+                <tr/>`
             }
 
             $("#fabric-table-body").html('').append(html);
@@ -151,6 +155,12 @@ function whSubmitData() {
 
 function scanBarcode() {
     if (event.which === 13 || event.key == 'Enter') {
+        let locationCode = $("#txtLocationCode").val();
+        // if(locationCode == ''){
+        //     toastr.error("Vị trí không được để trống / Location can not be empty");
+        //     return;
+        // }
+
         let rollCode = $("#txtRollCode");
         if (rollCode.val().length > 0) {
             let code = rollCode.val();
@@ -165,8 +175,11 @@ function scanBarcode() {
             }
 
             roll.scanned_time = scannedTime;
+            roll.location = locationCode;
             $(`#scanned-status-${code}`).html("<i class='text-success fa fa-check-circle'></i>");
             $(`#scanned-time-${code}`).text(scannedTime);
+            $(`#location-${code}`).val(locationCode);
+            
             let count = parseInt($("#lbCounted").text()) + 1;
             $("#lbCounted").text(count);
             if (selectedFabricRollList.length == count) {
@@ -177,6 +190,16 @@ function scanBarcode() {
             toastr.error("Bạn chưa nhập mã cuộn vải /Roll code can not blank.");
         }
     }
+}
+
+function locationChange() {
+    let currentEle = $(event.target);
+    let id = currentEle.attr('data-id');
+    let currentLocationEle = $(`#location-${id}`);
+    let location = currentLocationEle.val();
+
+    let rollInfo = selectedFabricRollList.filter(x => x.unipack_return == id)[0];
+    rollInfo.location = location;
 }
 
 // #endregion

@@ -17,16 +17,14 @@ router.post("/get-machines", dashboardController.getMachines)
 // Fabric Receive
 // Fabric Receive: Marker data
 router.get("/fabric-receive/", fabricReceiveController.getIndex)
-router.post("/fabric-receive/add-record", fabricReceiveController.addScannedRecord)
-router.post("/fabric-receive/get-history", fabricReceiveController.getHistory)
 router.post("/fabric-receive/upload-fabric-file", fabricReceiveController.uploadFabricFile)
 router.post("/fabric-receive/save-upload-data", fabricReceiveController.saveUploadData)
 router.post("/fabric-receive/save-upload-return-data", fabricReceiveController.saveUploadReturnData)
 router.post("/fabric-receive/get-marker-data", fabricReceiveController.getMarkerData)
 router.get("/fabric-receive/marker-data-detail", fabricReceiveController.getIndexMarkerDataDetail)
 router.post("/fabric-receive/get-marker-data-detail", fabricReceiveController.getMarkerDataDetail)
+router.post("/fabric-receive/get-other-selected-roll", fabricReceiveController.getOtherSelectedRoll)
 router.post("/fabric-receive/action", fabricReceiveController.action)
-router.get("/fabric-receive/scan-marker-data-detail", fabricReceiveController.getIndexScanMarkerDataDetail)
 router.post("/fabric-receive/warehouse-confirm", fabricReceiveController.warehouseConfirm)
 router.post("/fabric-receive/ccd-confirm", fabricReceiveController.ccdConfirm)
 
@@ -59,6 +57,11 @@ router.post("/fabric-receive/get-return-data", fabricReceiveController.getReturn
 router.get("/fabric-receive/return-data-detail", fabricReceiveController.getIndexReturnDataDetail)
 router.post("/fabric-receive/get-return-data-detail", fabricReceiveController.getReturnDataDetail)
 router.post("/fabric-receive/wh-confirm-return", fabricReceiveController.whConfirmReturn)
+router.post("/fabric-receive/cancel-return-data", fabricReceiveController.cancelReturnData)
+
+// Fabric Receive: Dashboard, Report
+router.get("/fabric-receive/report-dashboard", fabricReceiveController.getReportDashboard)
+router.post("/fabric-receive/get-report-data", fabricReceiveController.getReportData)
 
 // Offstandard
 router.get("/OffStandard", offstandardController.getOffStandardPage)

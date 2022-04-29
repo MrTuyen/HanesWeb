@@ -62,30 +62,7 @@
                 <div class="">
                     <div class="row">
                         <div class="col-md-12">
-                            <nav class="navbar navbar-default navbar-static-top mb-0">
-                                <div class="">
-                                    <div class="navbar-header">
-                                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                                            <span class="sr-only">Toggle navigation</span>
-                                            <span class="icon-bar"></span>
-                                            <span class="icon-bar"></span>
-                                            <span class="icon-bar"></span>
-                                        </button>
-                                        <!-- <a class="navbar-brand" href="#">Quét nhận vải</a> -->
-                                    </div>
-                                    <div id="navbar" class="navbar-collapse collapse">
-                                        <ul class="nav navbar-nav">
-                                            <li class=""><a href="/cutting/fabric-receive">Giao nhận vải Kanban</a></li>
-                                            <li class=""><a href="/cutting/fabric-receive/return-data">Nhận vải return</a></li>
-                                            <li class="active"><a href="/cutting/fabric-receive/inventory-data">Dữ liệu vải tồn kho</a></li>
-                                        </ul>
-                                        <ul class="nav navbar-nav navbar-right">
-
-                                        </ul>
-                                    </div>
-                                    <!--/.nav-collapse -->
-                                </div>
-                            </nav>
+                            <%- include ("partialMenuBar.ejs"); -%>
                         </div>
                     </div>
                     <div class="bg-white fabric-receive mt-3">
@@ -116,6 +93,18 @@
                                                     <div class="w-100">
                                                         <p class="mb-1"><strong>Item color</strong></p>
                                                         <input type="text" class="form-control w-100" id="txtItemColor">
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 d-flex">
+                                                    <div class="w-100">
+                                                        <label for="" class="col-form-label">Plant</label>
+                                                        <div class="input-group w-100">
+                                                            <select class="form-control w-100" name="" id="txtFilterPlant">
+                                                                <option value=""> All </option>
+                                                                <option value="92"> 92 </option>
+                                                                <option value="95"> 95 </option>
+                                                            </select>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="mt-2 d-flex">

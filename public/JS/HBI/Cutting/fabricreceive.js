@@ -31,6 +31,9 @@ const warehouseStatusList = [
         index: 1, value : 'Done'
     },
     {
+        index: 2, value : 'Not yet'
+    },
+    {
         index: 3, value : 'All'
     }
 ]
@@ -45,6 +48,9 @@ const filterLocalStorage = "cutting_fr_filter";
 function Refresh() {
     window.location.href = '/cutting/fabric-receive';
 }
+
+// Menu
+$(".fr-navbar li:nth-child(1)").addClass("active");
 
 // Configure some plugin to work properly
 $.fn.modal.Constructor.prototype._enforceFocus = function () { };
@@ -235,12 +241,16 @@ function getListMarkerData() {
                         ${ele.cancel_reason != undefined ? ele.cancel_reason : ele.note}
                     </td>
                     <td>
-                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='printTicket(${ele.id})'>Print</button>
-                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
-                        <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/marker-update?group=${ele.id}">Marker</a>
-                        <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD</a>
-                        <button class='btn btn-sm btn-primary ${wh_display}' data-groupId='${ele.id}' onclick='issue(${ele.id})'>ISSUE</button>
-                        <a class='btn btn-sm btn-primary ${wh_display}' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
+                        ${ele.cancel_date == undefined || userLogin.position == "Admin"? 
+                            `<div>
+                            <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='printTicket(${ele.id})'>Print</button>
+                            <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
+                            <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/marker-update?group=${ele.id}">Marker</a>
+                            <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD</a>
+                            <button class='btn btn-sm btn-primary ${wh_display}' data-groupId='${ele.id}' onclick='issue(${ele.id})'>ISSUE</button>
+                            <a class='btn btn-sm btn-primary ${wh_display}' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
+                            </div>`  
+                            : ''}
                     </td>
                 </tr>`;
             }
@@ -248,7 +258,7 @@ function getListMarkerData() {
             $("#fabric-plan-table-body").html('').append(html);
 
             $("#lbSumMarkerData").text(data.length);
-            $("#lbLastestUpdate").text(data[0].marker_call_date);
+            $("#lbLastestUpdate").text(data.length > 0 ? data[0].marker_call_date : 0);
 
             // for (let i = 0; i < data.length; i++) {
             //     let ele = data[i];
@@ -526,7 +536,7 @@ function uploadExcelReturnData() {
                         let options = "";
                         for (var j = 0; j < ele.sheets.length; j++) {
                             let item = ele.sheets[j];
-                            if (item.sheetname == 'Upload-YCV')
+                            if (item.sheetname == 'upload-return')
                                 options += "<option value =" + item.id + " selected>" + item.sheetname + "</option>";
                             else
                                 options += "<option value=" + item.id + ">" + item.sheetname + "</option>";

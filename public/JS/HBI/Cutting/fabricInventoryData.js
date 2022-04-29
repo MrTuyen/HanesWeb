@@ -15,6 +15,9 @@ function refresh() {
     window.location.href = '/innovation';
 }
 
+// Menu
+$(".fr-navbar li:nth-child(3)").addClass("active");
+
 // Configure some plugin to work properly
 $.fn.modal.Constructor.prototype._enforceFocus = function () { };
 
@@ -78,6 +81,7 @@ function getInventoryData(intPage){
     let itemColor = $("#txtItemColor").val();
     let status = $("#txtFilterStatus").val();
     let note = $("#txtFilterNote").val();
+    let plant = $("#txtFilterPlant").val();
     // send to server
     let action = baseUrl + 'get-inventory-data';
     let datasend = {
@@ -86,7 +90,8 @@ function getInventoryData(intPage){
         unipack: unipack,
         itemColor: itemColor,
         status: status,
-        note: note
+        note: note,
+        plant: plant
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
@@ -323,13 +328,16 @@ function downloadInventoryData() {
     let itemColor = $("#txtItemColor").val();
     let status = $("#txtFilterStatus").val();
     let note = $("#txtFilterNote").val();
+    let plant = $("#txtFilterPlant").val();
+
     // send to server
     let action = baseUrl + 'download-inventory-data';
     let datasend = {
         unipack: unipack,
         itemColor: itemColor,
         status: status,
-        note: note
+        note: note,
+        plant: plant
     };
 
     fetch(action, {

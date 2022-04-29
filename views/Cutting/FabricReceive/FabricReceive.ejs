@@ -82,30 +82,7 @@
                     <div class="">
                         <div class="row">
                             <div class="col-md-12">
-                                <nav class="navbar navbar-default navbar-static-top mb-0">
-                                    <div class="">
-                                        <div class="navbar-header">
-                                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                                                <span class="sr-only">Toggle navigation</span>
-                                                <span class="icon-bar"></span>
-                                                <span class="icon-bar"></span>
-                                                <span class="icon-bar"></span>
-                                            </button>
-                                            <!-- <a class="navbar-brand" href="#">Quét nhận vải</a> -->
-                                        </div>
-                                        <div id="navbar" class="navbar-collapse collapse">
-                                            <ul class="nav navbar-nav">
-                                                <li class="active"><a href="/cutting/fabric-receive">Giao nhận vải Kanban</a></li>
-                                                <li class=""><a href="/cutting/fabric-receive/return-data">Nhận vải return</a></li>
-                                                <li class=""><a href="/cutting/fabric-receive/inventory-data">Dữ liệu vải tồn kho</a></li>
-                                            </ul>
-                                            <ul class="nav navbar-nav navbar-right">
-
-                                            </ul>
-                                        </div>
-                                        <!--/.nav-collapse -->
-                                    </div>
-                                </nav>
+                                <%- include ("partialMenuBar.ejs"); -%>
                             </div>
                         </div>
                         <div class="bg-white fabric-receive mt-3">
@@ -114,7 +91,7 @@
                                     <div class="p-0">
                                         <div class="input-group mr-2">
                                             <button class="btn btn-success btn-sm <%= ccd_disabled %>" data-target="#modalUploadData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu yêu cầu vải</button>
-                                            <button type="button" class="btn btn-success dropdown-toggle btn-sm" data-toggle="dropdown">
+                                            <button type="button" class="btn btn-success dropdown-toggle btn-sm <%= ccd_disabled %>" data-toggle="dropdown">
                                                 <span class="fa fa-angle-down"></span>
                                             </button>
                                             <div class="dropdown-menu p-3" style="left: 183px">
@@ -144,6 +121,7 @@
                                                                 <select class="form-control w-100" name="" id="txtFilterWarehouseStatus">
                                                                     <option value="0"> Prepared </option>
                                                                     <option value="1"> Done </option>
+                                                                    <option value="2"> Not yet </option>
                                                                     <option value="" selected> All </option>
                                                                 </select>
                                                             </div>

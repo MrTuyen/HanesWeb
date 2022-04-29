@@ -3,16 +3,17 @@ import pandas as pd
 import mysql.connector
 import sys
 import math
+import json
 
 if __name__ == "__main__":
-    user = sys.argv[1]
-    datetime = sys.argv[2]
+    jsonData = json.loads(sys.argv[1])
+
     try:
         connection = pyodbc.connect(
             driver='{IBM i Access ODBC Driver}',
             system='HQ400B',
-            uid='thle11',
-            pwd='Baonam01'
+            uid=f'{jsonData["account"]}',
+            pwd=f'{jsonData["password"]}'
         )
 
         query = '''
@@ -71,13 +72,13 @@ if __name__ == "__main__":
                 SUBSTR(C.IXSKU# ,27,6) AS ACTUAL_WITH,
                 C.IXABSHD AS SHADE,
                 C.IXVENDR AS VENDOR,
-                ICP0152.RLOCPL AS FACTORY
+                ICP0152.RLOCPL AS PLANT
                 FROM 
                     HQ400B.ICLIB.ICP0152 ICP0152, 
                     HQ400B.ICLIB.ICP9510 ICP9510, 
                     HQ400B.ICLIB.ICPCSREF C 
                 WHERE 
-                    (ICP0152.RLOCPL IN ('95'))
+                    (ICP0152.RLOCPL IN ('95', '92'))
                     AND (
                         ICP0152.RRSTAT In ('20', '25')
                     ) 
@@ -117,7 +118,9 @@ if __name__ == "__main__":
 
             tempUnipack = str(row.RUNIP).split('.')[0]
             unipack2 = '0' + tempUnipack if len(tempUnipack) < 8 else tempUnipack
-            itemColor = row.RFFSTY + '-' + row.RCOLOR + '-' + str(row.RCUTWD).split('.')[0]
+            itemColor = row.RFFSTY + '-' + row.RCOLOR + '-' + str(row.RCUTWD).split('.0')[0]
+            if len(row.RPRTCD.strip()) > 0:
+                itemColor = row.RFFSTY + row.RPRTCD.strip() + str(row.RCUTWD).split('.0')[0]
 
             temp = (
                 row.RUNIP,
@@ -145,9 +148,9 @@ if __name__ == "__main__":
                 str(row.ACTUAL_WITH).replace('0', ''),
                 row.VENDOR,
                 row.RPRTCD,
-                user,
-                datetime,
-                row.FACTORY
+                jsonData["user"],
+                jsonData["datetime"],
+                row.PLANT
             )
 
             values.append(temp)
@@ -180,7 +183,7 @@ if __name__ == "__main__":
                 rprtcd,
                 user_update,
                 date_update,
-                factory
+                plant
             ) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
 

@@ -28,6 +28,9 @@ function Refresh() {
     window.location.href = '/cutting/fabric-receive/return-data';
 }
 
+// Menu
+$(".fr-navbar li:nth-child(2)").addClass("active");
+
 // Configure some plugin to work properly
 $.fn.modal.Constructor.prototype._enforceFocus = function () { };
 
@@ -139,19 +142,23 @@ function getListReturnData() {
 
             for (let i = 0; i < data.length; i++) {
                 let ele = data[i];
+                let isCanceled = ele.cancel_date ? "background: #fbc8c4" : "";
                
-                html += `<tr class='tr-${ele.id}'>
+                html += `<tr class='tr-${ele.id}' style='${isCanceled}'>
                     <td>${ele.id}</td>
                     <td>${ele.filename}</td>
                     <td>
-                        ${ele.wh_confirm_by == '' ? `<div class='rounded-circle white' id='wh-circle-${ele.id}'></div>`
+                        ${ele.wh_confirm_by == null ? `<div class='rounded-circle white' id='wh-circle-${ele.id}'></div>`
                         : `<div class='rounded-circle green' id='wh-circle-${ele.id}'></div>`
                         }  
                     </td>
                     <td>${ele.user_update}</td>
                     <td>${ele.date_update}</td>
                     <td>
-                        <a class='btn btn-sm btn-primary ${wh_display}' href="/cutting/fabric-receive/return-data-detail?id=${ele.id}">WH</a>
+                        ${ele.cancel_date == undefined || userLogin.position == "Admin"? 
+                        `<a class='btn btn-sm btn-primary' href="/cutting/fabric-receive/return-data-detail?id=${ele.id}">WH</a>
+                        <button class='btn btn-sm btn-primary ${ccd_display}' onclick="cancel(${ele.id})">Cancel</button>`
+                        : "" }
                     </td>
                 </tr>`;
             }
@@ -167,117 +174,30 @@ function getListReturnData() {
     });
 }
 
-function uploadExcelReturnData() {
-    if (window.FormData !== undefined) {
-
-        var fileUpload = $("#fileFabricReturnUpload").get(0);
-        var files = fileUpload.files;
-
-        // Create FormData object
-        var fileData = new FormData();
-
-        // Looping over all files and add it to FormData object
-        for (var i = 0; i < files.length; i++) {
-            fileData.append("file" + i, files[i]);
-        }
-
-        LoadingShow();
-        $.ajax({
-            url: baseUrl + 'upload-fabric-file',
-            method: 'POST',
-            contentType: false,
-            processData: false,
-            data: fileData,
-            success: function (result) {
+function cancel(id){
+    swal("Bạn có chắc chắn hủy phiếu này không? R U sure to cancel this ticket?", {
+        buttons: ["No", "Yes!"],
+    })
+    .then((willDelete) => {
+        if (willDelete) {
+            let action = baseUrl + 'cancel-return-data';
+            let datasend = {
+                id: id
+            };
+            LoadingShow();
+            PostDataAjax(action, datasend, function (response) {
                 LoadingHide();
-                result = JSON.parse(result);
-                if (result.rs) {
-                    var listFiles = result.data
-                    let html = '';
-                    for (var i = 0; i < listFiles.length; i++) {
-                        let ele = listFiles[i];
-
-                        let options = "";
-                        for (var j = 0; j < ele.sheets.length; j++) {
-                            let item = ele.sheets[j];
-                            if (item.sheetname == 'Upload-YCV')
-                                options += "<option value =" + item.id + " selected>" + item.sheetname + "</option>";
-                            else
-                                options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
-                        }
-
-                        html += `<tr id='tr-file-${ele.name}'>
-                            <td class='fileName'>${ele.name}</td>
-                            <td>
-                                <select class='form-control sheetName'>${options}</select>
-                            </td>
-                            <td>
-                                <input type='number' class='form-control headerRow' min='1' value='1' />
-                            </td>
-                        </tr>`;
-                    }
-
-                    $("#return-file-table-body").append(html);
+                if (response.rs) {
+                    toastr.success("Hủy phiếu thành công", "Thành công");
+                    getListReturnData();
                 }
                 else {
-                    toastr.error(result.msg);
+                    toastr.error(response.msg, "Thất bại");
                 }
-            },
-            error: function (err) {
-                LoadingHide();
-                toastr.error(err.statusText);
-            }
-        });
-    } else {
-        toastr.error("FormData is not supported.");
-    }
-}
-
-function saveUploadReturnData() {
-
-    let fileList = $(".fileName");
-    let sheetList = $(".sheetName");
-    let headerList = $(".headerRow");
-    let listData = [];
-
-    for (let i = 0; i < fileList.length; i++) {
-        file = $(fileList[i]).text();
-        sheet = $(sheetList[i]).val();
-        header = $(headerList[i]).val();
-
-        listData.push({
-            file: file,
-            sheet: sheet,
-            header: header,
-        });
-    }
-
-    if (listData.length <= 0) {
-        toastr.warning("Không có tập tin cần upload", "Warning");
-        return false;
-    }
-
-    // send to server
-    let action = baseUrl + 'save-upload-return-data';
-    let datasend = {
-        listData: listData
-    };
-    LoadingShow();
-    PostDataAjax(action, datasend, function (response) {
-        LoadingHide();
-        if (response.rs) {
-            toastr.success(response.msg, "Thành công")
-            $("#modalUploadReturnData").modal('hide');
-            getListMarkerData();
-            $("#file-table-body").html('');
-            $("#fileFabricReturnUpload").val('');
-        }
-        else {
-            toastr.error(response.msg, "Thất bại");
+            });
         }
     });
 }
-
 // #endregion
 
 // #region Socket

@@ -39,10 +39,10 @@ $(document).on('click', '.day', function (e) {
 
 // For select2 open then focus on input search
 $(document).on('select2:open', () => {
-    if (!event.target.multiple) { 
+    if (!event.target.multiple) {
         let ele = $('.select2-container--open .select2-search--dropdown .select2-search__field').last()[0];
-        if(ele)
-            ele.focus() 
+        if (ele)
+            ele.focus()
     }
 });
 
@@ -76,7 +76,7 @@ var markerDetailList = []; // danh sách lưu trữ danh sách các mã vải
 var selectedFabricRollList = []; // danh sách tổng các cuộn vải được chọn của cả phiếu
 var selectedSavedFabricRollList = []; // danh sách tổng các cuộn vải được chọn của cả phiếu
 var markerPlan = {};
-function getMarkerPlanDetail(){
+function getMarkerPlanDetail() {
     var queryStr = getUrlVars(window.location.href);
     let groupId = queryStr.group;
     // send to server
@@ -95,9 +95,9 @@ function getMarkerPlanDetail(){
             fabricRollList = response.data.fabricRoll;
             selectedSavedFabricRollList = response.data.selectedFabricRoll;
 
-            if(markerPlan.wh_prepare == '0'){
+            if (markerPlan.wh_prepare == '0') {
                 selectedFabricRollList = response.data.selectedFabricRoll;
-                selectedFabricRollList.forEach(function(ele, index){
+                selectedFabricRollList.forEach(function (ele, index) {
                     ele.markerDetailId = ele.marker_plan_detail_id;
                     ele.markerPlanId = ele.marker_plan_id;
                     ele.usedYard = ele.yard;
@@ -115,92 +115,6 @@ function getMarkerPlanDetail(){
             $("#txtNote").val(master.note);
 
             let html = '';
-            // if(markerPlan.wh_confirm_by){
-            //     $("#table2").css("display", "block");
-            //     $("#table1").css("display", "none");
-
-            //     let html = '';
-            //     let colorFlag = '';
-            //     for (let i = 0; i < markerDetailList.length; i++) {
-            //         let eleMarkerDetail = markerDetailList[i];
-            //         if(eleMarkerDetail.item_color != colorFlag){
-            //             let selectedRollList = selectedSavedFabricRollList.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
-            //             let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
-            //             let rollCount = selectedRollList.length;
-            //             let sameColorList = markerDetailList.filter(x => x.item_color == eleMarkerDetail.item_color);
-            //             let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
-
-            //             if(selectedRollList.length){
-            //                 let str = `<tr style='background: #ced6dd'>
-            //                     <td></td>
-            //                     <td></td>
-            //                     <td></td>
-            //                     <td></td>
-            //                     <td></td>
-            //                     <td>${rollCount} cuộn</td>
-            //                     <td><span class='text-danger'>${sumYard}</span> / ${sumDemandYard}</td>
-            //                     <td colspan='4'></td>
-            //                     <td><span id=''></span></td>
-            //                     <td><span id=''></span></td>
-            //                 </tr>`;
-
-            //                 for (let j = 0; j < selectedRollList.length; j++) {
-            //                     let eleRoll = selectedRollList[j];
-            //                     str += `<tr>
-            //                         <td>${j + 1}</td>
-            //                         <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
-            //                         <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
-            //                         <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
-            //                         <td>${sameColorList[j] ? sameColorList[j].yard_demand : ''}</td>
-            //                         <td>${eleRoll.unipack2}</td>
-            //                         <td>${eleRoll.yard}</td>
-            //                         <td>${eleRoll.rfinwt}</td>
-            //                         <td>${eleRoll.rgrade}</td>
-            //                         <td>${eleRoll.rlocbr}</td>
-            //                         <td>${eleRoll.shade}</td>
-            //                         <td><span class='scanned-status' id='scanned-status-${eleRoll.unipack2}'>${eleRoll.scanned_time ? "<i class='text-success fa fa-check-circle'></i>" : ""}</span></td>
-            //                         <td><span class='scanned-time' id='scanned-time-${eleRoll.unipack2}'>${eleRoll.scanned_time ? eleRoll.scanned_time : ""}</span></td>
-            //                     </tr>`;
-            //                 }
-            //                 str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
-            //                 html += str;
-            //             }
-            //         }
-            //         colorFlag = eleMarkerDetail.item_color;
-            //     }
-
-            //     $("#table2-fabric-table-body").html('');
-            //     $("#table2-fabric-table-body").append(html);
-            // }
-            // else{
-            //     $("#table1").css("display", "block");
-            //     $("#table2").css("display", "none");
-
-            //     let colorFlag = "";
-            //     for (let i = 0; i < detail.length; i++) {
-            //         let ele = detail[i];
-            //         html += `<tr id='tr-${ele.id}'>
-            //             <td>${ele.id}</td>
-            //             <td>${ele.wo}</td>
-            //             <td>${ele.ass}</td>
-            //             <td>${ele.item_color}</td>
-            //             <td>${ele.yard_demand}</td>
-            //             <td style='text-align: -webkit-right'>
-            //                 ${
-            //                     ele.item_color != colorFlag ?
-            //                     `<a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Select</a>`
-            //                     : 
-            //                     ``
-            //                 }
-            //             </td>
-            //         </tr>`;
-            //         colorFlag = ele.item_color;
-            //     }
-
-            //     $("#fabric-table-body").html('');
-            //     $("#fabric-table-body").append(html);
-            // }
-
             $("#table1").css("display", "block");
             $("#table2").css("display", "none");
 
@@ -214,19 +128,17 @@ function getMarkerPlanDetail(){
                     <td>${ele.item_color}</td>
                     <td>${ele.yard_demand}</td>
                     <td style='text-align: -webkit-right'>
-                        ${
-                            ele.item_color != colorFlag ?
-                            `<a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Select</a>`
-                            : 
-                            ``
-                        }
+                        ${ele.item_color != colorFlag ?
+                        `<a class='btn btn-sm btn-primary' onclick='OpenModalMarkerDetail({id: ${ele.id}, group_id: ${ele.group_id}, wo: "${ele.wo}", ass: "${ele.ass}", item_color: "${ele.item_color}", yard: ${ele.yard_demand}})'>Select</a>`
+                        :
+                        ``
+                    }
                     </td>
                 </tr>`;
                 colorFlag = ele.item_color;
             }
 
-            $("#fabric-table-body").html('');
-            $("#fabric-table-body").append(html);
+            $("#fabric-table-body").html('').append(html);
         }
         else {
             toastr.error(response.msg, "Thất bại");
@@ -237,167 +149,203 @@ function getMarkerPlanDetail(){
 var currentFabricRollList = []; // danh sách cuộn vải theo item color cụ thể
 var currentMarkerDetail = {}; // marker detail hiện tại khi chọn để select các cuộn vải
 var sum = 0; // biến tạm lưu tổng số yard của 1 marker detail
-function OpenModalMarkerDetail(markerDetail){
-    // general information
-    let sameItemColorList = markerDetailList.filter(x => x.item_color == markerDetail.item_color);
-    let sumYard = sameItemColorList.reduce((a, b) => a + b.yard_demand, 0);
-    let html = '';
-    for (let i = 0; i < sameItemColorList.length; i++) {
-        let ele = sameItemColorList[i];
-        html += `<tr> 
-            <td>${i + 1}</td>
-            <td>${ele.item_color}</td>
-            <td>${ele.wo}</td>
-            <td>${ele.ass}</td>
-            <td>${ele.yard_demand}</td>
-        </tr>`
-    }
-    $("#item-color-table-body").html('').append(html);
+function OpenModalMarkerDetail(markerDetail) {
+    // get selected roll from other ticket
+    var otherSelecedRollList = [];
+    var itemColor = markerDetail.item_color;
+    let markerPlanId = markerDetail.group_id;
+    let action = baseUrl + 'get-other-selected-roll';
+    let datasend = {
+        itemColor: itemColor,
+        markerPlanId: markerPlanId
+    };
+    PostDataAjax(action, datasend, function (response) {
+        if (response.rs) {
+            otherSelecedRollList = response.data;
 
-    html = `<tr>
-            <td class='text-left'>Số lượng chọn / Số lượng marker yêu cầu: <span class='text-danger' id='txtFabricRollYard'>0</span> / <span class='text-success' id='txtFabricRollDemandYard'>${sumYard}</span></td>
-        </tr>`
-    $("#sum-table-body").html(html);
+            // general information
+            let sameItemColorList = markerDetailList.filter(x => x.item_color == markerDetail.item_color);
+            let sumYard = sameItemColorList.reduce((a, b) => a + b.yard_demand, 0);
+            let html = '';
+            for (let i = 0; i < sameItemColorList.length; i++) {
+                let ele = sameItemColorList[i];
+                html += `<tr> 
+                            <td>${i + 1}</td>
+                            <td>${ele.item_color}</td>
+                            <td>${ele.wo}</td>
+                            <td>${ele.ass}</td>
+                            <td>${ele.yard_demand}</td>
+                        </tr>`
+                                }
+                                $("#item-color-table-body").html('').append(html);
 
-    // open modal to fill-up data
-    $("#modalFabricRoll").modal("show");
-    currentMarkerDetail = markerDetail;
-    sum = 0;
+                                html = `<tr>
+                            <td class='text-left'>Số lượng chọn / Số lượng marker yêu cầu: <span class='text-danger' id='txtFabricRollYard'>0</span> / <span class='text-success' id='txtFabricRollDemandYard'>${sumYard}</span></td>
+                        </tr>`
+                $("#sum-table-body").html(html);
 
-    // lấy dữ liệu nguồn các cuộn vải theo item_color của chi tiết marker
-    let itemColorRollList = fabricRollList.filter(x => x.itemColor === markerDetail.item_color)[0].rollList;
-    itemColorRollList = sortArrayByKey(itemColorRollList, 'unipack2', false);
-    currentFabricRollList = itemColorRollList;
+            // open modal to fill-up data
+            $("#modalFabricRoll").modal("show");
+            currentMarkerDetail = markerDetail;
+            sum = 0;
 
-    selectedRollList = selectedFabricRollList.filter(x => x.marker_plan_detail_id == markerDetail.id);
+            // lấy dữ liệu nguồn các cuộn vải theo item_color của chi tiết marker
+            let itemColorRollList = fabricRollList.filter(x => x.itemColor === markerDetail.item_color)[0].rollList;
+            itemColorRollList = sortArrayByKey(itemColorRollList, 'unipack2', false);
+            currentFabricRollList = itemColorRollList;
 
-    // itemColorRollList = itemColorRollList.concat(selectedRollList);
-    // console.log(itemColorRollList);
-    // itemColorRollList = unique(itemColorRollList, ['unipack2', 'yard']);
+            selectedRollList = selectedFabricRollList.filter(x => x.marker_plan_detail_id == markerDetail.id);
 
-    html = '';
-    if(markerPlan.wh_prepare == '0'){ // warehouse đã chuẩn bị phiếu - wh_prepare
-        //selectedRollList = selectedFabricRollList.filter(x => x.marker_plan_detail_id == markerDetail.id);  
+            // itemColorRollList = itemColorRollList.concat(selectedRollList);
+            // console.log(itemColorRollList);
+            // itemColorRollList = unique(itemColorRollList, ['unipack2', 'yard']);
 
-        for (let i = 0; i < selectedRollList.length; i++) {
-            let ele = selectedRollList[i];
+            html = '';
+            if (markerPlan.wh_prepare == '0') { // warehouse đã chuẩn bị phiếu - wh_prepare
+                //selectedRollList = selectedFabricRollList.filter(x => x.marker_plan_detail_id == markerDetail.id);  
 
-            let sameRollRemainYard = itemColorRollList.filter(x => x.unipack2 == ele.unipack2);
-            if(sameRollRemainYard && sameRollRemainYard.length > 0){
-                let i = itemColorRollList.indexOf(sameRollRemainYard[0]);
-                itemColorRollList.splice(i, 1); 
+                for (let i = 0; i < selectedRollList.length; i++) {
+                    let ele = selectedRollList[i];
 
-                if(ele.yard == sameRollRemainYard[0].yard){
-                    ele.yard = ele.yard - parseFloat(ele.usedYard);
-                }
-                else{
-                    ele.yard = sameRollRemainYard[0].yard;
+                    let sameRollRemainYard = itemColorRollList.filter(x => x.unipack2 == ele.unipack2);
+                    if (sameRollRemainYard && sameRollRemainYard.length > 0) {
+                        let i = itemColorRollList.indexOf(sameRollRemainYard[0]);
+                        itemColorRollList.splice(i, 1);
+
+                        if (ele.yard == sameRollRemainYard[0].yard) {
+                            ele.yard = ele.yard - parseFloat(ele.usedYard);
+                        }
+                        else {
+                            ele.yard = sameRollRemainYard[0].yard;
+                        }
+                    }
+
+                    html += `<tr id='tr-${ele.roll_id}'>
+                                <td>
+                                    <input type='checkbox' data-id='${ele.roll_id}' class='marker-select' id='cb-${ele.roll_id}' checked onchange="selectMarker()" style='transform: scale(1.5)' />
+                                </td>
+                                <td>${ele.unipack2}</td>
+                                <td>${ele.rffsty}</td>
+                                <td>${ele.item_color}</td>
+                                <td>${ele.rcutwd}</td>
+                                <td>${ele.rfinwt}</td>
+                                <td>
+                                    <div class="input-group eye-password">
+                                        <input type="number" class="form-control" data-id='${ele.roll_id}' max="${ele.usedYard + ele.yard}" min="0" old-val="${ele.usedYard}" value="${ele.usedYard}" id="used-yard-${ele.roll_id}" onchange="yardChange()">
+                                        <div class="input-group-addon">
+                                            <span class="" id="inventory-yard-${ele.roll_id}">${ele.yard}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type='text' class='form-control' data-id='${ele.roll_id}' id='note-${ele.roll_id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" />
+                                </td>
+                                <td>${ele.rlocbr}</td>
+                                <td>${ele.rgrade}</td>
+                                <td>${ele.shade}</td>
+                                <td>${ele.qccomment}</td>
+                                <td>${ele.rprtcd}</td>
+                            </tr>`;
                 }
             }
-            
-            html += `<tr id='tr-${ele.roll_id}'>
-                <td>
-                    <input type='checkbox' data-id='${ele.roll_id}' class='marker-select' id='cb-${ele.roll_id}' checked onchange="selectMarker()" style='transform: scale(1.5)' />
-                </td>
-                <td>${ele.unipack2}</td>
-                <td>${ele.rffsty}</td>
-                <td>${ele.item_color}</td>
-                <td>${ele.rcutwd}</td>
-                <td>${ele.rfinwt}</td>
-                <td>
-                    <div class="input-group eye-password">
-                        <input type="number" class="form-control" data-id='${ele.roll_id}' max="${ele.usedYard + ele.yard}" min="0" old-val="${ele.usedYard}" value="${ele.usedYard}" id="used-yard-${ele.roll_id}" onchange="yardChange()">
-                        <div class="input-group-addon">
-                            <span class="" id="inventory-yard-${ele.roll_id}">${ele.yard}</span>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <input type='text' class='form-control' data-id='${ele.roll_id}' id='note-${ele.roll_id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" />
-                </td>
-                <td>${ele.rlocbr}</td>
-                <td>${ele.rgrade}</td>
-                <td>${ele.shade}</td>
-            </tr>`;
-        }
-    }
 
-    for (let i = 0; i < itemColorRollList.length; i++) {
-        let ele = itemColorRollList[i];
+            // Loại những cuộn cùng item_color được chỉ định ở phiếu khác
+            for (let i = 0; i < otherSelecedRollList.length; i++) {
+                let ele = otherSelecedRollList[i];
 
-        // kiểm tra xem danh sách chọn cuộn vải đã có cuộn này theo mã id cuộn và mã id chi tiết marker
-        // let selectedRollList = selectedFabricRollList.filter(x => x.id == ele.id && x.markerDetailId == markerDetail.id);
-        let selectedRollList = selectedFabricRollList.filter(x => x.unipack2 == ele.unipack2 && x.markerDetailId == markerDetail.id);
-
-        let isSelected = selectedRollList.length > 0 ? true : false; // nếu có thì checked checkbox
-
-        // kiểm tra xem danh sách chọn cuộn vải đã có cuộn này theo mã id cuộn và số lượng yard đã hết hay còn
-        let remainYard = parseFloat(ele.yard) - parseFloat(selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
-
-        if(isSelected){
-            html += `<tr id='tr-${ele.id}'>
-                <td>
-                    <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' checked onchange="selectMarker()" style='transform: scale(1.5)' />
-                </td>
-                <td>${ele.unipack2}</td>
-                <td>${ele.rffsty}</td>
-                <td>${ele.item_color}</td>
-                <td>${ele.rcutwd}</td>
-                <td>${ele.rfinwt}</td>
-                <td>
-                    <div class="input-group eye-password">
-                        <input type="number" class="form-control" data-id='${ele.id}' max="${remainYard}" min="0" value="${selectedRollList[0].usedYard}" id="used-yard-${ele.id}" onchange="yardChange()">
-                        <div class="input-group-addon">
-                            <span class="" id="inventory-yard-${ele.id}">${remainYard}</span>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" />
-                </td>
-                <td>${ele.rlocbr}</td>
-                <td>${ele.rgrade}</td>
-                <td>${ele.shade}</td>
-            </tr>`;
-        }
-        else{
-            if(remainYard > 0){
-                html += `<tr id='tr-${ele.id}'>
-                    <td>
-                        <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' onchange="selectMarker()" style='transform: scale(1.5)' />
-                    </td>
-                    <td>${ele.unipack2}</td>
-                    <td>${ele.rffsty}</td>
-                    <td>${ele.item_color}</td>
-                    <td>${ele.rcutwd}</td>
-                    <td>${ele.rfinwt}</td>
-                    <td>
-                        <div class="input-group eye-password">
-                            <input type="number" class="form-control" data-id='${ele.id}' max="${remainYard}" min="0" value="${remainYard}" id="used-yard-${ele.id}" onchange="yardChange()" disabled>
-                            <div class="input-group-addon">
-                                <span class="" id="inventory-yard-${ele.id}">${remainYard}</span>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" disabled />
-                    </td>
-                    <td>${ele.rlocbr}</td>
-                    <td>${ele.rgrade}</td>
-                    <td>${ele.shade}</td>
-                </tr>`;
+                let sameRoll = itemColorRollList.filter(x => x.unipack2 == ele.unipack2);
+                if (sameRoll.length > 0) {
+                    let i = itemColorRollList.indexOf(sameRoll[0]);
+                    itemColorRollList.splice(i, 1);
+                }
             }
-        }
-    }
 
-    $("#fabric-roll-table-body").html('');
-    $("#fabric-roll-table-body").append(html);
-    // tính tổng số yard các cuộn vải theo chi tiết marker
-    $("#txtFabricRollYard").text(selectedFabricRollList.filter(x => x.markerDetailId == currentMarkerDetail.id).reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
+            for (let i = 0; i < itemColorRollList.length; i++) {
+                let ele = itemColorRollList[i];
+
+                // kiểm tra xem danh sách chọn cuộn vải đã có cuộn này theo mã id cuộn và mã id chi tiết marker
+                // let selectedRollList = selectedFabricRollList.filter(x => x.id == ele.id && x.markerDetailId == markerDetail.id);
+                let selectedRollList = selectedFabricRollList.filter(x => x.unipack2 == ele.unipack2 && x.markerDetailId == markerDetail.id);
+
+                let isSelected = selectedRollList.length > 0 ? true : false; // nếu có thì checked checkbox
+
+                // kiểm tra xem danh sách chọn cuộn vải đã có cuộn này theo mã id cuộn và số lượng yard đã hết hay còn
+                let remainYard = parseFloat(ele.yard) - parseFloat(selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
+
+                if (isSelected) {
+                    html += `<tr id='tr-${ele.id}'>
+                                <td>
+                                    <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' checked onchange="selectMarker()" style='transform: scale(1.5)' />
+                                </td>
+                                <td>${ele.unipack2}</td>
+                                <td>${ele.rffsty}</td>
+                                <td>${ele.item_color}</td>
+                                <td>${ele.rcutwd}</td>
+                                <td>${ele.rfinwt}</td>
+                                <td>
+                                    <div class="input-group eye-password">
+                                        <input type="number" class="form-control" data-id='${ele.id}' max="${remainYard}" min="0" value="${selectedRollList[0].usedYard}" id="used-yard-${ele.id}" onchange="yardChange()">
+                                        <div class="input-group-addon">
+                                            <span class="" id="inventory-yard-${ele.id}">${remainYard}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" />
+                                </td>
+                                <td>${ele.rlocbr}</td>
+                                <td>${ele.rgrade}</td>
+                                <td>${ele.shade}</td>
+                                <td>${ele.qccomment}</td>
+                                <td>${ele.rprtcd}</td>
+                            </tr>`;
+                }
+                else {
+                    if (remainYard > 0) {
+                        html += `<tr id='tr-${ele.id}'>
+                                    <td>
+                                        <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' onchange="selectMarker()" style='transform: scale(1.5)' />
+                                    </td>
+                                    <td>${ele.unipack2}</td>
+                                    <td>${ele.rffsty}</td>
+                                    <td>${ele.item_color}</td>
+                                    <td>${ele.rcutwd}</td>
+                                    <td>${ele.rfinwt}</td>
+                                    <td>
+                                        <div class="input-group eye-password">
+                                            <input type="number" class="form-control" data-id='${ele.id}' max="${remainYard}" min="0" value="${remainYard}" id="used-yard-${ele.id}" onchange="yardChange()" disabled>
+                                            <div class="input-group-addon">
+                                                <span class="" id="inventory-yard-${ele.id}">${remainYard}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" disabled />
+                                    </td>
+                                    <td>${ele.rlocbr}</td>
+                                    <td>${ele.rgrade}</td>
+                                    <td>${ele.shade}</td>
+                                    <td>${ele.qccomment}</td>
+                                    <td>${ele.rprtcd}</td>
+                                </tr>`;
+                    }
+                }
+            }
+
+            $("#fabric-roll-table-body").html('');
+            $("#fabric-roll-table-body").append(html);
+            // tính tổng số yard các cuộn vải theo chi tiết marker
+            $("#txtFabricRollYard").text(selectedFabricRollList.filter(x => x.markerDetailId == currentMarkerDetail.id).reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
+
+        }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
 }
 
 
-function selectMarker(){
+function selectMarker() {
     let currentEle = $(event.target);
     let id = currentEle.attr('data-id');
     let isCheck = $(`#cb-${id}`).is(":checked");
@@ -417,7 +365,7 @@ function selectMarker(){
 
     let rootEleYard = parseFloat($(`#inventory-yard-${id}`).text());
 
-    if(isCheck){
+    if (isCheck) {
         currentYardEle.removeAttr("disabled");
         currentNoteEle.removeAttr("disabled");
 
@@ -426,7 +374,7 @@ function selectMarker(){
 
         $(`#inventory-yard-${id}`).text(rootEleYard - parseFloat(usedYard));
     }
-    else{
+    else {
         currentYardEle.attr("disabled", "disabled");
         currentNoteEle.attr("disabled", "disabled");
 
@@ -444,7 +392,7 @@ function selectMarker(){
     $("#txtFabricRollYard").text(selectedFabricRollList.filter(x => x.markerDetailId == currentMarkerDetail.id).reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
 }
 
-function yardChange(){
+function yardChange() {
     let currentEle = $(event.target);
     let id = parseInt(currentEle.attr('data-id'));
     let currentYardEle = $(`#used-yard-${id}`);
@@ -456,25 +404,25 @@ function yardChange(){
     let rollInfo = selectedFabricRollList.filter(x => x.roll_id == id && x.markerDetailId == currentMarkerDetail.id)[0];
 
     let sumYard = rollInfo.yard;
-    if(!rollInfo.date_update){
+    if (!rollInfo.date_update) {
         sumYard = oldVal + parseFloat($(`#inventory-yard-${id}`).text());
     }
 
     let remainYard = 0;
-    if(sumYard - usedYard < 0)
+    if (sumYard - usedYard < 0)
         remainYard = sumYard + usedYard;
-    else if(sumYard - usedYard > 0)
+    else if (sumYard - usedYard > 0)
         remainYard = sumYard - usedYard;
     else
         remainYard = 0;
     $(`#inventory-yard-${id}`).text(remainYard);
-    
+
     rollInfo.usedYard = usedYard;
     // tính tổng số yard các cuộn vải theo chi tiết marker
     $("#txtFabricRollYard").text(selectedFabricRollList.filter(x => x.markerDetailId == currentMarkerDetail.id).reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
 }
 
-function noteChange(){
+function noteChange() {
     let currentEle = $(event.target);
     let id = currentEle.attr('data-id');
     let currentNoteEle = $(`#note-${id}`);
@@ -485,9 +433,9 @@ function noteChange(){
 }
 
 // change color of ....
-function confirmSelectedMarker(){
+function confirmSelectedMarker() {
     let isLess = parseFloat($('#txtFabricRollYard').text()) < parseFloat($('#txtFabricRollDemandYard').text());
-    if(isLess){
+    if (isLess) {
         toastr.warning("Bạn chưa chọn đủ cuộn vải với số lượng yard cần", "Cảnh báo");
     }
 
@@ -495,11 +443,11 @@ function confirmSelectedMarker(){
     $("#modalFabricRoll").modal("hide");
 }
 
-function whSubmitData(){
+function whSubmitData() {
     Action(markerPlan.id);
 }
 
-function whPrepare(){
+function whPrepare() {
     markerPlan.note = $("#txtNote").val();
     // send to server
     let action = baseUrl + 'warehouse-confirm';
@@ -525,13 +473,13 @@ function whPrepare(){
     });
 }
 
-function openPreviewTicket(){
+function openPreviewTicket() {
     $("#modalPreviewTicket").modal("show");
     getMarkerPlanDetailPreview();
 }
 
-function getMarkerPlanDetailPreview(){
-     
+function getMarkerPlanDetailPreview() {
+
     $("#txtPReceiveDate").val(markerPlan.receive_date);
     $("#txtPReceiveTime").val(markerPlan.receive_time);
     $("#txtPGroup").val(markerPlan._group);
@@ -544,14 +492,14 @@ function getMarkerPlanDetailPreview(){
     let colorFlag = '';
     for (let i = 0; i < markerDetailList.length; i++) {
         let eleMarkerDetail = markerDetailList[i];
-        if(eleMarkerDetail.item_color != colorFlag){
+        if (eleMarkerDetail.item_color != colorFlag) {
             let selectedRollList = selectedFabricRollList.filter(x => x.markerDetailId == eleMarkerDetail.id);
             let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0);
             let rollCount = selectedRollList.length;
             let sameColorList = markerDetailList.filter(x => x.item_color == eleMarkerDetail.item_color);
             let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
 
-            if(selectedRollList.length > 0){
+            if (selectedRollList.length > 0) {
                 let str = `<tr style='background: #ced6dd'>
                     <td></td>
                     <td></td>
@@ -585,13 +533,13 @@ function getMarkerPlanDetailPreview(){
         }
         colorFlag = eleMarkerDetail.item_color;
     }
-    
+
     $("#preview-fabric-table-body").html('');
     $("#preview-fabric-table-body").append(html);
 }
 
 // Action
-function Action(groupId){
+function Action(groupId) {
     // Call to server
     LoadingShow();
     var action = baseUrl + 'action';
@@ -620,7 +568,7 @@ function Action(groupId){
 // 
 $(document).on("keyup", ".txtSearchBin", $.debounce(250, searchByColumn));
 var isAsc = true;
-function searchByColumn(){
+function searchByColumn() {
     let currentInput = $(".txtSearchBin").val().toLowerCase();
 
     // lấy dữ liệu nguồn các cuộn vải theo item_color của chi tiết marker
@@ -635,24 +583,24 @@ function searchByColumn(){
     // itemColorRollList = unique(itemColorRollList, ['unipack2', 'yard']);
 
     html = '';
-    if(markerPlan.wh_prepare == '0'){ // warehouse đã chuẩn bị phiếu - wh_prepare
+    if (markerPlan.wh_prepare == '0') { // warehouse đã chuẩn bị phiếu - wh_prepare
         //selectedRollList = selectedFabricRollList.filter(x => x.marker_plan_detail_id == markerDetail.id);  
 
         for (let i = 0; i < selectedRollList.length; i++) {
             let ele = selectedRollList[i];
 
             let sameRollRemainYard = itemColorRollList.filter(x => x.unipack2 == ele.unipack2);
-            if(sameRollRemainYard && sameRollRemainYard.length > 0){
+            if (sameRollRemainYard && sameRollRemainYard.length > 0) {
                 let i = itemColorRollList.indexOf(sameRollRemainYard[0]);
-                itemColorRollList.splice(i, 1); 
-                if(ele.yard == sameRollRemainYard[0].yard){
+                itemColorRollList.splice(i, 1);
+                if (ele.yard == sameRollRemainYard[0].yard) {
                     ele.yard = ele.yard - parseFloat(ele.usedYard);
                 }
-                else{
+                else {
                     ele.yard = sameRollRemainYard[0].yard;
                 }
             }
-            
+
             html += `<tr id='tr-${ele.roll_id}'>
                 <td>
                     <input type='checkbox' data-id='${ele.roll_id}' class='marker-select' id='cb-${ele.roll_id}' checked onchange="selectMarker()" style='transform: scale(1.5)' />
@@ -676,6 +624,8 @@ function searchByColumn(){
                 <td>${ele.rlocbr}</td>
                 <td>${ele.rgrade}</td>
                 <td>${ele.shade}</td>
+                <td>${ele.qccomment}</td>
+                <td>${ele.rprtcd}</td>
             </tr>`;
         }
     }
@@ -698,7 +648,7 @@ function searchByColumn(){
         // kiểm tra xem danh sách chọn cuộn vải đã có cuộn này theo mã id cuộn và số lượng yard đã hết hay còn
         let remainYard = parseFloat(ele.yard) - parseFloat(selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.usedYard), 0));
 
-        if(isSelected){
+        if (isSelected) {
             html += `<tr id='tr-${ele.id}'>
                 <td>
                     <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' checked onchange="selectMarker()" style='transform: scale(1.5)' />
@@ -722,10 +672,12 @@ function searchByColumn(){
                 <td>${ele.rlocbr}</td>
                 <td>${ele.rgrade}</td>
                 <td>${ele.shade}</td>
+                <td>${ele.qccomment}</td>
+                <td>${ele.rprtcd}</td>
             </tr>`;
         }
-        else{
-            if(remainYard > 0){
+        else {
+            if (remainYard > 0) {
                 html += `<tr id='tr-${ele.id}'>
                     <td>
                         <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' onchange="selectMarker()" style='transform: scale(1.5)' />
@@ -749,6 +701,8 @@ function searchByColumn(){
                     <td>${ele.rlocbr}</td>
                     <td>${ele.rgrade}</td>
                     <td>${ele.shade}</td>
+                    <td>${ele.qccomment}</td>
+                    <td>${ele.rprtcd}</td>
                 </tr>`;
             }
         }

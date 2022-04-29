@@ -82,30 +82,7 @@
                     <div class="">
                         <div class="row">
                             <div class="col-md-12">
-                                <nav class="navbar navbar-default navbar-static-top mb-0">
-                                    <div class="">
-                                        <div class="navbar-header">
-                                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                                                <span class="sr-only">Toggle navigation</span>
-                                                <span class="icon-bar"></span>
-                                                <span class="icon-bar"></span>
-                                                <span class="icon-bar"></span>
-                                            </button>
-                                            <!-- <a class="navbar-brand" href="#">Quét nhận vải</a> -->
-                                        </div>
-                                        <div id="navbar" class="navbar-collapse collapse">
-                                            <ul class="nav navbar-nav">
-                                                <li class=""><a href="/cutting/fabric-receive">Giao nhận vải Kanban</a></li>
-                                                <li class="active"><a href="/cutting/fabric-receive/return-data">Nhận vải return</a></li>
-                                                <li class=""><a href="/cutting/fabric-receive/inventory-data">Dữ liệu vải tồn kho</a></li>
-                                            </ul>
-                                            <ul class="nav navbar-nav navbar-right">
-
-                                            </ul>
-                                        </div>
-                                        <!--/.nav-collapse -->
-                                    </div>
-                                </nav>
+                                <%- include ("partialMenuBar.ejs"); -%>
                             </div>
                         </div>
                         <div class="bg-white fabric-receive mt-3">
@@ -176,8 +153,8 @@
                                 <div class="col-sm-12 col-md-12 pl-0 pr-0 scanned-table">
                                     <table class="table table-bordered table-scrollable mb-0 table-kanban">
                                         <thead class="sticky-thead">
-                                            <th>Số phiếu</th>                                    
-                                            <th>Filename</th>
+                                            <th>#</th>                                    
+                                            <th>Số phiếu</th>
                                             <th>WH Status</th>
                                             <th>User Update</th>
                                             <th>Date Update</th>
