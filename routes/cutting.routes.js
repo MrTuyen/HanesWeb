@@ -25,6 +25,7 @@ router.get("/fabric-receive/marker-data-detail", fabricReceiveController.getInde
 router.post("/fabric-receive/get-marker-data-detail", fabricReceiveController.getMarkerDataDetail)
 router.post("/fabric-receive/get-other-selected-roll", fabricReceiveController.getOtherSelectedRoll)
 router.post("/fabric-receive/action", fabricReceiveController.action)
+router.get("/fabric-receive/scan-marker-data-detail", fabricReceiveController.getIndexScanMarkerDataDetail)
 router.post("/fabric-receive/warehouse-confirm", fabricReceiveController.warehouseConfirm)
 router.post("/fabric-receive/ccd-confirm", fabricReceiveController.ccdConfirm)
 
@@ -58,6 +59,7 @@ router.get("/fabric-receive/return-data-detail", fabricReceiveController.getInde
 router.post("/fabric-receive/get-return-data-detail", fabricReceiveController.getReturnDataDetail)
 router.post("/fabric-receive/wh-confirm-return", fabricReceiveController.whConfirmReturn)
 router.post("/fabric-receive/cancel-return-data", fabricReceiveController.cancelReturnData)
+router.post("/fabric-receive/download-return-roll-data", fabricReceiveController.downloadReturnRollData)
 
 // Fabric Receive: Dashboard, Report
 router.get("/fabric-receive/report-dashboard", fabricReceiveController.getReportDashboard)

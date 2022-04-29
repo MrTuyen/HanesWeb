@@ -10,10 +10,16 @@ var wh_display = (userLogin.dept == Enum_Department.Warehouse || userLogin.posit
 var ccd_display = (userLogin.dept == Enum_Department.Cutting || userLogin.position == "Admin") ? "" : "display-none";
 const statusList = [
     {
-        index: 1, value : 'Done'
+        index: 0, value : 'Done'
     },
     {
-        index: 0, value : 'All'
+        index: 1, value : 'Canceled'
+    },
+    {
+        index: 2, value : 'Not yet'
+    },
+    {
+        index: 3, value : 'All'
     }
 ]
 
@@ -198,6 +204,37 @@ function cancel(id){
         }
     });
 }
+
+function downloadReturnRollData(){
+    let filterStatus = $("#txtFilterStatus").val();
+    let filterDate = '';
+
+    filterDate = $("#txtFilterTime").val();
+    if (filterDate.toString() == "5") {
+        filterDate = $("#txtFilterFrom").val() + ";" + $("#txtFilterTo").val();
+    }
+
+    let action = baseUrl + 'download-return-roll-data';
+    let datasend = {
+        filterStatus: filterStatus,
+        filterDate: filterDate
+    };
+
+    LoadingShow();
+    fetch(action, {
+        method: 'POST',
+        body: JSON.stringify(datasend),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    }).then(function (resp) {
+        return resp.blob();
+    }).then(function (blob) {
+        LoadingHide();
+        return download(blob, GetTodayDate() + "_Return_Roll_Data.xlsx");
+    });
+}
+
 // #endregion
 
 // #region Socket

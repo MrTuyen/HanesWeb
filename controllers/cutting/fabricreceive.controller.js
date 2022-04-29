@@ -32,6 +32,7 @@ module.exports.getIndex = function (req, res) {
 module.exports.getMarkerData = async function (req, res) {
     try {
         // parameters
+        let filterPlant = req.body.filterPlant;
         let filterGroup = req.body.filterGroup;
         let filterWarehouseStatus = req.body.filterWarehouseStatus;
         let filterStatus = req.body.filterStatus;
@@ -41,7 +42,7 @@ module.exports.getMarkerData = async function (req, res) {
         let toDate = filterDate.split(';')[1];
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}', ${filterWeek}, '${filterWarehouseStatus}')`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterPlant}', '${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}', ${filterWeek}, '${filterWarehouseStatus}')`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -876,6 +877,7 @@ module.exports.printTicket = async function (req, res) {
 module.exports.downloadMarkerData = function (req, res) {
     try {
         // parameters
+        let filterPlant = req.body.filterPlant;
         let filterGroup = req.body.filterGroup;
         let filterWarehouseStatus = req.body.filterWarehouseStatus;
         let filterStatus = req.body.filterStatus;
@@ -886,7 +888,7 @@ module.exports.downloadMarkerData = function (req, res) {
         let toDate = filterDate.split(';')[1];
 
         // execute
-        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}', ${filterWeek}, '${filterWarehouseStatus}')`, function (result) {
+        db.excuteSP(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterPlant}', '${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}', ${filterWeek}, '${filterWarehouseStatus}')`, function (result) {
             if (!result.rs) {
                 res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
             }
@@ -937,6 +939,7 @@ module.exports.downloadMarkerData = function (req, res) {
 module.exports.downloadRollData = async function (req, res) {
     try {
         // parameters
+        let filterPlant = req.body.filterPlant;
         let filterGroup = req.body.filterGroup;
         let filterWarehouseStatus = req.body.filterWarehouseStatus;
         let filterStatus = req.body.filterStatus;
@@ -946,7 +949,7 @@ module.exports.downloadRollData = async function (req, res) {
         let toDate = filterDate.split(';')[1];
 
         // execute
-        let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}', ${filterWeek}, '${filterWarehouseStatus}')`);
+        let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data ('${filterPlant}', '${filterGroup}', '${filterStatus}', '${fromDate}', '${toDate}', ${filterWeek}, '${filterWarehouseStatus}')`);
 
         // list marker plan => return id, group
         // let markerInfoList = result[0].filter(x => x.cancel_date != null);
@@ -1483,7 +1486,6 @@ module.exports.getIndexReturnData = function (req, res) {
     res.render('Cutting/FabricReceive/FabricReturnData', { user: user });
 }
 
-// marker data
 module.exports.getReturnData = async function (req, res) {
     try {
         // parameters
@@ -1690,6 +1692,79 @@ module.exports.saveUploadReturnData = async function (req, res) {
     }
 }
 
+module.exports.downloadReturnRollData = async function (req, res) {
+    try {
+        // parameters
+        let filterStatus = req.body.filterStatus;
+        let filterDate = req.body.filterDate;
+        let fromDate = filterDate.split(';')[0];
+        let toDate = filterDate.split(';')[1];
+
+        // execute
+        let result = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Return_Data ('${filterStatus}', '${fromDate}', '${toDate}')`);
+         
+        // get all return roll from returnIdList
+        let returnIdList = [];
+        returnIdList = result[0] ? result[0].map(x => x.id) : [];
+        let query = `SELECT * FROM cutting_fr_return_fabric_roll_detail WHERE master_id IN (${returnIdList})`;
+        let returnRollList = await db.excuteQueryAsync(query);
+
+        if(returnRollList.length <= 0)
+            return res.end(JSON.stringify({ rs: false, msg: "" }));
+ 
+        let finalResponse = [];
+        for (let i = 0; i < returnRollList.length; i++) {
+            let ele = returnRollList[i];
+
+            let rrObj = new ReturnRollData(
+                result[0].filter(x => x.id == ele.master_id)[0].filename,
+                ele._group,
+                ele.item_color,
+                ele.unipack_receive,
+                ele.unipack_receive,
+                ele.return_qty_lbs,
+                ele.return_qty_yard,
+                ele.location
+            );
+
+            finalResponse.push(rrObj);
+        }
+
+        let jsonModel = JSON.parse(JSON.stringify(finalResponse));
+
+        let workbook = new excel.Workbook(); //creating workbook
+        let worksheet = workbook.addWorksheet('Roll Data'); //creating worksheet
+
+        //  WorkSheet Header
+        worksheet.columns = [
+            { header: 'ticket', key: 'ticket', width: 10 },
+            { header: 'group', key: 'group', width: 10 },
+            { header: 'item_color', key: 'item_color', width: 20 },
+            { header: 'unipack_receive', key: 'unipack_receive', width: 20 },
+            { header: 'unipack_return', key: 'unipack_return', width: 20 },
+            { header: 'return_qty_lbs', key: 'return_qty_lbs', width: 20 },
+            { header: 'return_qty_yard', key: 'return_qty_yard', width: 20 },
+            { header: 'location', key: 'location', width: 20 }
+        ];
+
+        // Add Array Rows
+        worksheet.addRows(jsonModel);
+
+        // Write to File
+        let filename = "templates/return_roll_data.xlsx";
+        workbook.xlsx.writeFile(filename).then(function () {
+            res.download(filename);
+        });
+    } catch (error) {
+        logHelper.writeLog("fabricreceive.downloadReturnRollData", error);
+    }
+}
+
+// cutting scan
+module.exports.getIndexScanMarkerDataDetail = async function (req, res) {
+    res.render('Cutting/FabricReceive/ScanFabric');
+}
+
 // report dashboard
 module.exports.getReportDashboard = function (req, res) {
     let user = req.user;
@@ -1821,5 +1896,18 @@ class ReportMarker {
         this.total_warehouse_supply = total_warehouse_supply;
         this.return_qty = return_qty;
         this.diference = diference;
+    }
+}
+
+class ReturnRollData {
+    constructor(ticket, group, item_color, unipack_receive, unipack_return, return_qty_lbs, return_qty_yard, location){
+        this.ticket = ticket;
+        this.group = group;
+        this.item_color = item_color;
+        this.unipack_receive = unipack_receive;
+        this.unipack_return = unipack_return;
+        this.return_qty_lbs = return_qty_lbs;
+        this.return_qty_yard = return_qty_yard;
+        this.location = location;
     }
 }

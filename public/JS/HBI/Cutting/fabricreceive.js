@@ -98,6 +98,7 @@ $(document).ready(function () {
     // get list marker data
     if(localStorage.getItem(filterLocalStorage) != null){
         let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+        $("#txtFilterPlant").val(filter ? filter.filterPlant : '');
         $("#txtFilterGroup").val(filter ? filter.filterGroup : '');
         $("#txtFilterStatus").val(filter ? filter.filterStatus : '');
         $("#txtFilterWarehouseStatus").val(filter ? filter.filterWarehouseStatus : '');
@@ -106,6 +107,7 @@ $(document).ready(function () {
             $("#cbViewType").attr('checked', true);
         }else{
             $("#cbViewType").attr('checked', false);
+            $(`#txtFilterWeek`).val(filter ? filter.filterWeek : new Date().getWeekNumber());
         }
 
         displayFilter();
@@ -126,15 +128,25 @@ function displayFilter(){
         let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
         let statusVal = statusList.filter(x => x.index == filter.filterStatus)[0].value;
         let warehouseStatusVal = warehouseStatusList.filter(x => x.index == filter.filterWarehouseStatus)[0].value;
+        let filterPlant = filter.filterPlant ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterPlant'})">${filter.filterPlant}<i class="fa fa-times"></i></span>` : "";
         let filterGroup = filter.filterGroup ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterGroup'})">${filter.filterGroup}<i class="fa fa-times"></i></span>` : "";
         let filterStatus = filter.filterStatus ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterStatus'})">${statusVal}<i class="fa fa-times"></i></span>` : "";
         let filterWarehouseStatus = filter.filterWarehouseStatus ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterWarehouseStatus'})">${warehouseStatusVal}<i class="fa fa-times"></i></span>` : "";
+        let weekVal = filter.filterWeek ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterWeek'})">WK: ${filter.filterWeek}<i class="fa fa-times"></i></span>` : "";
 
-        $("#filter-area").html(filterGroup + filterStatus + filterWarehouseStatus);
+        $("#filter-area").html(filterPlant + filterGroup + filterStatus + filterWarehouseStatus + weekVal);
     }
 }
 
 function changeViewType() {
+    let weekVal = new Date().getWeekNumber();
+    if(localStorage.getItem(filterLocalStorage) != null){
+        let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+        if(!filter.viewType){
+            weekVal = filter.filterWeek != '' ? filter.filterWeek : new Date().getWeekNumber();
+        }
+    }
+    
     $(`#dateValue`).css("display", "none");
     $(`#weekValue`).css("display", "none");
     let viewType = $(`#cbViewType`).is(":checked");
@@ -142,7 +154,7 @@ function changeViewType() {
         $(`#dateValue`).css("display", "none");
         $(`#weekValue`).css("display", "block");
         $(`#txtFilterWeek`).focus();
-        $(`#txtFilterWeek`).val(new Date().getWeekNumber());
+        $(`#txtFilterWeek`).val(weekVal);
     }
     else {
         $(`#dateValue`).css("display", "block");
@@ -160,6 +172,7 @@ function changeDateFilter() {
 }
 
 function getListMarkerData() {
+    let filterPlant = $("#txtFilterPlant").val();
     let filterGroup = $("#txtFilterGroup").val();
     let filterWarehouseStatus = $("#txtFilterWarehouseStatus").val();
     let filterStatus = $("#txtFilterStatus").val();
@@ -178,6 +191,7 @@ function getListMarkerData() {
 
     let action = baseUrl + 'get-marker-data';
     let datasend = {
+        filterPlant: filterPlant,
         filterGroup: filterGroup,
         filterStatus: filterStatus,
         filterDate: filterDate,
@@ -300,6 +314,7 @@ function getListMarkerData() {
 }
 
 function downloadMarkerData() {
+    let filterPlant = $("#txtFilterPlant").val();
     let filterGroup = $("#txtFilterGroup").val();
     let filterWarehouseStatus = $("#txtFilterWarehouseStatus").val();
     let filterStatus = $("#txtFilterStatus").val();
@@ -318,6 +333,7 @@ function downloadMarkerData() {
 
     let action = baseUrl + 'download-marker-data';
     let datasend = {
+        filterPlant: filterPlant,
         filterGroup: filterGroup,
         filterStatus: filterStatus,
         filterDate: filterDate,
@@ -341,6 +357,7 @@ function downloadMarkerData() {
 }
 
 function downloadRollData() {
+    let filterPlant = $("#txtFilterPlant").val();
     let filterGroup = $("#txtFilterGroup").val();
     let filterWarehouseStatus = $("#txtFilterWarehouseStatus").val();
     let filterStatus = $("#txtFilterStatus").val();
@@ -359,6 +376,7 @@ function downloadRollData() {
 
     let action = baseUrl + 'download-roll-data';
     let datasend = {
+        filterPlant: filterPlant,
         filterGroup: filterGroup,
         filterStatus: filterStatus,
         filterDate: filterDate,

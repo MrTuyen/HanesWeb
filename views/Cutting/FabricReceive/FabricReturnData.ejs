@@ -100,7 +100,9 @@
                                                             <label for="" class="col-form-label">Status</label>
                                                             <div class="input-group w-100">
                                                                 <select class="form-control w-100" name="" id="txtFilterStatus">
-                                                                    <option value="1"> Done </option>
+                                                                    <option value="0"> Done </option>
+                                                                    <option value="1"> Canceled </option>
+                                                                    <option value="2"> Not yet </option>
                                                                     <option value="" selected> All </option>
                                                                 </select>
                                                             </div>
@@ -130,6 +132,7 @@
                                                         </div>
                                                     </div>                                               
                                                     <div class="justify-content-between align-items-center mt-3 text-right">
+                                                        <button type="button" class="btn btn-light btn-sm <%= wh_disabled %>" onclick="downloadReturnRollData()">WH Download</button>
                                                         <button type="button" class="btn btn-success btn-sm" onclick="getListReturnData()">Search</button>
                                                     </div>
                                                 </form>

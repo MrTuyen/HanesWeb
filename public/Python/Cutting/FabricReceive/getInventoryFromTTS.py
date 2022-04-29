@@ -120,7 +120,7 @@ if __name__ == "__main__":
             unipack2 = '0' + tempUnipack if len(tempUnipack) < 8 else tempUnipack
             itemColor = row.RFFSTY + '-' + row.RCOLOR + '-' + str(row.RCUTWD).split('.0')[0]
             if len(row.RPRTCD.strip()) > 0:
-                itemColor = row.RFFSTY + row.RPRTCD.strip() + str(row.RCUTWD).split('.0')[0]
+                itemColor = row.RFFSTY + '-' + row.RPRTCD.strip() + '-' +str(row.RCUTWD).split('.0')[0]
 
             temp = (
                 row.RUNIP,
