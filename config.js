@@ -13,4 +13,15 @@ config.mailSystem = "hbi_system@hanes.com";
 config.TTS_Account = "thle11";
 config.TTS_Password = "Baonam01";
 
+// Fabric Receive
+config.MailList = `HYS_Warehouse_92_Fabric@hanes.com,
+                    Cuttingteam@hanes.onmicrosoft.com,
+                    Cutting95@hanes.onmicrosoft.com,
+                    Marker_92_WB@hanes.onmicrosoft.com,
+                    marker_bra@hanes.onmicrosoft.com,
+                    HYS_PLANNING_Team@hanes.com,
+                    HBI_Planning_HYN@hanes.com`;
+
+config.TestMailList = `hys_innovation@hanes.onmicrosoft.com`;
+
 module.exports = config;

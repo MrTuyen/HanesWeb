@@ -163,7 +163,7 @@ function scanBarcode() {
 
         let rollCode = $("#txtRollCode");
         if (rollCode.val().length > 0) {
-            let code = rollCode.val();
+            let code = rollCode.val().trim();
             rollCode.val('');
             let scannedTime = formatMMDDYYHHMMSS(new Date());
 

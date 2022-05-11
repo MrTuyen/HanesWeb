@@ -88,7 +88,7 @@ helper.round = (x, n = 2) => {
 // #region Mail
 helper.sendMailSystem = function (subject, to, cc, body) {
     let signature = "<br/><br/><br/><br/>------------------------------------------------<br/>";
-    signature += "Welcome to HYC Application Center<br/> Contact Dev: Tuyen.Nguyen@hanes.com";
+    signature += "Welcome to HYS Innovation Application Center<br/> Contact Dev: Tuyen.Nguyen@hanes.com";
     body = body + signature;
 
     let mailOptions = {
@@ -116,7 +116,7 @@ helper.sendMailSystem = function (subject, to, cc, body) {
 
 helper.sendMail = function (subject, from, to, cc, body) {
     let signature = "<br/><br/><br/><br/>------------------------------------------------<br/>";
-    signature += "Welcome to HYC Application Center<br/> Contact Dev: Tuyen.Nguyen@hanes.com";
+    signature += "Welcome to HYS Innovation Application Center<br/> Contact Dev: Tuyen.Nguyen@hanes.com";
     body = body + signature;
 
     let mailOptions = {

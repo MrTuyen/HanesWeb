@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../../public/Contents/libs/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../Contents/libs/bootstrap/css/bootstrap.min.css">
+	<style>
+		body {
+			font-size: 8px;
+		}
+
+		table {
+			border-spacing: 0;
+			font-size: 8px;
+		}
+	</style>
+</head>
+
+<body>
+	<table class="table-bordered w-100 text-center">
+		<tr>
+			<td rowspan="4">
+				<img src="../Image/logo.png" width="32" alt="logo">
+			</td>
+			<td  rowspan="4"><h6 class="text-center">BIÊN BẢN XUẤT VẢI</h6></td>
+			<td >HYC-F-WH-041</td>
+		</tr>
+		<tr>
+			<td>Lần sửa đổi: 00</td>
+		</tr>
+		<tr>
+			<td>Ngày sửa đổi: 31/08/2020</td>
+		</tr>
+		<tr>
+			<td>Trang:</td>
+		</tr>
+	</table>
+	<table class="w-100">
+		{{table1}}
+	</table>
+	<table class="table-bordered w-100">
+		<thead>
+			<tr>
+				<td>#</td>
+				<td>Mã hàng</td>
+				<td>BARCODE</td>
+				<td>WO</td>
+				<td>Ass</td>
+				<td>Demand yard</td>
+				<td>Unipacks</td>
+				<td>Yard</td>
+				<td>Lbs</td>
+				<td>Grade</td>
+				<td>Location</td>
+				<td>Shade</td>
+				<td>Actual Width</td>
+				<td>PO</td>
+				<td>Shipment</td>
+				<td>Note</td>	
+			</tr>
+		</thead>
+		<tbody>
+			{{table2}}
+		</tbody>
+	</table>
+
+	<table class="table-bordered w-75 text-center mt-2">
+		<tr>
+			<td>Người lập phiếu</td>
+			<td>Người lấy hàng</td>
+			<td>Người xuất hàng</td>
+			<td>Người nhập hàng</td>
+		</tr>
+		<tr style="height: 40px">
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+
+	<script>
+		(function(){
+			window.print();		
+		})();
+	</script>
+</body>
+
+</html>

@@ -69,12 +69,15 @@
                         <div class="col-md-12 col-sm-12">
                             <div class="d-flex pr-4 mt-1">
                                 <div class="p-0">
-                                    <div class="input-group">
-                                        <button class="btn btn-success mr-2 btn-sm <%= wh_disabled %>" data-target="#modalUploadInventoryData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu tồn kho</button>
+                                    <div class="input-group mr-2">
+                                        <button class="btn btn-success btn-sm <%= wh_disabled %>" onclick="getDataFromTTS()"><i class="fa fa-download"></i> &nbsp; Lấy dữ liệu tồn kho từ TTS</button>
+                                        <button type="button" class="btn btn-success dropdown-toggle btn-sm <%= wh_disabled %>" data-toggle="dropdown">
+                                            <span class="fa fa-angle-down"></span>
+                                        </button>
+                                        <div class="dropdown-menu p-3" style="left: 183px">
+                                            <button class="btn btn-success mr-2 btn-sm <%= wh_disabled %>" data-target="#modalUploadInventoryData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu tồn kho</button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="input-group">
-                                    <button class="btn btn-success mr-2 btn-sm <%= wh_disabled %>" onclick="getDataFromTTS()"><i class="fa fa-download"></i> &nbsp; Lấy dữ liệu tồn kho từ TTS</button>
                                 </div>
                                 <div class="p-0 mb-3 mr-2">
                                     <div class="btn-group btn-filter">
@@ -122,17 +125,11 @@
                                                 <div class="mt-2 d-flex">
                                                     <div class="w-100">
                                                         <label for="" class="col-form-label">Note</label>
-                                                        <div class="input-group w-100">
-                                                            <select class="form-control w-100" name="" id="txtFilterNote">
-                                                                <option value=""> All </option>
-                                                                <option value="0"> Yes </option>
-                                                                <option value="1"> No </option>
-                                                            </select>
-                                                        </div>
+                                                        <input type="text" class="form-control w-100" id="txtFilterNote">
                                                     </div>
                                                 </div>
                                                 <div class="justify-content-between align-items-center mt-3 text-right">
-                                                    <button type="button" class="btn btn-light btn-sm" onclick="downloadInventoryData()">Download</button>
+                                                    <!-- <button type="button" class="btn btn-light btn-sm" onclick="downloadInventoryData()">Download</button> -->
                                                     <button type="button" class="btn btn-success btn-sm" onclick="getInventoryData(1)">Search</button>
                                                 </div>
                                             </form>
@@ -154,6 +151,7 @@
                                     <thead class="sticky-thead">
                                         <th>Status</th>
                                         <th>Note</th>
+                                        <th>Plant</th>
                                         <th>Unipack</th>
                                         <th>Item Color</th>
                                         <th>Lbs</th>

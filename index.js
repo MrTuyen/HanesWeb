@@ -54,6 +54,18 @@ var app = express();
 //cau hinh dang nhap voi user va password
 var passport = require('passport');
 var session = require('express-session');
+
+var MySQLStore = require('express-mysql-session')(session);
+var options = {
+	host: 'localhost',
+	port: 3306,
+	user: 'root',
+	password: '123456',
+	database: 'erpsystem'
+};
+
+var sessionStore = new MySQLStore(options);
+
 var flash = require('connect-flash');
 var LocalStrategy = require('passport-local').Strategy;
 //cau hinh python read - write
@@ -86,6 +98,7 @@ app.use('/cutting/image4', express.static(staticCuttingResource4));
 app.use(express.static("public"));
 
 app.use(session({
+    store: sessionStore,
     secret: "secret",
     saveUninitialized: true,
     resave: true,

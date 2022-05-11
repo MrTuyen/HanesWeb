@@ -104,6 +104,7 @@ function getInventoryData(intPage){
                 html += `<tr>
                     <td>${ele.status == 0 ? "" : "Đã sử dụng"}</td>
                     <td>${ele.note ? ele.note : ''}</td>
+                    <td>${ele.plant}</td>
                     <td>${ele.unipack2}</td>
                     <td>${ele.item_color}</td>
                     <td>${ele.rfinwt}</td>

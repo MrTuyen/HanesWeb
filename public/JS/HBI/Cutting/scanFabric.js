@@ -345,7 +345,7 @@ function scanBarcode() {
     if (event.which === 13 || event.key == 'Enter') {
         let rollCode = $("#txtRollCode");
         if (rollCode.val().length > 0) {
-            let code = rollCode.val();
+            let code = rollCode.val().trim();
             rollCode.val('');
             let scannedTime = formatMMDDYYHHMMSS(new Date());
 
@@ -415,7 +415,7 @@ function uploadExcel(){
                         let options = "";
                         for (var j = 0; j < ele.sheets.length; j++) {
                             let item = ele.sheets[j];
-                            if(item.sheetname == 'Upload-YCV')
+                            if(item.sheetname == 'Upload-YCT')
                                 options += "<option value =" + item.id + " selected>" + item.sheetname + "</option>";
                             else 
                                 options += "<option value=" + item.id + ">" + item.sheetname + "</option>";

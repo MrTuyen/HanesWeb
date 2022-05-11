@@ -113,6 +113,7 @@ function getMarkerPlanDetail() {
             $("#txtCreatedDate").val(master.date_update);
             $("#txtWeek").val(new Date(master.date_update).getWeekNumber());
             $("#txtNote").val(master.note);
+            $("#txtWHNote").val(master.wh_note);
 
             let html = '';
             $("#table1").css("display", "block");
@@ -180,7 +181,7 @@ function OpenModalMarkerDetail(markerDetail) {
                                 $("#item-color-table-body").html('').append(html);
 
                                 html = `<tr>
-                            <td class='text-left'>Số lượng chọn / Số lượng marker yêu cầu: <span class='text-danger' id='txtFabricRollYard'>0</span> / <span class='text-success' id='txtFabricRollDemandYard'>${sumYard}</span></td>
+                            <td class='text-left'>Tổng tồn kho khả dụng: <span class='text-danger' id='txtSumInventory'>0</span> Số lượng chọn / Số lượng marker yêu cầu: <span class='text-danger' id='txtFabricRollYard'>0</span> / <span class='text-success' id='txtFabricRollDemandYard'>${sumYard}</span></td>
                         </tr>`
                 $("#sum-table-body").html(html);
 
@@ -219,16 +220,17 @@ function OpenModalMarkerDetail(markerDetail) {
                             ele.yard = sameRollRemainYard[0].yard;
                         }
                     }
+                    // notice here assign ele.yard = 0 for remain if not exist in TTS or the roll has been used. or calculte to a variable to avoid problem
+                    else{
+                        ele.yard = 0;
+                    }
 
                     html += `<tr id='tr-${ele.roll_id}'>
                                 <td>
                                     <input type='checkbox' data-id='${ele.roll_id}' class='marker-select' id='cb-${ele.roll_id}' checked onchange="selectMarker()" style='transform: scale(1.5)' />
                                 </td>
                                 <td>${ele.unipack2}</td>
-                                <td>${ele.rffsty}</td>
-                                <td>${ele.item_color}</td>
-                                <td>${ele.rcutwd}</td>
-                                <td>${ele.rfinwt}</td>
+                                <td>${ele.rlocbr}</td>
                                 <td>
                                     <div class="input-group eye-password">
                                         <input type="number" class="form-control" data-id='${ele.roll_id}' max="${ele.usedYard + ele.yard}" min="0" old-val="${ele.usedYard}" value="${ele.usedYard}" id="used-yard-${ele.roll_id}" onchange="yardChange()">
@@ -237,14 +239,16 @@ function OpenModalMarkerDetail(markerDetail) {
                                         </div>
                                     </div>
                                 </td>
+                                <td>${ele.rfinwt}</td>
+                                <td>${ele.shade}</td>
+                                <td>${ele.rgrade}</td>
+                                <td>${ele.qccomment}</td>
                                 <td>
                                     <input type='text' class='form-control' data-id='${ele.roll_id}' id='note-${ele.roll_id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" />
                                 </td>
-                                <td>${ele.rlocbr}</td>
-                                <td>${ele.rgrade}</td>
-                                <td>${ele.shade}</td>
-                                <td>${ele.qccomment}</td>
-                                <td>${ele.rprtcd}</td>
+                                <td>${ele.item_color}</td>
+                                <td>${ele.with_actual}</td>
+                                <td>${ele.vendor}</td>
                             </tr>`;
                 }
             }
@@ -260,6 +264,11 @@ function OpenModalMarkerDetail(markerDetail) {
                 }
             }
 
+            // Tính tổng tồn kho. Nếu còn đủ thì chọn không thì thôi
+            let sumInventory = parseFloat(itemColorRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0));
+            $("#txtSumInventory").text(sumInventory.toFixed(2));
+
+            // Hiển thị những cuộn khả dụng còn lại
             for (let i = 0; i < itemColorRollList.length; i++) {
                 let ele = itemColorRollList[i];
 
@@ -278,10 +287,7 @@ function OpenModalMarkerDetail(markerDetail) {
                                     <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' checked onchange="selectMarker()" style='transform: scale(1.5)' />
                                 </td>
                                 <td>${ele.unipack2}</td>
-                                <td>${ele.rffsty}</td>
-                                <td>${ele.item_color}</td>
-                                <td>${ele.rcutwd}</td>
-                                <td>${ele.rfinwt}</td>
+                                <td>${ele.rlocbr}</td>
                                 <td>
                                     <div class="input-group eye-password">
                                         <input type="number" class="form-control" data-id='${ele.id}' max="${remainYard}" min="0" value="${selectedRollList[0].usedYard}" id="used-yard-${ele.id}" onchange="yardChange()">
@@ -290,14 +296,16 @@ function OpenModalMarkerDetail(markerDetail) {
                                         </div>
                                     </div>
                                 </td>
+                                <td>${ele.rfinwt}</td>
+                                <td>${ele.shade}</td>
+                                <td>${ele.rgrade}</td>
+                                <td>${ele.qccomment}</td>
                                 <td>
                                     <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" />
                                 </td>
-                                <td>${ele.rlocbr}</td>
-                                <td>${ele.rgrade}</td>
-                                <td>${ele.shade}</td>
-                                <td>${ele.qccomment}</td>
-                                <td>${ele.rprtcd}</td>
+                                <td>${ele.item_color}</td>
+                                <td>${ele.with_actual}</td>
+                                <td>${ele.vendor}</td>
                             </tr>`;
                 }
                 else {
@@ -307,10 +315,7 @@ function OpenModalMarkerDetail(markerDetail) {
                                         <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' onchange="selectMarker()" style='transform: scale(1.5)' />
                                     </td>
                                     <td>${ele.unipack2}</td>
-                                    <td>${ele.rffsty}</td>
-                                    <td>${ele.item_color}</td>
-                                    <td>${ele.rcutwd}</td>
-                                    <td>${ele.rfinwt}</td>
+                                    <td>${ele.rlocbr}</td>
                                     <td>
                                         <div class="input-group eye-password">
                                             <input type="number" class="form-control" data-id='${ele.id}' max="${remainYard}" min="0" value="${remainYard}" id="used-yard-${ele.id}" onchange="yardChange()" disabled>
@@ -319,14 +324,16 @@ function OpenModalMarkerDetail(markerDetail) {
                                             </div>
                                         </div>
                                     </td>
+                                    <td>${ele.rfinwt}</td>
+                                    <td>${ele.shade}</td>
+                                    <td>${ele.rgrade}</td>
+                                    <td>${ele.qccomment}</td>
                                     <td>
                                         <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" disabled />
                                     </td>
-                                    <td>${ele.rlocbr}</td>
-                                    <td>${ele.rgrade}</td>
-                                    <td>${ele.shade}</td>
-                                    <td>${ele.qccomment}</td>
-                                    <td>${ele.rprtcd}</td>
+                                    <td>${ele.item_color}</td>
+                                    <td>${ele.with_actual}</td>
+                                    <td>${ele.vendor}</td>
                                 </tr>`;
                     }
                 }
@@ -343,7 +350,6 @@ function OpenModalMarkerDetail(markerDetail) {
         }
     });
 }
-
 
 function selectMarker() {
     let currentEle = $(event.target);
@@ -449,6 +455,7 @@ function whSubmitData() {
 
 function whPrepare() {
     markerPlan.note = $("#txtNote").val();
+    markerPlan.wh_note = $("#txtWHNote").val();
     // send to server
     let action = baseUrl + 'warehouse-confirm';
     let datasend = {
@@ -600,16 +607,17 @@ function searchByColumn() {
                     ele.yard = sameRollRemainYard[0].yard;
                 }
             }
+            // notice here assign ele.yard = 0 for remain if not exist in TTS or the roll has been used. or calculte to a variable to avoid problem
+            else{
+                ele.yard = 0;
+            }
 
             html += `<tr id='tr-${ele.roll_id}'>
                 <td>
                     <input type='checkbox' data-id='${ele.roll_id}' class='marker-select' id='cb-${ele.roll_id}' checked onchange="selectMarker()" style='transform: scale(1.5)' />
                 </td>
                 <td>${ele.unipack2}</td>
-                <td>${ele.rffsty}</td>
-                <td>${ele.item_color}</td>
-                <td>${ele.rcutwd}</td>
-                <td>${ele.rfinwt}</td>
+                <td>${ele.rlocbr}</td>
                 <td>
                     <div class="input-group eye-password">
                         <input type="number" class="form-control" data-id='${ele.roll_id}' max="${ele.usedYard + ele.yard}" min="0" old-val="${ele.usedYard}" value="${ele.usedYard}" id="used-yard-${ele.roll_id}" onchange="yardChange()">
@@ -618,14 +626,16 @@ function searchByColumn() {
                         </div>
                     </div>
                 </td>
+                <td>${ele.rfinwt}</td>
+                <td>${ele.shade}</td>
+                <td>${ele.rgrade}</td>
+                <td>${ele.qccomment}</td>
                 <td>
                     <input type='text' class='form-control' data-id='${ele.roll_id}' id='note-${ele.roll_id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" />
                 </td>
-                <td>${ele.rlocbr}</td>
-                <td>${ele.rgrade}</td>
-                <td>${ele.shade}</td>
-                <td>${ele.qccomment}</td>
-                <td>${ele.rprtcd}</td>
+                <td>${ele.item_color}</td>
+                <td>${ele.with_actual}</td>
+                <td>${ele.vendor}</td>
             </tr>`;
         }
     }
@@ -654,10 +664,7 @@ function searchByColumn() {
                     <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' checked onchange="selectMarker()" style='transform: scale(1.5)' />
                 </td>
                 <td>${ele.unipack2}</td>
-                <td>${ele.rffsty}</td>
-                <td>${ele.item_color}</td>
-                <td>${ele.rcutwd}</td>
-                <td>${ele.rfinwt}</td>
+                <td>${ele.rlocbr}</td>
                 <td>
                     <div class="input-group eye-password">
                         <input type="number" class="form-control" data-id='${ele.id}' max="${remainYard}" min="0" value="${selectedRollList[0].usedYard}" id="used-yard-${ele.id}" onchange="yardChange()">
@@ -666,14 +673,16 @@ function searchByColumn() {
                         </div>
                     </div>
                 </td>
+                <td>${ele.rfinwt}</td>
+                <td>${ele.shade}</td>
+                <td>${ele.rgrade}</td>
+                <td>${ele.qccomment}</td>
                 <td>
                     <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" />
                 </td>
-                <td>${ele.rlocbr}</td>
-                <td>${ele.rgrade}</td>
-                <td>${ele.shade}</td>
-                <td>${ele.qccomment}</td>
-                <td>${ele.rprtcd}</td>
+                <td>${ele.item_color}</td>
+                <td>${ele.with_actual}</td>
+                <td>${ele.vendor}</td>
             </tr>`;
         }
         else {
@@ -683,10 +692,7 @@ function searchByColumn() {
                         <input type='checkbox' data-id='${ele.id}' class='marker-select' id='cb-${ele.id}' onchange="selectMarker()" style='transform: scale(1.5)' />
                     </td>
                     <td>${ele.unipack2}</td>
-                    <td>${ele.rffsty}</td>
-                    <td>${ele.item_color}</td>
-                    <td>${ele.rcutwd}</td>
-                    <td>${ele.rfinwt}</td>
+                    <td>${ele.rlocbr}</td>
                     <td>
                         <div class="input-group eye-password">
                             <input type="number" class="form-control" data-id='${ele.id}' max="${remainYard}" min="0" value="${remainYard}" id="used-yard-${ele.id}" onchange="yardChange()" disabled>
@@ -695,14 +701,16 @@ function searchByColumn() {
                             </div>
                         </div>
                     </td>
+                    <td>${ele.rfinwt}</td>
+                    <td>${ele.shade}</td>
+                    <td>${ele.rgrade}</td>
+                    <td>${ele.qccomment}</td>
                     <td>
                         <input type='text' class='form-control' data-id='${ele.id}' id='note-${ele.id}' value="${ele.note ? ele.note : ""}" onchange="noteChange()" disabled />
                     </td>
-                    <td>${ele.rlocbr}</td>
-                    <td>${ele.rgrade}</td>
-                    <td>${ele.shade}</td>
-                    <td>${ele.qccomment}</td>
-                    <td>${ele.rprtcd}</td>
+                    <td>${ele.item_color}</td>
+                    <td>${ele.with_actual}</td>
+                    <td>${ele.vendor}</td>
                 </tr>`;
             }
         }

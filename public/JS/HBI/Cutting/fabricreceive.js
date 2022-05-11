@@ -85,8 +85,10 @@ $(document).ready(function () {
     let html = `<option value='${date};${date}'>Hôm nay</option>`;
     for (let i = 0; i < Timepickers.length; i++) {
         let ele = Timepickers[i];
-        html += `<option value='${ele.value}' ${i == 0 ? 'selected' : ''}>${ele.text}</option>`
+        // html += `<option value='${ele.value}' ${i == 0 ? 'selected' : ''}>${ele.text}</option>`
+        html += `<option value='${ele.value}'>${ele.text}</option>`
     }
+    html += `<option value='' selected>All</option>`
     $("#txtFilterTime").append(html);
 
     // init datepicker for all input date type
@@ -218,6 +220,7 @@ function getListMarkerData() {
                     // </td>
                 html += `<tr class='tr-${ele.id}' style='${isCanceled}'>
                     <td>${ele.id}</td>
+                    <td>${ele.isParentTicket == 0 ? '' : '<span class="label label-danger mr-2">YCT</span>'}</td>
                     <td>${ele.receive_date}</td>
                     <td>${ele.receive_time}</td>
                     <td>${ele._group}</td>
@@ -253,6 +256,9 @@ function getListMarkerData() {
                     </td>
                     <td>
                         ${ele.cancel_reason != undefined ? ele.cancel_reason : ele.note}
+                    </td>
+                    <td>
+                        ${ele.wh_note ? ele.wh_note : ''}
                     </td>
                     <td>
                         ${ele.cancel_date == undefined || userLogin.position == "Admin"? 

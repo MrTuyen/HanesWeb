@@ -44,7 +44,13 @@ if __name__ == "__main__":
                     WHERE ICP2515.FCHROL = P.RUNIP 
                     ORDER BY ICP2515.FCDATE desc, ICP2515.FCTIME desc 
                     fetch first 1 rows only
-                ) AS TimeComment 
+                ) AS TimeComment,
+                (
+                    SELECT ICPLSHPEX.LSPONO
+                    FROM HQ400B.ICLIB.ICPLSHPEX ICPLSHPEX
+                    WHERE ICPLSHPEX.LSREF# = P.RCCUST
+                    fetch first 1 rows only
+                ) AS PO
             FROM 
             (
                 SELECT 
@@ -72,6 +78,7 @@ if __name__ == "__main__":
                 SUBSTR(C.IXSKU# ,27,6) AS ACTUAL_WITH,
                 C.IXABSHD AS SHADE,
                 C.IXVENDR AS VENDOR,
+                C.IXVNLOT AS VENDOR_LOT,
                 ICP0152.RLOCPL AS PLANT
                 FROM 
                     HQ400B.ICLIB.ICP0152 ICP0152, 
@@ -135,9 +142,9 @@ if __name__ == "__main__":
                 row.RLOCBR,
                 str(row.RGRADE).split('.')[0],
                 row.SHADE,
-                '',
-                '',
-                '',
+                row.VENDOR_LOT,
+                row.PO,
+                row.RCCUST,
                 '',
                 row.VENDOR,
                 '',
@@ -187,15 +194,16 @@ if __name__ == "__main__":
             ) 
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
 
-        loopNumber = math.ceil(len(values) / 1000)
+        step = 1000
+        loopNumber = math.ceil(len(values) / step)
         for i in range(loopNumber):
-            index = i * 1000
-            tempList = values[index : index + 1000]
+            index = i * step
+            tempList = values[index : index + step]
             myCursor.executemany(query, tempList)
             mydb.commit()
- 
+
         mydb.close()
         print("ok")
-
+        
     except Exception as e:
         print(e)
