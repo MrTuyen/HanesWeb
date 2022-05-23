@@ -114,7 +114,7 @@ module.exports.getOtherSelectedRoll = async function (req, res) {
         let detailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Used_Roll ('${itemColor}', ${markerPlanId})`);
 
         // fabric roll info follow item-color
-        let otherSelectedFabricRollList = detailInfo[0];
+        let otherSelectedFabricRollList = detailInfo != null ? detailInfo[0] : [];
         return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: otherSelectedFabricRollList }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.getOtherSelectedRoll", error);
@@ -270,30 +270,34 @@ module.exports.saveUploadData = async function (req, res) {
                 let detailObj = [];
 
                 if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
-                    detailObj.push(idMaster);
-                    detailObj.push(rowData[4]);
-                    detailObj.push(rowData[5]);
-                    detailObj.push(rowData[6]);
-                    detailObj.push(rowData[7] ? rowData[7] : 0);
-                    detailObj.push(rowData[10]);
-                    detailObj.push(rowData[11]);
 
-                    detailData.push(detailObj);
+                    if (rowData[7] && parseFloat(rowData[7]) > 0) {
+                        detailObj.push(idMaster);
+                        detailObj.push(rowData[4]);
+                        detailObj.push(rowData[5]);
+                        detailObj.push(rowData[6]);
+                        detailObj.push(rowData[7] ? rowData[7] : 0);
+                        detailObj.push(rowData[10]);
+                        detailObj.push(rowData[11] ? rowData[11] : 0);
+                        detailObj.push(new Date(fr[8]).toLocaleDateString());
 
-                    // section for send mail
-                    html += `<tr>
-                        <td>${datetimeDDMMYY}</td>
-                        <td>${rowData[5]}</td>
-                        <td>${fr[3].substring(fr[3].length - 2)}</td>
-                        <td>${rowData[6]}</td>
-                        <td>${rowData[7]}</td>
-                        <td>${fr[15]}</td>
-                        <td>${fr[3]}</td>
-                        <td>${fr[16]}</td>
-                    </tr>`
+                        detailData.push(detailObj);
+
+                        // section for send mail
+                        html += `<tr>
+                            <td>${datetimeDDMMYY}</td>
+                            <td>${rowData[5]}</td>
+                            <td>${fr[3].substring(fr[3].length - 2)}</td>
+                            <td>${rowData[6]}</td>
+                            <td>${rowData[7]}</td>
+                            <td>${fr[15]}</td>
+                            <td>${fr[3]}</td>
+                            <td>${fr[16]}</td>
+                        </tr>`
+                    }
                 }
             }
-            query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen) 
+            query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen, cut_date) 
                     VALUES ?`;
             let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
 
@@ -319,8 +323,9 @@ module.exports.saveUploadData = async function (req, res) {
                     </table>
                 `;
                 body = body.replace('{{table_body}}', html);
-                let subject = `Tuyen Test YCT ${fr[3]} - ngày ${datetimeDDMMYY} chạy thử hệ thống, vui lòng bỏ qua - testing system, please ignore`;
-                helper.sendMail(subject, 'HYS Innovation Innovation_System@hanes.com', config.MailList, 'tuyen.nguyen@hanes.com', body);
+                // let subject = `Tuyen Test YCT ${fr[3]} - ngày ${datetimeDDMMYY} chạy thử hệ thống, vui lòng bỏ qua - testing system, please ignore`;
+                let subject = `YCT ${fr[3]} - ngày ${datetimeDDMMYY}`;
+                helper.sendMail(subject, 'HYS Innovation Innovation_System@hanes.com', config.TestMailList, 'tuyen.nguyen@hanes.com', body);
             }
         }
 
@@ -500,11 +505,14 @@ module.exports.warehouseConfirm = async function (req, res) {
         let markerDetailList = req.body.markerDetailList;
         let selectedRollList = req.body.selectedRollList ? req.body.selectedRollList : [];
 
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
+
         let insertRollFaiiList = [];
 
         // update note marker plan 
         let query = `UPDATE cutting_fr_marker_data_plan 
-                    SET note = '${markerPlan.note}', wh_prepare = '0', wh_note = '${markerPlan.wh_note}'
+                    SET note = '${markerPlan.note}', wh_prepare = '0', wh_prepare_date = '${datetime}', wh_prepare_by = '${user}', wh_note = '${markerPlan.wh_note}'
                     WHERE id = ${markerPlan.id}`;
         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
         if (isUpdateSuccess <= 0)
@@ -517,24 +525,25 @@ module.exports.warehouseConfirm = async function (req, res) {
                 WHERE marker_plan_id = ${markerPlan.id}`;
         let isDeleteSuccess = await db.excuteNonQueryAsync(query);
         if (isDeleteSuccess < 0)
-            return res.end(JSON.stringify({ rs: false, msg: "Xóa thông tin cuộn vải không thành công." }));
+            return res.end(JSON.stringify({ rs: false, msg: "Xóa thông tin cuộn vải không thành công. Vui lòng thử lại" }));
+        else {
+            // update inventory and insert selected roll to database
+            for (let i = 0; i < markerDetailList.length; i++) {
+                let eleMarkerDetail = markerDetailList[i];
+                let rollList = selectedRollList.filter(x => x.markerDetailId == eleMarkerDetail.id);
+                rollList = helper.unique(rollList, ['unipack2', 'yard']); // loại bỏ trùng nhau nếu có
 
-        // update inventory and insert selected roll to database
-        for (let i = 0; i < markerDetailList.length; i++) {
-            let eleMarkerDetail = markerDetailList[i];
-            let rollList = selectedRollList.filter(x => x.markerDetailId == eleMarkerDetail.id);
+                for (let j = 0; j < rollList.length; j++) {
+                    let eleRoll = rollList[j];
+                    let existScannedRoll = scannedRollList.filter(x => x.unipack2 == eleRoll.unipack2);
+                    if (existScannedRoll.length > 0) {
+                        eleRoll.scanned_time = existScannedRoll[0].scanned_time;
+                    }
+                    let scannedTime = eleRoll.scanned_time ? `${eleRoll.scanned_time}` : null;
 
-            for (let j = 0; j < rollList.length; j++) {
-                let eleRoll = rollList[j];
-                let existScannedRoll = scannedRollList.filter(x => x.unipack2 == eleRoll.unipack2);
-                if (existScannedRoll.length > 0) {
-                    eleRoll.scanned_time = existScannedRoll[0].scanned_time;
-                }
-                let scannedTime = eleRoll.scanned_time ? `${eleRoll.scanned_time}` : null;
-
-                // insert to cutting_fr_marker_data_plan_detail_roll table
-                if (scannedTime == null) {
-                    query = `INSERT INTO cutting_fr_marker_data_plan_detail_roll (
+                    // insert to cutting_fr_marker_data_plan_detail_roll table
+                    if (scannedTime == null) {
+                        query = `INSERT INTO cutting_fr_marker_data_plan_detail_roll (
                         marker_plan_id,
                         marker_plan_detail_id,
                         roll_id,
@@ -596,9 +605,9 @@ module.exports.warehouseConfirm = async function (req, res) {
                         '${eleRoll.rprtcd}', 
                         '${eleRoll.note}'
                     )`;
-                }
-                else {
-                    query = `INSERT INTO cutting_fr_marker_data_plan_detail_roll (
+                    }
+                    else {
+                        query = `INSERT INTO cutting_fr_marker_data_plan_detail_roll (
                         marker_plan_id,
                         marker_plan_detail_id,
                         roll_id,
@@ -662,22 +671,24 @@ module.exports.warehouseConfirm = async function (req, res) {
                         '${eleRoll.note}', 
                         '${scannedTime}'
                     )`;
-                }
+                    }
 
-                let isInsertRollSuccess = await db.excuteInsertReturnIdAsync(query);
-                if (isInsertRollSuccess < 0) {
-                    insertRollFaiiList.push(eleRoll);
+                    let isInsertRollSuccess = await db.excuteInsertReturnIdAsync(query);
+                    if (isInsertRollSuccess < 0) {
+                        insertRollFaiiList.push(eleRoll);
+                    }
+                    // auto update roll 's yard in inventory warehouse: remain yard, note, status by using MySQL trigger
                 }
-                // auto update roll 's yard in inventory warehouse: remain yard, note, status by using MySQL trigger
             }
-        }
 
-        if (insertRollFaiiList.length > 0) {
-            return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
+            if (insertRollFaiiList.length > 0) {
+                return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
+            }
+            return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
         }
-        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.warehouseConfirm", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -695,31 +706,6 @@ async function ccdSend(req, res, groupId) {
         if (objMarker[0].marker_call_by == undefined && objMarker[0].marker_call_date == undefined) {
             return res.end(JSON.stringify({ rs: false, msg: "Phiếu này chưa được Marker gọi/ This ticket has not been called by Marker" }));
         }
-
-        // check the ticket has been called or not
-        // if (objMarker[0].ccd_confirm_by != undefined && objMarker[0].ccd_confirm_date != undefined) {
-        //     return res.end(JSON.stringify({ rs: false, msg: "Phiếu này đã được ccd xác nhận hoàn thành/ This ticket has been confirmed by ccd" }));
-        // }
-        // else {
-        //     query = `UPDATE cutting_fr_marker_data_plan 
-        //             SET ccd_confirm_date = '${datetime}', ccd_confirm_by = '${user}'
-        //             WHERE id = ${groupId}`;
-        //     let isUpdateSuccess = await db.excuteNonQueryAsync(query);
-        //     if (isUpdateSuccess <= 0) {
-        //         return res.end(JSON.stringify({ rs: false, msg: "Ccd xác nhận xảy ra lỗi/ The ticket has not beend confirmed by CCD successful" }));
-        //     }
-        //     else {
-        //         testIo.emit('ccd-fabric-receive-action', {
-        //             username: user,
-        //             message: {
-        //                 groupId: groupId,
-        //                 actionType: constant.Enum_Action.CCDSend
-        //             }
-        //         });
-
-        //         return res.end(JSON.stringify({ rs: true, msg: "Ccd xác nhận thành công/ The ticket has been confirmed by CCD successful" }));
-        //     }
-        // }
 
         query = `UPDATE cutting_fr_marker_data_plan 
                 SET ccd_confirm_date = '${datetime}', ccd_confirm_by = '${user}'
@@ -741,6 +727,7 @@ async function ccdSend(req, res, groupId) {
         }
     } catch (error) {
         logHelper.writeLog("fabric_receive.ccdCall", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -751,11 +738,16 @@ module.exports.ccdConfirm = async function (req, res) {
         let markerDetailList = req.body.markerDetailList;
         let selectedRollList = req.body.selectedRollList;
 
-        let updateRollFaiiList = [];
+        let isAllScanned = 0;
+        let tempObj = selectedRollList.filter(x => x.scanned_time != "");
+        if(tempObj && tempObj.length > 0){
+            isAllScanned = 1;
+        }
 
+        let updateRollFailList = [];
         // update note marker plan 
         let query = `UPDATE cutting_fr_marker_data_plan 
-                    SET note = '${markerPlan.note}', status = 2
+                    SET note = '${markerPlan.note}', status = 2, ccd_status = '${isAllScanned}'
                     WHERE id = ${markerPlan.id}`;
         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
         if (isUpdateSuccess <= 0)
@@ -777,29 +769,37 @@ module.exports.ccdConfirm = async function (req, res) {
 
                     let isUpdateRollSuccess = await db.excuteNonQueryAsync(query);
                     if (isUpdateRollSuccess < 0) {
-                        updateRollFaiiList.push(eleRoll);
+                        updateRollFailList.push(eleRoll);
                     }
                 }
             }
         }
 
-        if (updateRollFaiiList.length > 0) {
+        if (updateRollFailList.length > 0) {
             return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
         }
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.ccdConfirm", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
 module.exports.printTicket = async function (req, res) {
     try {
         let ctextColorList = [];
-        if(!myCache.get("ctex_color_list")){
+        if (!myCache.get("ctex_color_list")) {
             let ctexDb = await db.excuteQueryAsync(`SELECT color FROM cutting_fr_ctex`);
             myCache.set("ctex_color_list", ctexDb);
         }
         ctextColorList = myCache.get("ctex_color_list").map(x => x.color);
+
+        let vendorList = [];
+        if (!myCache.get("vendor_list")) {
+            let vendorDb = await db.excuteQueryAsync(`SELECT vendor_code, vendor_name FROM cutting_fr_vendor`);
+            myCache.set("vendor_list", vendorDb);
+        }
+        vendorList = myCache.get("vendor_list");
 
         // parameters
         let groupId = req.body.groupId;
@@ -833,26 +833,26 @@ module.exports.printTicket = async function (req, res) {
         // checking includes ctex ctextColorList
         let isCtex = data.selectedFabricRoll.map(x => x.rffsty).some(r => ctextColorList.indexOf(r) >= 0);
         let templateFile = 'templates/print/fabricPrint.html';
-        if(isCtex){
+        if (isCtex) {
             templateFile = 'templates/print/fabricPrintCtex.html';
         }
         // read file and replace
         let template = fs.readFileSync(templateFile, 'utf8');
 
         let table1 = `<tr>
-                        <td width="25%">Received Date: ${data.master.receive_date}</td>
+                        <td width="20%">Received Date: ${data.master.receive_date}</td>
                         <td width="25%">Received Time: ${data.master.receive_time}</td>
-                        <td width="25%">Group: ${data.master._group}</td>
+                        <td width="30%" rowspan="2">Group: <span style="font-size: 20px">${data.master._group}</span></td>
                         <td width="25%">Cut Date: ${data.master.cut_date}</td>
                     </tr>
                     <tr>
-                        <td width="25%">Created Date: ${data.master.date_update}</td>
-                        <td width="25%">Week ${new Date(data.master.date_update).getWeekNumber()}</td>
-                        <td width="25%">Note</td>
+                        <td width="20%">Created Date: ${data.master.date_update}</td>
+                        <td width="25%">Week: ${data.master._group.substring(2,4)}</td>
+                        <td width="25%">Note: ${data.master.note}</td>
                     </tr>
                     <tr>
                         <td width="10%">${data.selectedFabricRoll.length} Cuộn</td>
-                        <td width="10%">${sumYard.toFixed(2)} YDS</td>
+                        <td width="10%">${sumYard.toFixed(1)} YDS</td>
                     </tr>`
 
         template = template.replace("{{table1}}", table1);
@@ -874,8 +874,7 @@ module.exports.printTicket = async function (req, res) {
                         <td></td>
                         <td>${rollCount} cuộn</td>
                         <td></td>
-                        <td><span class='text-danger'>${sumYard.toFixed(2)}</span> / ${sumDemandYard.toFixed(2)}</td>
-                        <td></td>
+                        <td colspan="2"><span style='font-size: 11px; font-weight: bold'>${sumYard.toFixed(1)}</span> / ${sumDemandYard.toFixed(1)}</td>
                         <td></td>
                         <td colspan='15'></td>
                     </tr>`;
@@ -887,25 +886,29 @@ module.exports.printTicket = async function (req, res) {
                             JsBarcode(canvas, sameColorList[j].wo);
                             barcodeImg = canvas.toDataURL();
                         }
-                        if(isCtex){
+
+                        let vendorObj = vendorList.filter(x => x.vendor_code == eleRoll.vendor);
+                        let vendorName = vendorObj.length > 0 ? vendorObj[0].vendor_name.substring(0, 10) : eleRoll.vendor;
+
+                        if (isCtex) {
                             str += `<tr>
                                 <td>${j + 1}</td>
-                                <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
+                                <td>${sameColorList[j] ? sameColorList[j].item_color : eleMarkerDetail.item_color}</td>
                                 <td>${eleRoll.unipack2}</td>
                                 <td>${eleRoll.rlocbr}</td>
-                                <td>${eleRoll.yard.toFixed(2)}</td>
-                                <td>${eleRoll.rfinwt}</td>
+                                <td>${eleRoll.yard.toFixed(1)}</td>
+                                <td>${eleRoll.rfinwt.toFixed(1)}</td>
                                 <td>${eleRoll.rgrade}</td>
                                 <td>${eleRoll.shade}</td>
                                 <td>${eleRoll.vendor_lot}</td>
-                                <td>${eleRoll.po_number}</td>
                                 <td>${eleRoll.rccust == 0 ? '' : eleRoll.rccust.replace('.0', '')}</td>
+                                <td>${eleRoll.po_number}</td>
                                 <td>
                                     ${barcodeImg != '' ? `<img width="50" height="20" src=${barcodeImg} />` : ''}
                                 </td>
                                 <td>${ctextColorList.indexOf(eleRoll.rffsty) > 0 ? "Ctex" : ""}</td>
                                 <td>${eleRoll.with_actual}</td>
-                                <td>${eleRoll.vendor}</td>
+                                <td>${vendorName}</td>
                                 <td>${eleRoll.note}</td>
                                 <td></td>
                                 <td></td>
@@ -915,24 +918,24 @@ module.exports.printTicket = async function (req, res) {
                                 <td></td>
                             </tr>`;
                         }
-                        else{
+                        else {
                             str += `<tr>
                                 <td>${j + 1}</td>
-                                <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
+                                <td>${sameColorList[j] ? sameColorList[j].item_color : eleMarkerDetail.item_color}</td>
                                 <td>${eleRoll.unipack2}</td>
                                 <td>${eleRoll.rlocbr}</td>
-                                <td>${eleRoll.yard.toFixed(2)}</td>
-                                <td>${eleRoll.rfinwt}</td>
+                                <td>${eleRoll.yard.toFixed(1)}</td>
+                                <td>${eleRoll.rfinwt.toFixed(1)}</td>
                                 <td>${eleRoll.rgrade}</td>
                                 <td>${eleRoll.shade}</td>
                                 <td>${eleRoll.vendor_lot}</td>
-                                <td>${eleRoll.po_number}</td>
                                 <td>${eleRoll.rccust == 0 ? '' : eleRoll.rccust.replace('.0', '')}</td>
+                                <td>${eleRoll.po_number}</td>
                                 <td>
                                     ${barcodeImg != '' ? `<img width="50" height="20" src=${barcodeImg} />` : ''}
                                 </td>
                                 <td>${eleRoll.with_actual}</td>
-                                <td>${eleRoll.vendor}</td>
+                                <td>${vendorName}</td>
                                 <td>${eleRoll.note}</td>
                             </tr>`;
                         }
@@ -958,131 +961,6 @@ module.exports.printTicket = async function (req, res) {
         return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
-
-// module.exports.printTicket = async function (req, res) {
-//     try {
-//         // parameters
-//         let groupId = req.body.groupId;
-
-//         // execute
-//         // master data info
-//         let masterInfo = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan WHERE id = ${groupId}`);
-
-//         // item-color detail info
-//         let detailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${groupId})`);
-
-//         // fabric roll info follow item-color
-//         let itemColorList = [];
-//         let selectedFabricRollList = [];
-//         if (detailInfo[0] != undefined && detailInfo[0].length >= 1) {
-//             itemColorList = [...new Set(detailInfo[0].map(x => x.item_color))]; // distinct array
-
-//             if (masterInfo[0].wh_prepare == '0') {
-//                 let result = await db.excuteQueryAsync(`SELECT * FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_id = ${groupId}`);
-//                 selectedFabricRollList.push(result);
-//             }
-//         }
-
-//         let data = {
-//             master: masterInfo[0],
-//             detail: detailInfo[0],
-//             selectedFabricRoll: selectedFabricRollList[0] ? selectedFabricRollList[0] : []
-//         }
-//         let sumYard = data.selectedFabricRoll.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
-
-//         // read file and replace
-//         let template = fs.readFileSync('templates/print/fabricPrint.html', 'utf8');
-
-//         let table1 = `<tr>
-//                         <td width="25%">Received Date: ${data.master.receive_date}</td>
-//                         <td width="25%">Received Time: ${data.master.receive_time}</td>
-//                         <td width="25%">Group: ${data.master._group}</td>
-//                         <td width="25%">Cut Date: ${data.master.cut_date}</td>
-//                     </tr>
-//                     <tr>
-//                         <td width="25%">Created Date: ${data.master.date_update}</td>
-//                         <td width="25%">Week ${new Date(data.master.date_update).getWeekNumber()}</td>
-//                         <td width="25%">Note</td>
-//                     </tr>
-//                     <tr>
-//                         <td width="10%">${data.selectedFabricRoll.length} Cuộn</td>
-//                         <td width="10%">${sumYard.toFixed(2)} YDS</td>
-//                     </tr>`
-
-//         template = template.replace("{{table1}}", table1);
-
-//         let table2 = '';
-//         let colorFlag = '';
-//         for (let i = 0; i < data.detail.length; i++) {
-//             let eleMarkerDetail = data.detail[i];
-//             if (eleMarkerDetail.item_color != colorFlag) {
-//                 let selectedRollList = data.selectedFabricRoll.filter(x => x.marker_plan_detail_id == eleMarkerDetail.id);
-//                 let sumYard = selectedRollList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
-//                 let rollCount = selectedRollList.length;
-//                 let sameColorList = data.detail.filter(x => x.item_color == eleMarkerDetail.item_color);
-//                 let sumDemandYard = sameColorList.reduce((a, b) => parseFloat(a) + parseFloat(b.yard_demand), 0);
-
-//                 if (selectedRollList.length > 0) {
-//                     let str = `<tr style='background: #ced6dd'>
-//                         <td></td>
-//                         <td></td>
-//                         <td></td>
-//                         <td></td>
-//                         <td></td>
-//                         <td>${rollCount} cuộn</td>
-//                         <td><span class='text-danger'>${sumYard.toFixed(2)}</span> / ${sumDemandYard.toFixed(2)}</td>
-//                         <td colspan='9'></td>
-//                     </tr>`;
-//                     for (let j = 0; j < selectedRollList.length; j++) {
-//                         let eleRoll = selectedRollList[j];
-
-//                         let barcodeImg = '';
-//                         if (sameColorList[j] && sameColorList[j].wo != '') {
-//                             JsBarcode(canvas, sameColorList[j].wo);
-//                             barcodeImg = canvas.toDataURL();
-//                         }
-//                         str += `<tr>
-//                             <td>${j + 1}</td>
-//                             <td>${sameColorList[j] ? sameColorList[j].item_color : ''}</td>
-//                             <td>
-//                                 ${barcodeImg != '' ? `<img width="50" height="20" src=${barcodeImg} />` : ''}
-//                             </td>
-//                             <td>${sameColorList[j] ? sameColorList[j].wo : ''}</td>
-//                             <td>${sameColorList[j] ? sameColorList[j].ass : ''}</td>
-//                             <td>${sameColorList[j] ? sameColorList[j].yard_demand.toFixed(2) : ''}</td>
-//                             <td>${eleRoll.unipack2}</td>
-//                             <td>${eleRoll.yard.toFixed(2)}</td>
-//                             <td>${eleRoll.rfinwt}</td>
-//                             <td>${eleRoll.rgrade}</td>
-//                             <td>${eleRoll.rlocbr}</td>
-//                             <td>${eleRoll.shade}</td>
-//                             <td>${eleRoll.with_actual}</td>
-//                             <td>${eleRoll.po_number}</td>
-//                             <td>${eleRoll.rccust == 0 ? '' : eleRoll.rccust.replace('.0', '')}</td>
-//                             <td>${eleRoll.note}</td>
-//                         </tr>`;
-//                     }
-//                     str += '<tr style="background: #ced6dd"><td colspan="20">&nbsp;</td></tr>';
-//                     table2 += str;
-//                 }
-//             }
-//             colorFlag = eleMarkerDetail.item_color;
-//         }
-
-//         template = template.replace("{{table2}}", table2);
-
-//         fs.writeFile('public/Assets/fabricPrint.html', template, 'utf-8', function (err, response) {
-//             if (err) {
-//                 logHelper.writeLog("fabric_receive.printTicket", err);
-//                 return res.end(JSON.stringify({ rs: false, msg: "Thất bại" }));
-//             }
-//             return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
-//         });
-//     } catch (error) {
-//         logHelper.writeLog("fabric_receive.printTicket", error);
-//         return res.end(JSON.stringify({ rs: false, msg: error.message }));
-//     }
-// }
 
 module.exports.downloadMarkerData = function (req, res) {
     try {
@@ -1192,7 +1070,12 @@ module.exports.downloadRollData = async function (req, res) {
                                     x.yard,
                                     x.rlocbr,
                                     x.note,
-                                    ele.cancel_date == null ? "" : "Yes"
+                                    ele.cancel_date == null ? "" : "Yes",
+                                    x.rccust,
+                                    x.shade,
+                                    x.vendor_lot,
+                                    x.with_actual,
+                                    x.rfinwt
                                 )
 
                             finalResponse.push(row);
@@ -1212,7 +1095,12 @@ module.exports.downloadRollData = async function (req, res) {
                                 "",
                                 "",
                                 "",
-                                ele.cancel_date == null ? "" : "Yes"
+                                ele.cancel_date == null ? "" : "Yes",
+                                "",
+                                "",
+                                "",
+                                "",
+                                ""
                             )
 
                         finalResponse.push(row);
@@ -1239,7 +1127,12 @@ module.exports.downloadRollData = async function (req, res) {
             { header: 'roll_yard', key: 'roll_yard', width: 20 },
             { header: 'bin', key: 'bin', width: 20 },
             { header: 'note', key: 'note', width: 20 },
-            { header: 'is_cancel', key: 'status', width: 20 }
+            { header: 'is_cancel', key: 'status', width: 20 },
+            { header: 'roll_lbs', key: 'lbs', width: 20 },
+            { header: 'actual_width', key: 'actual_width', width: 20 },
+            { header: 'shade', key: 'shade', width: 20 },
+            { header: 'fabric lot', key: 'fabric_lot', width: 20 },
+            { header: 'shipment', key: 'shipment', width: 20 }
         ];
 
         // Add Array Rows
@@ -1252,6 +1145,7 @@ module.exports.downloadRollData = async function (req, res) {
         });
     } catch (error) {
         logHelper.writeLog("fabricreceive.downloadRollData", error);
+        res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -1344,15 +1238,18 @@ module.exports.saveUpdateUploadData = async function (req, res) {
                 }
                 else { // insert
                     if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
-                        detailObj.push(id);
-                        detailObj.push(rowData[4]);
-                        detailObj.push(rowData[5]);
-                        detailObj.push(rowData[6]);
-                        detailObj.push(rowData[7]);
-                        detailObj.push(rowData[10]);
-                        detailObj.push(rowData[11]);
-
-                        detailData.push(detailObj);
+                        if (rowData[7] && parseFloat(rowData[7]) > 0) {
+                            detailObj.push(id);
+                            detailObj.push(rowData[4]);
+                            detailObj.push(rowData[5]);
+                            detailObj.push(rowData[6]);
+                            detailObj.push(rowData[7]);
+                            detailObj.push(rowData[10]);
+                            detailObj.push(rowData[11]);
+                            detailObj.push(new Date(fr[8]).toLocaleDateString());
+    
+                            detailData.push(detailObj);
+                        }
                     }
                 }
             }
@@ -1367,7 +1264,7 @@ module.exports.saveUpdateUploadData = async function (req, res) {
             }
 
             if (detailData.length > 0) {
-                query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen) 
+                query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen, cut_date) 
                     VALUES ?`;
                 let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
             }
@@ -1375,7 +1272,8 @@ module.exports.saveUpdateUploadData = async function (req, res) {
 
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
-        logHelper.writeLog("fabric_receive.saveUploadData", error);
+        logHelper.writeLog("fabric_receive.saveUpdateUploadData", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -1431,11 +1329,11 @@ module.exports.getInventoryData = async function (req, res) {
 
         query = `CALL USP_Cutting_Fabric_Receive_Get_Inventory_Data (${currentPage}, ${itemPerPage}, '${unipack}', '${itemColor}', '${itemStatus}', '${itemNote}', '${plant}')`;
         let resultRollList = await db.excuteSPAsync(query);
-        let rollList =  resultRollList[0];
-    
+        let rollList = resultRollList[0];
+
         rollList.forEach(ele => {
             let existusedObj = usedRollList.filter(x => x.unipack2 == ele.unipack2);
-            if(existusedObj && existusedObj.length > 0) {
+            if (existusedObj && existusedObj.length > 0) {
                 ele.status = 1;
                 ele.note = existusedObj[0]._group;
             }
@@ -1646,7 +1544,7 @@ module.exports.updateInventoryDataDetail = async function (req, res, next) {
 
         var isSuccess = await cuttingService.updateInventoryDataDetail(req.body);
         if (isSuccess <= 0)
-            return res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
         return res.end(JSON.stringify({ rs: true, msg: "Cập nhật thành công" }));
     }
     catch (error) {
@@ -1885,8 +1783,8 @@ module.exports.saveUploadReturnData = async function (req, res) {
                 detailObj.push(rowData[1]);
                 detailObj.push(rowData[2]);
                 detailObj.push(rowData[3]);
-                detailObj.push(rowData[4]);
-                detailObj.push(rowData[5]);
+                detailObj.push(rowData[4] ? rowData[4] : 0);
+                detailObj.push(rowData[5] ? rowData[5] : 0);
                 detailObj.push(rowData[6]);
                 detailObj.push(rowData[7]);
 
@@ -1909,7 +1807,8 @@ module.exports.saveUploadReturnData = async function (req, res) {
 
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
-        logHelper.writeLog("fabric_receive.saveUploadData", error);
+        logHelper.writeLog("fabric_receive.saveUploadReturnData", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -2078,7 +1977,7 @@ module.exports.getReportData = async function (req, res) {
                         let warehouseSupply = selectedRoll.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
                         let requestMoreSupply = rollAddMore.reduce((a, b) => parseFloat(a) + parseFloat(b.yard), 0);
                         let returnQty = returnRoll.reduce((a, b) => parseFloat(a) + parseFloat(b.return_qty_yard), 0);
-                        let difference = (parseFloat(eleMarkerDetail.yard_demand) + returnQty) - (warehouseSupply + requestMoreSupply);
+                        let difference = (warehouseSupply + requestMoreSupply) - (parseFloat(eleMarkerDetail.yard_demand) + returnQty);
                         let rmObj = new ReportMarker(
                             marker.id,
                             marker._group,
@@ -2105,7 +2004,7 @@ module.exports.getReportData = async function (req, res) {
 }
 
 class MarkerPlanDetailRoll {
-    constructor(group, wo, ass, received_date, cut_date, item_color, demand_yard, unipack, roll_yard, bin, note, status) {
+    constructor(group, wo, ass, received_date, cut_date, item_color, demand_yard, unipack, roll_yard, bin, note, status, shipment, shade, fabric_lot, actual_width, lbs) {
         this.group = group;
         this.wo = wo;
         this.ass = ass;
@@ -2118,6 +2017,12 @@ class MarkerPlanDetailRoll {
         this.bin = bin;
         this.note = note;
         this.status = status;
+
+        this.shipment = shipment;
+        this.shade = shade;
+        this.fabric_lot = fabric_lot;
+        this.actual_width = actual_width;
+        this.lbs = lbs;
     }
 }
 

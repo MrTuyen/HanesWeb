@@ -49,8 +49,18 @@ var con5 = mysql.createPool({
 });
 
 //cau hinh doc ejs
+var compression = require('compression');
 var express = require("express");
 var app = express();
+app.use(compression({
+    threshold : 0, // or whatever you want the lower threshold to be
+    filter    : function(req, res) {
+        var ct = res.get('content-type');
+        // return `true` for content types that you want to compress,
+        // `false` otherwise
+        return true;
+    }
+}));
 //cau hinh dang nhap voi user va password
 var passport = require('passport');
 var session = require('express-session');
@@ -118,8 +128,6 @@ app.use(
     })
 )
 app.use(express.json());
-var compression = require('compression');
-app.use(compression());
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);

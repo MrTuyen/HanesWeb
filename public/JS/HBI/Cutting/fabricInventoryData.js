@@ -132,7 +132,9 @@ function getInventoryData(intPage){
             $(".pagination-current").text(`${(currentPage - 1) * itemPerPage  + 1} - ${currentPage * itemPerPage > totalRow ? totalRow : currentPage * itemPerPage} trong ${totalRow} bản ghi`);
         
             let lastestUpdate = data ? data[0].date_update : "";
+            let userUpdate = data ? data[0].user_update : "";
             $("#lbLastestUpdate").text(lastestUpdate);
+            $("#lbUserUpdate").text(userUpdate);
         }
         else {
             toastr.error(response.msg, "Thất bại");

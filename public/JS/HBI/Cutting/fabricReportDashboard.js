@@ -164,17 +164,27 @@ function getData() {
 
             for (let i = 0; i < data.master.length; i++) {
                 let eleMarker = data.master[i];
-                html += `<tr class="header expand">
+                let detail = data.detail.filter(x => x.marker_plan_id == eleMarker.id);
+
+                let sumRequest = detail.reduce((a, b) => a + b.marker_request, 0);
+                let sumWHSupply = detail.reduce((a, b) => a + b.warehouse_supply, 0);
+                let sumRequestMore = detail.reduce((a, b) => a + b.request_more, 0);
+                let sumRequestMoreSupply = detail.reduce((a, b) => a + b.request_more_supply, 0);
+                let sumTotalWHSupply = detail.reduce((a, b) => a + b.total_warehouse_supply, 0);
+                let sumReturn = detail.reduce((a, b) => a + b.return_qty, 0);
+                let sumDifference = detail.reduce((a, b) => a + b.diference, 0);
+
+                html += `<tr class="header">
                         <th>${i + 1}</th>
                         <th>${eleMarker._group}</th>
                         <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
+                        <th>${sumRequest.toFixed(2)}</th>
+                        <th>${sumWHSupply.toFixed(2)}</th>
+                        <th>${sumRequestMore.toFixed(2)}</th>
+                        <th>${sumRequestMoreSupply.toFixed(2)}</th>
+                        <th>${sumTotalWHSupply.toFixed(2)}</th>
+                        <th>${sumReturn.toFixed(2)}</th>
+                        <th>${sumDifference.toFixed(2)}</th>
                         <th>
                             <span class="fa-stack fa-sm">
                             <i class="fa fa-circle fa-stack-2x"></i>
@@ -183,9 +193,10 @@ function getData() {
                         </th>
                     </tr>`;
 
-                for (let j = 0; j < data.detail.length; j++) {
-                    let ele = data.detail[j];
-                    html += `<tr>
+                for (let j = 0; j < detail.length; j++) {
+                    let ele = detail[j];
+
+                    html += `<tr style="display: none">
                         <td></td>
                         <td>${j + 1}</td>
                         <td>${ele.item_color}</td>
@@ -199,24 +210,6 @@ function getData() {
                     </tr>`;
                 }
             }
-
-            // for (let i = 0; i < data.length; i++) {
-            //     let ele = data[i];
-            //     html += `
-            //         <tr>
-            //             <td>${i + 1}</td>
-            //             <td>${ele.group}</td>
-            //             <td>${ele.item_color}</td>
-            //             <td>${ele.marker_request}</td>
-            //             <td>${ele.warehouse_supply}</td>
-            //             <td>${ele.request_more}</td>
-            //             <td>${ele.request_more_supply}</td>
-            //             <td>${ele.total_warehouse_supply}</td>
-            //             <td>${ele.return_qty}</td>
-            //             <td>${ele.diference}</td>
-            //         </tr>
-            //     `;
-            // }
 
             $("#report-table-body").html('').append(html);
 

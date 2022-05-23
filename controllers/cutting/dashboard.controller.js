@@ -378,7 +378,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                         else if(filterShift ==  'c_shift')
                             tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
                         else
-                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);  
+                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60); 
                     }
                 }
 
@@ -416,6 +416,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
         return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: returnData }));
     } catch (error) {
         logHelper.writeLog("cutting.getStackBarMachineData", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message}));
     }
 }
 
@@ -624,6 +625,7 @@ module.exports.downloadMachineDataReport = async function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("cutting.downloadMachineData", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message}));
     }
 }
 
@@ -637,6 +639,9 @@ function sumData92(machine, ele) {
     let sharpenTime = parseFloat(ele['sharpen_time']);
     let idleTime = parseFloat(ele['idle_time']);
 
+    let cutSpeed =  parseFloat(ele['cut_speed_average']);
+    let cutFilename =  ele['cut_file_name'];
+
     machine.totalTime += cutTime + dryHaulTime + dryRunTime + processingTime + biteTime + interruptTime + sharpenTime + idleTime;
     machine.cutTime += cutTime;
     machine.dryHaulTime += dryHaulTime;
@@ -646,6 +651,9 @@ function sumData92(machine, ele) {
     machine.interruptTime += interruptTime;
     machine.sharpenTime += sharpenTime;
     machine.idleTime += idleTime;
+
+    machine.cutSpeed += cutSpeed;
+    machine.cutFilenameList.push(cutFilename);
 }
 
 function sumData95(machine, ele) {
@@ -658,9 +666,15 @@ function sumData95(machine, ele) {
     let erorrTime = parseFloat(ele['total_error_time']);
     let noServosTime = parseFloat(ele['total_no_servos_time']);
 
+    let cutSpeed =  parseFloat(ele['holder_1_average_down_speed']);
+    let cutFilename =  ele['job_name'];
+
     machine.totalTime += processingTime + idleTime + erorrTime + noServosTime;
     machine.cutTime += cutTime;
     machine.dryHaulTime += dryHaulTime;
     machine.interruptTime += interruptTime;
     machine.idleTime += idleTime;
+
+    machine.cutSpeed += cutSpeed;
+    machine.cutFilenameList.push(cutFilename);
 }

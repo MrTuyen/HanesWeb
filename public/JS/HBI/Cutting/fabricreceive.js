@@ -243,8 +243,8 @@ function getListMarkerData() {
                     </td>
                     <td>
                         ${ele.cancel_date != undefined ? `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
-                        : ele.ccd_confirm_by != undefined ? `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
-                            : ele.wh_confirm_by != undefined ? `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
+                        : ele.ccd_confirm_by != undefined && ele.ccd_status == 1 ? `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
+                            : ele.ccd_confirm_by != undefined && ele.ccd_status == 0 ? `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
                                 : `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
                     }  
                     </td>

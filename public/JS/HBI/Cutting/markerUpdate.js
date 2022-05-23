@@ -112,7 +112,7 @@ function getMarkerPlanDetail(){
             $("#txtGroup").val(master._group);
             $("#txtCutDate").val(master.cut_date);
             $("#txtCreatedDate").val(master.date_update);
-            $("#txtWeek").val(new Date(master.date_update).getWeekNumber());
+            $("#txtWeek").val(master._group.substring(2,4));
             $("#txtNote").val(master.note);
 
             let html = '';
@@ -303,7 +303,7 @@ function getMarkerPlanDetailPreview(){
     $("#txtPGroup").val(markerPlan._group);
     $("#txtPCutDate").val(markerPlan.cut_date);
     $("#txtPCreatedDate").val(markerPlan.date_update);
-    $("#txtPWeek").val(new Date(markerPlan.date_update).getWeekNumber());
+    $("#txtPWeek").val(markerPlan._group.substring(2,4));
     $("#txtPNote").val(markerPlan.note);
 
     let html = '';

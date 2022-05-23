@@ -30,7 +30,7 @@ class Database {
             return result;
         }
         catch (error) {
-            logHelper.writeLog("excuteQueryAsync", error);
+            logHelper.writeLog("excuteQueryAsync" + "/\n" + queryString, error);
             return null;
         }
       
@@ -42,7 +42,7 @@ class Database {
             return result;
         }
         catch (error) {
-            logHelper.writeLog("excuteSPAsync", error);
+            logHelper.writeLog("excuteSPAsync"+ "/\n" + queryString, error);
             return null;
         }
       
@@ -54,7 +54,7 @@ class Database {
             return result.affectedRows;
         }
         catch (error) {
-            logHelper.writeLog("excuteNonQueryAsync", error + "/\n" + queryString);
+            logHelper.writeLog("excuteNonQueryAsync"+ "/\n" + queryString, error);
             return null;
         }
       
@@ -66,7 +66,7 @@ class Database {
             return result.insertId;
         }
         catch (error) {
-            logHelper.writeLog("excuteInsertReturnIdAsync", error);
+            logHelper.writeLog("excuteInsertReturnIdAsync"+ "/\n" + queryString, error);
             return 0;
         }
         
@@ -78,7 +78,7 @@ class Database {
             return result.affectedRows;
         }
         catch (error) {
-            logHelper.writeLog("excuteInsertReturnIdAsync", error);
+            logHelper.writeLog("excuteInsertReturnIdAsync"+ "/\n" + queryString, error);
             return 0;
         }
         
@@ -96,7 +96,7 @@ class Database {
             })
         }
         catch (error) {
-            logHelper.writeLog("excuteQuery", error);
+            logHelper.writeLog("excuteQuery"+ "/\n" + queryString, error);
             return null;
         }
         
@@ -114,7 +114,7 @@ class Database {
             })            
         }
         catch (error) {
-            logHelper.writeLog("excuteSP", error);
+            logHelper.writeLog("excuteSP"+ "/\n" + queryString, error);
             return null;
         }
         

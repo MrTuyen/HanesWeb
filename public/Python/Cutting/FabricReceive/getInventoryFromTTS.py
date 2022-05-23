@@ -5,6 +5,8 @@ import sys
 import math
 import json
 
+from sqlalchemy import Float
+
 if __name__ == "__main__":
     jsonData = json.loads(sys.argv[1])
 
@@ -129,6 +131,12 @@ if __name__ == "__main__":
             if len(row.RPRTCD.strip()) > 0:
                 itemColor = row.RFFSTY + '-' + row.RPRTCD.strip() + '-' +str(row.RCUTWD).split('.0')[0]
 
+            actualWidth = ''
+            if row.ACTUAL_WITH.strip() == '':
+                actualWidth = ''
+            else:
+                actualWidth = str(float(row.ACTUAL_WITH) / 1000)
+
             temp = (
                 row.RUNIP,
                 unipack2,
@@ -152,7 +160,7 @@ if __name__ == "__main__":
                 '',
                 row.QCCOMMENT,
                 row.ACTUAL_WITH,
-                str(row.ACTUAL_WITH).replace('0', ''),
+                actualWidth,
                 row.VENDOR,
                 row.RPRTCD,
                 jsonData["user"],
