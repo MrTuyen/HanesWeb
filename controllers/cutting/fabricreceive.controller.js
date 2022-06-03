@@ -213,15 +213,16 @@ module.exports.saveUploadData = async function (req, res) {
                         FROM cutting_fr_marker_data_plan 
                         WHERE _group = '${fr[3]}'
                             AND cancel_by IS NULL
-                            AND parentTicketId != 0`;
+                            AND parentTicketId = 0`;
 
             let objMarkerPlan = await db.excuteQueryAsync(query);
             // if exist record with the same group name and it is not be canceled so system will not insert the record
             if (objMarkerPlan.length > 0) {
-                continue;
+                // continue;
+                updateMarker(objMarkerPlan[0].id, masterData);
             }
-
-            query = `INSERT INTO cutting_fr_marker_data_plan (
+            else {
+                query = `INSERT INTO cutting_fr_marker_data_plan (
                     plant, 
                     work_center, 
                     receive_date, 
@@ -256,35 +257,35 @@ module.exports.saveUploadData = async function (req, res) {
                     '${fr[16]}'
                 )`;
 
-            let isInsertMasterSuccess = await db.excuteQueryAsync(query);
-            if (isInsertMasterSuccess.affectedRows < 0) {
-                return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
-            }
+                let isInsertMasterSuccess = await db.excuteQueryAsync(query);
+                if (isInsertMasterSuccess.affectedRows < 0) {
+                    return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
+                }
 
-            // insert to child table: contain item color => insert each item color to child table
-            let idMaster = isInsertMasterSuccess.insertId;
-            let detailData = [];
-            let html = '';
-            for (let i = 0; i < masterData.length; i++) {
-                let rowData = masterData[i];
-                let detailObj = [];
+                // insert to child table: contain item color => insert each item color to child table
+                let idMaster = isInsertMasterSuccess.insertId;
+                let detailData = [];
+                let html = '';
+                for (let i = 0; i < masterData.length; i++) {
+                    let rowData = masterData[i];
+                    let detailObj = [];
 
-                if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
+                    if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
 
-                    if (rowData[7] && parseFloat(rowData[7]) > 0) {
-                        detailObj.push(idMaster);
-                        detailObj.push(rowData[4]);
-                        detailObj.push(rowData[5]);
-                        detailObj.push(rowData[6]);
-                        detailObj.push(rowData[7] ? rowData[7] : 0);
-                        detailObj.push(rowData[10]);
-                        detailObj.push(rowData[11] ? rowData[11] : 0);
-                        detailObj.push(new Date(fr[8]).toLocaleDateString());
+                        if (rowData[7] && parseFloat(rowData[7]) > 0) {
+                            detailObj.push(idMaster);
+                            detailObj.push(rowData[4]);
+                            detailObj.push(rowData[5]);
+                            detailObj.push(rowData[6]);
+                            detailObj.push(rowData[7] ? rowData[7] : 0);
+                            detailObj.push(rowData[10]);
+                            detailObj.push(rowData[11] ? rowData[11] : 0);
+                            detailObj.push(new Date(fr[8]).toLocaleDateString());
 
-                        detailData.push(detailObj);
+                            detailData.push(detailObj);
 
-                        // section for send mail
-                        html += `<tr>
+                            // section for send mail
+                            html += `<tr>
                             <td>${datetimeDDMMYY}</td>
                             <td>${rowData[5]}</td>
                             <td>${fr[3].substring(fr[3].length - 2)}</td>
@@ -294,16 +295,16 @@ module.exports.saveUploadData = async function (req, res) {
                             <td>${fr[3]}</td>
                             <td>${fr[16]}</td>
                         </tr>`
+                        }
                     }
                 }
-            }
-            query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen, cut_date) 
+                query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen, cut_date) 
                     VALUES ?`;
-            let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
+                let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
 
-            // send mail
-            if (isParentTicket == 1) { // phiếu yêu cầu thêm mới gửi mail
-                let body = `
+                // send mail
+                if (isParentTicket == 1) { // phiếu yêu cầu thêm mới gửi mail
+                    let body = `
                     Dear all,
                     <br><br> Vui lòng cấp vải như yêu cầu bên dưới/ <i>Please supply fabric as table below</i>
                     <br> Truy cập website: <a href='http://10.113.98.238/cutting/fabric-receive'>Fabric Recieve</a> để xem chi tiết/ <i>Access website to know more <a href='http://10.113.98.238/cutting/fabric-receive'>Fabric Recieve</a></i>
@@ -322,10 +323,11 @@ module.exports.saveUploadData = async function (req, res) {
                         {{table_body}}
                     </table>
                 `;
-                body = body.replace('{{table_body}}', html);
-                // let subject = `Tuyen Test YCT ${fr[3]} - ngày ${datetimeDDMMYY} chạy thử hệ thống, vui lòng bỏ qua - testing system, please ignore`;
-                let subject = `YCT ${fr[3]} - ngày ${datetimeDDMMYY}`;
-                helper.sendMail(subject, 'HYS Innovation Innovation_System@hanes.com', config.TestMailList, 'tuyen.nguyen@hanes.com', body);
+                    body = body.replace('{{table_body}}', html);
+                    // let subject = `Tuyen Test YCT ${fr[3]} - ngày ${datetimeDDMMYY} chạy thử hệ thống, vui lòng bỏ qua - testing system, please ignore`;
+                    let subject = `YCT ${fr[3]} - ngày ${datetimeDDMMYY}`;
+                    helper.sendMail(subject, 'HYS Innovation Innovation_System@hanes.com', config.TestMailList, 'tuyen.nguyen@hanes.com', body);
+                }
             }
         }
 
@@ -740,7 +742,7 @@ module.exports.ccdConfirm = async function (req, res) {
 
         let isAllScanned = 0;
         let tempObj = selectedRollList.filter(x => x.scanned_time != "");
-        if(tempObj && tempObj.length > 0){
+        if (tempObj && tempObj.length > 0) {
             isAllScanned = 1;
         }
 
@@ -847,7 +849,7 @@ module.exports.printTicket = async function (req, res) {
                     </tr>
                     <tr>
                         <td width="20%">Created Date: ${data.master.date_update}</td>
-                        <td width="25%">Week: ${data.master._group.substring(2,4)}</td>
+                        <td width="25%">Week: ${data.master._group.substring(2, 4)}</td>
                         <td width="25%">Note: ${data.master.note}</td>
                     </tr>
                     <tr>
@@ -1206,74 +1208,141 @@ module.exports.saveUpdateUploadData = async function (req, res) {
                 }
             }
 
-            // update general info
-            let fr = updateDetailData[0];
-            let query = `UPDATE cutting_fr_marker_data_plan 
-                    SET receive_date = '${new Date(fr[1]).toLocaleDateString()}', 
-                        receive_time = '${fr[2]}', 
-                        cut_date = '${new Date(fr[8]).toLocaleDateString()}', 
-                        note = '${fr[9]}',
-                        plant = '${fr[12]}'
-                    WHERE id = ${id}`;
-            let isUpdateSuccess = await db.excuteNonQueryAsync(query);
-            if (isUpdateSuccess <= 0)
-                return res.end(JSON.stringify({ rs: false, msg: "Cập nhật thông tin phiếu yêu cầu vải không thành công." }));
+            updateMarker(id, updateDetailData);
+            // // update general info
+            // let fr = updateDetailData[0];
+            // let query = `UPDATE cutting_fr_marker_data_plan 
+            //         SET receive_date = '${new Date(fr[1]).toLocaleDateString()}', 
+            //             receive_time = '${fr[2]}', 
+            //             cut_date = '${new Date(fr[8]).toLocaleDateString()}', 
+            //             note = '${fr[9]}',
+            //             plant = '${fr[12]}'
+            //         WHERE id = ${id}`;
+            // let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+            // if (isUpdateSuccess <= 0)
+            //     return res.end(JSON.stringify({ rs: false, msg: "Cập nhật thông tin phiếu yêu cầu vải không thành công." }));
 
-            // update marker detail info
-            let markerDetailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${id})`);
-            markerDetailInfo = markerDetailInfo[0];
-            let detailData = [];
-            for (let i = 0; i < updateDetailData.length; i++) {
-                let rowData = updateDetailData[i];
-                let detailObj = [];
-                let isExistObj = markerDetailInfo.filter(x => x.wo == rowData[4] && x.ass == rowData[5] && x.item_color == rowData[6]);
-                if (isExistObj && isExistObj.length > 0) { // update
-                    let delIndex = markerDetailInfo.indexOf(isExistObj[0]);
-                    markerDetailInfo.splice(delIndex, 1);
+            // // update marker detail info
+            // let markerDetailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${id})`);
+            // markerDetailInfo = markerDetailInfo[0];
+            // let detailData = [];
+            // for (let i = 0; i < updateDetailData.length; i++) {
+            //     let rowData = updateDetailData[i];
+            //     let detailObj = [];
+            //     let isExistObj = markerDetailInfo.filter(x => x.wo == rowData[4] && x.ass == rowData[5] && x.item_color == rowData[6]);
+            //     if (isExistObj && isExistObj.length > 0) { // update
+            //         let delIndex = markerDetailInfo.indexOf(isExistObj[0]);
+            //         markerDetailInfo.splice(delIndex, 1);
 
-                    query = `UPDATE cutting_fr_marker_data_plan_detail  
-                            SET yard_demand = ${rowData[7]}, marker_name = '${rowData[10]}', dozen = '${rowData[11]}'
-                            WHERE id = ${isExistObj[0].id}`;
-                    let isUpdateSuccess = await db.excuteNonQueryAsync(query);
-                }
-                else { // insert
-                    if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
-                        if (rowData[7] && parseFloat(rowData[7]) > 0) {
-                            detailObj.push(id);
-                            detailObj.push(rowData[4]);
-                            detailObj.push(rowData[5]);
-                            detailObj.push(rowData[6]);
-                            detailObj.push(rowData[7]);
-                            detailObj.push(rowData[10]);
-                            detailObj.push(rowData[11]);
-                            detailObj.push(new Date(fr[8]).toLocaleDateString());
-    
-                            detailData.push(detailObj);
-                        }
-                    }
-                }
-            }
+            //         query = `UPDATE cutting_fr_marker_data_plan_detail  
+            //                 SET yard_demand = ${rowData[7]}, marker_name = '${rowData[10]}', dozen = '${rowData[11]}'
+            //                 WHERE id = ${isExistObj[0].id}`;
+            //         let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+            //     }
+            //     else { // insert
+            //         if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
+            //             if (rowData[7] && parseFloat(rowData[7]) > 0) {
+            //                 detailObj.push(id);
+            //                 detailObj.push(rowData[4]);
+            //                 detailObj.push(rowData[5]);
+            //                 detailObj.push(rowData[6]);
+            //                 detailObj.push(rowData[7]);
+            //                 detailObj.push(rowData[10]);
+            //                 detailObj.push(rowData[11]);
+            //                 detailObj.push(new Date(fr[8]).toLocaleDateString());
 
-            // delete 
-            if (markerDetailInfo.length > 0) {
-                query = `DELETE FROM cutting_fr_marker_data_plan_detail WHERE id IN (${markerDetailInfo.map(x => x.id)})`;
-                let isDeleteDetailSuccess = await db.excuteNonQueryAsync(query);
+            //                 detailData.push(detailObj);
+            //             }
+            //         }
+            //     }
+            // }
 
-                query = `DELETE FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_detail_id IN (${markerDetailInfo.map(x => x.id)})`;
-                let isDeleteRollSuccess = await db.excuteNonQueryAsync(query);
-            }
+            // // delete 
+            // if (markerDetailInfo.length > 0) {
+            //     query = `DELETE FROM cutting_fr_marker_data_plan_detail WHERE id IN (${markerDetailInfo.map(x => x.id)})`;
+            //     let isDeleteDetailSuccess = await db.excuteNonQueryAsync(query);
 
-            if (detailData.length > 0) {
-                query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen, cut_date) 
-                    VALUES ?`;
-                let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
-            }
+            //     query = `DELETE FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_detail_id IN (${markerDetailInfo.map(x => x.id)})`;
+            //     let isDeleteRollSuccess = await db.excuteNonQueryAsync(query);
+            // }
+
+            // if (detailData.length > 0) {
+            //     query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen, cut_date) 
+            //         VALUES ?`;
+            //     let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
+            // }
         }
 
         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
     } catch (error) {
         logHelper.writeLog("fabric_receive.saveUpdateUploadData", error);
         return res.end(JSON.stringify({ rs: false, msg: error.message }));
+    }
+}
+
+async function updateMarker(id, updateDetailData) {
+    // update general info
+    let fr = updateDetailData[0];
+    let query = `UPDATE cutting_fr_marker_data_plan 
+        SET receive_date = '${new Date(fr[1]).toLocaleDateString()}', 
+            receive_time = '${fr[2]}', 
+            cut_date = '${new Date(fr[8]).toLocaleDateString()}', 
+            note = '${fr[9]}',
+            plant = '${fr[12]}'
+        WHERE id = ${id}`;
+    let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+    if (isUpdateSuccess <= 0)
+        // return res.end(JSON.stringify({ rs: false, msg: "Cập nhật thông tin phiếu yêu cầu vải không thành công." }));
+        return false;
+
+    // update marker detail info
+    let markerDetailInfo = await db.excuteSPAsync(`CALL USP_Cutting_Fabric_Receive_Get_Marker_Data_Detail (${id})`);
+    markerDetailInfo = markerDetailInfo[0];
+    let detailData = [];
+    for (let i = 0; i < updateDetailData.length; i++) {
+        let rowData = updateDetailData[i];
+        let detailObj = [];
+        let isExistObj = markerDetailInfo.filter(x => x.wo == rowData[4] && x.ass == rowData[5] && x.item_color == rowData[6]);
+        if (isExistObj && isExistObj.length > 0) { // update
+            let delIndex = markerDetailInfo.indexOf(isExistObj[0]);
+            markerDetailInfo.splice(delIndex, 1);
+
+            query = `UPDATE cutting_fr_marker_data_plan_detail  
+                SET yard_demand = ${rowData[7]}, marker_name = '${rowData[10]}', dozen = '${rowData[11]}'
+                WHERE id = ${isExistObj[0].id}`;
+            let isUpdateSuccess = await db.excuteNonQueryAsync(query);
+        }
+        else { // insert
+            if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
+                if (rowData[7] && parseFloat(rowData[7]) > 0) {
+                    detailObj.push(id);
+                    detailObj.push(rowData[4]);
+                    detailObj.push(rowData[5]);
+                    detailObj.push(rowData[6]);
+                    detailObj.push(rowData[7]);
+                    detailObj.push(rowData[10]);
+                    detailObj.push(rowData[11]);
+                    detailObj.push(new Date(fr[8]).toLocaleDateString());
+
+                    detailData.push(detailObj);
+                }
+            }
+        }
+    }
+
+    // delete 
+    if (markerDetailInfo.length > 0) {
+        query = `DELETE FROM cutting_fr_marker_data_plan_detail WHERE id IN (${markerDetailInfo.map(x => x.id)})`;
+        let isDeleteDetailSuccess = await db.excuteNonQueryAsync(query);
+
+        query = `DELETE FROM cutting_fr_marker_data_plan_detail_roll WHERE marker_plan_detail_id IN (${markerDetailInfo.map(x => x.id)})`;
+        let isDeleteRollSuccess = await db.excuteNonQueryAsync(query);
+    }
+
+    if (detailData.length > 0) {
+        query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen, cut_date) 
+        VALUES ?`;
+        let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
     }
 }
 
@@ -1484,6 +1553,19 @@ module.exports.getInventoryDataTTS = async function (req, res) {
         let user = req.user.username;
         let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
 
+        // check someone are running or not
+        let isRunning = myCache.get("is_running_tts");
+        if (isRunning == undefined || isRunning == false) {
+            myCache.set("is_running_tts", true, 600);
+            myCache.set("user_running_tts", user, 600);
+        }
+        else {
+            if (isRunning == true) {
+                let userRunning = myCache.get("user_running_tts");
+                return res.end(JSON.stringify({ rs: false, msg: `${userRunning} đang chạy tồn kho. Vui lòng đợi sau 10 phút.` }));
+            }
+        }
+
         // delete all data before update latest data from Inventory6
         let query = `TRUNCATE TABLE cutting_fr_wh_fabric_inventory`;
         let isDeleteOldData = await db.excuteNonQueryAsync(query);
@@ -1501,19 +1583,22 @@ module.exports.getInventoryDataTTS = async function (req, res) {
         let shell = new PythonShell('getInventoryFromTTS.py', options);
         shell.on('message', function (message) {
             if (message == 'ok') {
+                myCache.set("is_running_tts", false);
+                myCache.del("user_running_tts");
                 res.setHeader("Content-Type", "application/json");
                 return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
             }
             else {
+                myCache.set("is_running_tts", false);
+                myCache.del("user_running_tts");
                 logHelper.writeLogMessage("fabric_receive.getInventoryDataTTS", message);
                 res.setHeader("Content-Type", "application/json");
                 return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
             }
         });
-
-        // query = `CALL USP_Cutting_Fabric_Receive_Update_Inventory_Data ()`;
-        // db.excuteSPAsync(query);
     } catch (error) {
+        myCache.set("is_running_tts", false);
+        myCache.del("user_running_tts");
         logHelper.writeLog("fabric_receive.getInventoryDataTTS", error);
         return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
     }

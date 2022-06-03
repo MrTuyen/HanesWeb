@@ -266,7 +266,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                 }
 
                 returnData = {
-                    stackBarChartData: { data1: listLabel, data2: listStackBarChartData92 },
+                    stackBarChartData: { data1: listLabel, data2: listStackBarChartData92, listDate: listDate, listMachine: labels },
                 }
             }
             else { // Date

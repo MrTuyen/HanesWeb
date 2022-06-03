@@ -2,9 +2,10 @@ require('dotenv').config();
 var mysql = require('mysql');
 var dateFormat = require('dateformat');
 const logHelper = require('./common/log.js');
+var host = "localhost";
 var con1 = mysql.createPool({
     connectionLimit: 30,
-    host: '10.113.99.3',
+    host: host,
     user: 'root',
     password: '123456',
     database: 'linebalancing'
@@ -12,7 +13,7 @@ var con1 = mysql.createPool({
 var con2 = mysql.createPool({
     connectionLimit: 60,
     // host: 'hyspayqsqlv',
-    host: '10.113.99.3',
+    host: host,
     user: 'root',
     // password: 'Hy$2020',
     password: '123456',
@@ -20,13 +21,13 @@ var con2 = mysql.createPool({
 });
 var con3 = mysql.createPool({
     connectionLimit: 60,
-    host: "10.113.99.3",
+    host: host,
     user: 'root',
     password: '123456',
     database: 'erphtml'
 });
 var con4 = mysql.createPool({
-    host: "10.113.99.3",
+    host: host,
     connectionLimit: 100,
     user: 'root',
     password: '123456',
@@ -89,6 +90,8 @@ var staticResource2 = '//10.113.98.238/Realtime'
 var staticResource3 = '//10.113.98.238/Realtime/Scan lai/'
 var staticResource4 = '//10.113.98.238/Realtime/not scan/'
 var staticReport = '//pbvfps1/PBShare2/Scan/Report/ReportWebserver/'
+
+app.use('/images', express.static('public/Image'));
 app.use('/image', express.static(staticResource));
 app.use('/image2', express.static(staticResource2));
 app.use('/image3', express.static(staticResource3));
@@ -134,7 +137,10 @@ const io = require('socket.io')(server);
 app.set("socketio", io);    // <== this line
 global.testIo = io;
 
-server.listen(8000, '10.113.99.3', function () {
+// server.listen(8000, '10.113.99.3', function () {
+//     console.log('Server Start Running');
+// });
+server.listen(8000, 'localhost', function () {
     console.log('Server Start Running');
 });
 

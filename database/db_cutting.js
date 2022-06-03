@@ -9,7 +9,13 @@ var con = mysql.createPool({
     // password: "Hy$2020",
     // database: "cutting_system"
 
-    host: "10.113.99.3",
+    // host: "10.113.99.3",
+    // port: 3306,
+    // user: "root",
+    // password: "123456",
+    // database: "cutting_system"
+
+    host: "localhost",
     port: 3306,
     user: "root",
     password: "123456",

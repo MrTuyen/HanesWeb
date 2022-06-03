@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
         totalRows = len(df)
         mydb = mysql.connector.connect(
-            host="10.113.99.3", user='root', passwd='123456', database="cutting_system")
+            host="localhost", user='root', passwd='123456', database="cutting_system")
         myCursor = mydb.cursor()
         values = []
         for index, row in df.iterrows():
