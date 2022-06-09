@@ -65,7 +65,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" style="background-color: #efefef;color: rgba(0, 0, 0, 0.5) !important" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success mr-0" onclick="">Submit</button>
+                <button type="button" class="btn btn-success mr-0" onclick="addContribution()">Submit</button>
             </div>
         </div>
     </div>
@@ -188,6 +188,11 @@
                 toastr.error("Thất bại", "Cập nhật không thành công");
             }
         });
+    }
+
+    function addContribution(){
+        toastr.success("Cảm ơn góp ý của bạn. Thanks for your contribution.", "Thành công");
+        $("#modalContribution").modal("hide");
     }
 
 </script>

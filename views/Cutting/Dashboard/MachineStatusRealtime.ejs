@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cutting machine status realtime</title>
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/admin.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-clockpicker/bootstrap-clockpicker.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/libs/toggle-switch/toggle-switch.css">
+    <link rel="stylesheet" href="/Contents/libs/select-checkbox/selectbox.css">
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/popper.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/Contents/libs/select-checkbox/selectbox.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        .dropdown .dropdown-menu {
+            font-size: 14px;
+        }
+
+        .clockpicker-popover {
+            z-index: 99999;
+        }
+
+        .input-group-addon {
+            border-radius: 0;
+        }
+
+        .switch-toggle input {
+            width: 0px;
+            visibility: hidden;
+        }
+
+        .full-screen {
+            width: 100vw;
+            position: fixed;
+            height: 100vh;
+            top: 65px;
+            left: 2px;
+            z-index: 100;
+            background: white;
+            overflow: auto;
+            padding: 0px 12px 70px 12px;
+        }
+
+        .zoomInZoomOut {
+            cursor: pointer;
+        }
+
+        .tooltip {
+            width: 130px;
+        }
+
+        .vsb-main {
+            width: 100%;
+        }
+
+        .cutting-machine-area{
+            display: -webkit-box;
+            flex-flow: row wrap;
+            align-content: space-between;
+            justify-content: space-between;
+        }
+
+       .cutting-machine{
+            border: 1px solid #c6edff;
+            border-radius: 3px;
+            padding: 5px;
+            box-shadow: 0 0.5rem 1rem rgb(0 0 0 / 15%) !important;
+            margin-bottom: 10px;
+            margin-right: 10px;
+            font-size: 12px;
+       }
+
+       th, td{
+           text-align: center;
+           padding: 2px!important;
+           font-size: 10px;
+       }
+
+       .sticky-body {
+            height: 100px;
+            overflow: auto;
+            border: 1px solid #dddddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+        <header class="mdl-layout__header">
+            <div class="mdl-layout__header-row">
+                <span class="mdl-layout-title">CUTTING</span>
+                <%- include ("../../headerTemplate.ejs"); -%>
+            </div>
+        </header>
+        <%- include ("../partials/navTemplate.ejs"); -%>
+            <main class="mdl-layout__content">
+                <div class="page-content">
+                    <div class="bg-white">
+                        <div class="d-sm-block">
+                            <div class="panel panel-default pt-3 pr-3 pl-3 border-0 mb-0">
+                                <div class="card shadow pl-4 pr-4 pt-2 pb-2">
+                                    <a href="/cutting"><i class="fa fa-angle-left"></i> &nbsp;Dashboard</a>
+                                </div>
+                            </div>
+                            <div class="panel panel-default pt-3 pr-3 pl-3 border-0 mb-0">
+                                <div class="">
+                                    <div class="col-md-6 col-xs-12 p-0 pr-2" id="cut92">
+                                        <div class="card shadow mb-3 p-2 text-center">
+                                            <strong>CUTTING 92</strong>
+                                        </div>
+
+                                        <div class="card shadow">
+                                            <!-- Card Header - Dropdown -->
+                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                <h5 class="m-0 font-weight-bold text-primary">Layout - Lastest update: <span class="lbLastRefreshDate" id="lbLastRefreshDate92"></span></h5>
+                                                <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="  text-danger" id="txtDate92"></span></h5>
+                                                <div class="dropdown no-arrow d-flex">
+                                                    <div class="mr-3 zoomInZoomOut" onclick="zoomInZoomOut('cut92')" data-toggle="tooltip" data-placement="top" title="Zoom in or zoom out">&#x26f6;</div>
+                                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="fa fa-ellipsis-v fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Filter with criteria"></i>
+                                                    </a>
+                                                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in p-3" style="width: 220px;">
+                                                        <form class="form-inline">
+                                                            <div class="w-100">
+                                                                <p class="mb-1">Machine</p>
+                                                                <select class="form-control w-100" multiple id="txtFilterMachine92">
+
+                                                                </select>
+                                                            </div>
+                                                            <div class="w-100">
+                                                                <p class="mb-1">View Type</p>
+                                                                <div class="switch-block">
+                                                                    <label class="switch-light switch-candy d-inline">
+                                                                        <input type="checkbox" name="" id="cbViewType92" onchange="changeViewType(92)" />
+                                                                        <span>
+                                                                            <span>Day</span>
+                                                                            <span>Week</span>
+                                                                            <a></a>
+                                                                        </span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <div class="w-100" id="dateValue92">
+                                                                    <p class="mb-1">Date Value</p>
+                                                                    <input type="text" class="form-control isDate" id="txtFilterDate92">
+                                                                </div>
+                                                                <div class="w-100" id="weekValue92">
+                                                                    <p class="mb-1">Week Value</p>
+                                                                    <div class="d-flex">
+                                                                        <input type="number" class="form-control w-50 mr-2" id="txtFilterWeek92" placeholder="Start">
+                                                                        <input type="number" class="form-control w-50" id="txtFilterWeekEndValue92" placeholder="End">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="w-100">
+                                                                <p class="mb-1">Shift</p>
+                                                                <select class="form-control w-100 dropdown-shift" name="" id="txtFilterShift92">
+
+                                                                </select>
+                                                            </div>
+                                                            <div class="mt-3 w-100">
+                                                                <!-- <button type="button" class="btn btn-success btn-sm" onclick="" >Tải xuống</button> -->
+                                                                <button type="button" class="btn btn-success btn-sm w-100" onclick="getMachineData(92)">Submit</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Card Body -->
+                                            <div class="card-body pr-0">
+                                                <div class="cutting-machine-area" id="cutting-machine-area-92">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-6 col-xs-12 p-0 pl-2" id="cut95">
+                                        <div class="card shadow mb-3 p-2 text-center">
+                                            <strong>CUTTING 95</strong>
+                                        </div>
+
+                                        <div class="card shadow">
+                                            <!-- Card Header - Dropdown -->
+                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                <h5 class="m-0 font-weight-bold text-primary">Layout - Lastest update: <span class="lbLastRefreshDate" id="lbLastRefreshDate95"></span></h5>
+                                                <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="  text-danger" id="txtDate95"></span></h5>
+                                                <div class="dropdown no-arrow d-flex">
+                                                    <div class="mr-3 zoomInZoomOut" onclick="zoomInZoomOut('cut95')" data-toggle="tooltip" data-placement="top" title="Zoom in or zoom out">&#x26f6;</div>
+                                                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        <i class="fa fa-ellipsis-v fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Filter with criteria"></i>
+                                                    </a>
+                                                    <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in p-3" style="width: 220px;">
+                                                        <form class="form-inline">
+                                                            <div class="w-100">
+                                                                <p class="mb-1">Machine</p>
+                                                                <select class="form-control w-100" multiple id="txtFilterMachine95">
+
+                                                                </select>
+                                                            </div>
+                                                            <div class="w-100">
+                                                                <p class="mb-1">View Type</p>
+                                                                <div class="switch-block">
+                                                                    <label class="switch-light switch-candy d-inline">
+                                                                        <input type="checkbox" name="" id="cbViewType95" onchange="changeViewType(95)" />
+                                                                        <span>
+                                                                            <span>Day</span>
+                                                                            <span>Week</span>
+                                                                            <a></a>
+                                                                        </span>
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <div class="w-100" id="dateValue95">
+                                                                    <p class="mb-1">Date Value</p>
+                                                                    <input type="text" class="form-control isDate" id="txtFilterDate95">
+                                                                </div>
+                                                                <div class="w-100" id="weekValue95">
+                                                                    <p class="mb-1">Week Value</p>
+                                                                    <div class="d-flex">
+                                                                        <input type="number" class="form-control w-50 mr-2" id="txtFilterWeek95" placeholder="Start">
+                                                                        <input type="number" class="form-control w-50" id="txtFilterWeekEndValue95" placeholder="End">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="w-100">
+                                                                <p class="mb-1">Shift</p>
+                                                                <select class="form-control w-100 dropdown-shift" name="" id="txtFilterShift95">
+
+                                                                </select>
+                                                            </div>
+                                                            <div class="mt-3 w-100">
+                                                                <!-- <button type="button" class="btn btn-success btn-sm" onclick="" >Tải xuống</button> -->
+                                                                <button type="button" class="btn btn-success btn-sm w-100" onclick="getMachineData(95)">Submit</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Card Body -->
+                                            <div class="card-body pr-0">
+                                                <div class="cutting-machine-area" id="cutting-machine-area-95">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/Contents/libs/download.min.js"></script>
+    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/JS/HBI/Common/commonFactory.js"></script>
+    <script src="/Contents/libs/chart/Chart.min.js"></script>
+    <script src="/Contents/libs/chart/chartjs-plugin-datalabels.min.js"></script>
+    <script src="/Contents/libs/bootstrap-clockpicker/bootstrap-clockpicker.min.js"></script>
+    <script src="/JS/HBI/Cutting/dashboardMachineStatus.js"></script>
+</body>
+
+</html>

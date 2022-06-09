@@ -10,6 +10,7 @@ const mixsolveController = require("../controllers/cutting/mixsolve.controller")
 router.get("/", dashboardController.getIndex)
 router.post("/dashboard/get-machine-data", dashboardController.getStackBarMachineData)
 router.post("/dashboard/download-machine-data", dashboardController.downloadMachineDataReport)
+router.get("/status", dashboardController.getMachineStatusRealtime )
 
 // Cutting machine
 router.post("/get-machines", dashboardController.getMachines)

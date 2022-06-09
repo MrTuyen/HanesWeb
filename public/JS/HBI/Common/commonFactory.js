@@ -289,6 +289,10 @@ function formatMMDDYYHHMMSS(val) {
 	return mm + '/' + dd + '/' + yyyy + ' ' + hh + ':' + MM + ':' + ss;
 }
 
+function dateSubtractDateReturnSecond(date1, date2){
+	return Math.abs(date1 - date2) / 1000;
+}
+
 // #endregion
 
 // #region Number

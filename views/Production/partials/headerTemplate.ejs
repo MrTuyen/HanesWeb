@@ -80,7 +80,7 @@
             <div class="modal-footer pr-0">
                 <div class="col-sm-12 col-md-12">
                     <button type="button" class="btn btn-secondary text-black-50" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-success" onclick="">Submit</button>
+                    <button type="button" class="btn btn-success" onclick="addContribution()">Submit</button>
                 </div>
             </div>
         </div>
@@ -101,4 +101,9 @@
         }
     });
     var userLogin = JSON.parse(localStorage.getItem("user"));
+
+    function addContribution(){
+        toastr.success("Cảm ơn góp ý của bạn. Thanks for your contribution.", "Thành công");
+        $("#modalContribution").modal("hide");
+    }
 </script>

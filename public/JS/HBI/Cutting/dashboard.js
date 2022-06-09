@@ -264,6 +264,19 @@ function getStackBarChart92() {
                     });
                     drawSpeedChartWeek92(listDate, datasets);
 
+                    // Idle, Interupted time average table
+                    let machineList = [];
+                    listMachine.forEach(ele => {
+                        let temp = listMachinesData.filter(x => x.machineName == ele.code);
+                        let obj = {
+                            idleTime: temp.reduce((a, b) => a + b.idleTime, 0),
+                            interruptTime: temp.reduce((a, b) => a + b.interruptTime, 0),
+                            cutFilenameList: [].concat.apply([], temp.map(x => x.cutFilenameList)) // or temp.map(x => x.cutFilenameList).flat()
+                        }
+
+                        machineList.push(obj);
+                    });
+                    avgIdleInterupt(machineList, listMachine.map(x => x.name), '92');
                 }
                 $("#txtAvg92").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
                 $("#txtDate92").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
@@ -320,6 +333,9 @@ function getStackBarChart92() {
                     datasets.push(obj);
                 });
                 drawSpeedChartWeek92([filterDate], datasets);
+
+                // Idle, Interupted time average table
+                avgIdleInterupt(machine, labels, '92');
 
                 // abnormal record 
                 abnormalRecords(response.data.stackBarChartData.data3, response.data.stackBarChartData.data4);
@@ -1340,6 +1356,20 @@ function getStackBarChart95() {
                         datasets.push(obj);
                     });
                     drawSpeedChartWeek95(listDate, datasets);
+
+                    // Idle, Interupted time average table
+                    let machineList = [];
+                    listMachine.forEach(ele => {
+                        let temp = listMachinesData.filter(x => x.machineName == ele.code);
+                        let obj = {
+                            idleTime: temp.reduce((a, b) => a + b.idleTime, 0),
+                            interruptTime: temp.reduce((a, b) => a + b.interruptTime, 0),
+                            cutFilenameList: [].concat.apply([], temp.map(x => x.cutFilenameList)) // or temp.map(x => x.cutFilenameList).flat()
+                        }
+
+                        machineList.push(obj);
+                    });
+                    avgIdleInterupt(machineList, listMachine.map(x => x.name), '95');
                 }
                 $("#txtAvg95").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
                 $("#txtDate95").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
@@ -1396,6 +1426,9 @@ function getStackBarChart95() {
                     datasets.push(obj);
                 });
                 drawSpeedChartWeek95([filterDate], datasets);
+
+                // Idle, Interupted time average table
+                avgIdleInterupt(machine, labels, '95');
 
                 // abnormal record 
                 abnormalRecords(response.data.stackBarChartData.data3, response.data.stackBarChartData.data4);
@@ -2241,6 +2274,22 @@ function drawSpeedChartWeek95(labels, datasets) {
 }
 
 // ----------------- Common function --------------
+function avgIdleInterupt(machineList, labels, wc){
+    let html = '';
+    machineList.forEach((ele, i) => {
+        let idleTimeAverage = ele.cutFilenameList.length > 0 ? ele.idleTime / ele.cutFilenameList.length : 0;
+        let interuptTimeAverage = ele.cutFilenameList.length > 0 ? ele.interruptTime / ele.cutFilenameList.length : 0;
+
+        html += `<tr>
+                <td>${labels[i]}</td>
+                <td>${idleTimeAverage.toFixed(1)}</td>
+                <td>${interuptTimeAverage.toFixed(1)}</td>
+                <td>${ele.cutFilenameList.length > 0 ? ele.cutFilenameList.length : 0}</td>
+            </tr>`;
+    })
+    $(`#idleTable${wc}`).html('').append(html);
+}
+
 function downloadMachineDataReport() {
     LoadingShow();
 

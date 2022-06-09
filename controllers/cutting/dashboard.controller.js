@@ -16,7 +16,7 @@ const CuttingMachineData = require('../../models/cutting/cutting.model')
 
 // Machine
 module.exports.getIndex = function (req, res) {
-    res.render('Cutting/Dashboard');
+    res.render('Cutting/Dashboard/Dashboard');
 }
 
 module.exports.getMachines = async function (req, res) {
@@ -641,6 +641,9 @@ function sumData92(machine, ele) {
 
     let cutSpeed =  parseFloat(ele['cut_speed_average']);
     let cutFilename =  ele['cut_file_name'];
+    let startTime =  ele['start_time'];
+    let endTime =  ele['end_time'];
+
 
     machine.totalTime += cutTime + dryHaulTime + dryRunTime + processingTime + biteTime + interruptTime + sharpenTime + idleTime;
     machine.cutTime += cutTime;
@@ -653,7 +656,7 @@ function sumData92(machine, ele) {
     machine.idleTime += idleTime;
 
     machine.cutSpeed += cutSpeed;
-    machine.cutFilenameList.push(cutFilename);
+    machine.cutFilenameList.push({cutFilename: cutFilename, startTime: startTime, endTime: endTime});
 }
 
 function sumData95(machine, ele) {
@@ -668,6 +671,8 @@ function sumData95(machine, ele) {
 
     let cutSpeed =  parseFloat(ele['holder_1_average_down_speed']);
     let cutFilename =  ele['job_name'];
+    let startTime =  ele['start_time'];
+    let endTime =  ele['end_time'];
 
     machine.totalTime += processingTime + idleTime + erorrTime + noServosTime;
     machine.cutTime += cutTime;
@@ -676,5 +681,10 @@ function sumData95(machine, ele) {
     machine.idleTime += idleTime;
 
     machine.cutSpeed += cutSpeed;
-    machine.cutFilenameList.push(cutFilename);
+   // machine.cutFilenameList.push(cutFilename);
+   machine.cutFilenameList.push({cutFilename: cutFilename, startTime: startTime, endTime: endTime});
+}
+
+module.exports.getMachineStatusRealtime = function(req, res){
+    res.render('Cutting/Dashboard/MachineStatusRealtime');
 }
