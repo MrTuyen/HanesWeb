@@ -2,33 +2,27 @@ const logHelper = require("../common/log.js");
 const mysql = require("mysql");
 const util = require('util');
 
-var con = mysql.createPool({
+var config = {
     // host: "10.113.98.238",
     // port: 3306,
     // user: "root",
     // password: "Hy$2020",
     // database: "cutting_system"
 
-    // host: "10.113.99.3",
-    // port: 3306,
-    // user: "root",
-    // password: "123456",
-    // database: "cutting_system"
-
-    host: "localhost",
+    host: "10.113.99.131",
     port: 3306,
     user: "root",
     password: "123456",
     database: "cutting_system"
-});
-
-// con.getConnection(function (err) {
-//     if (err)
-//         logHelper.writeLog("con.connect", err);
-// });
+};
+var con = mysql.createPool(config);
 
 const query = util.promisify(con.query).bind(con);
 class Database {
+
+    config(){
+        return config;
+    }
       
     async excuteQueryAsync(queryString) {
         try {

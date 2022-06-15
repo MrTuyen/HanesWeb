@@ -8,7 +8,7 @@ var con = mysql.createPool({
     // password: "Hy$2020",
     // database: "erpsystem"
 
-    host: "10.113.99.3",
+    host: "localhost",
     port: 3306,
     user: "root",
     password: "123456",

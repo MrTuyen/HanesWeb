@@ -22,6 +22,7 @@ const myCache = new NodeCache();
 // database
 var Database = require("../../database/db_cutting.js")
 const db = new Database();
+var mysql = require('mysql2/promise');
 
 // service
 const cuttingService = require("../../services/Cutting/cutting.service");
@@ -206,128 +207,140 @@ module.exports.saveUploadData = async function (req, res) {
                     masterData.push(rowData);
                 }
             }
-
+            let connection = await mysql.createConnection(db.config());
+            await connection.execute('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+            await connection.beginTransaction();
             // insert to master table: only have group => take group, receive data, time, cut date, marker name, dozen value of first row                 
-            let fr = masterData[0];
-            let query = `SELECT id
+            try {
+                let fr = masterData[0];
+                let query = `SELECT id
                         FROM cutting_fr_marker_data_plan 
                         WHERE _group = '${fr[3]}'
                             AND cancel_by IS NULL
                             AND parentTicketId = 0`;
 
-            let objMarkerPlan = await db.excuteQueryAsync(query);
-            // if exist record with the same group name and it is not be canceled so system will not insert the record
-            if (objMarkerPlan.length > 0) {
-                // continue;
-                updateMarker(objMarkerPlan[0].id, masterData);
-            }
-            else {
-                query = `INSERT INTO cutting_fr_marker_data_plan (
-                    plant, 
-                    work_center, 
-                    receive_date, 
-                    receive_time, 
-                    _group, 
-                    cut_date, 
-                    note, 
-                    marker_call_by, 
-                    marker_call_date, 
-                    user_update, 
-                    date_update, 
-                    isParentTicket, 
-                    parentTicketId,
-                    request_reason,
-                    request_user
-                )
-                VALUES (
-                    '${fr[12]}', 
-                    '${fr[13]}', 
-                    '${new Date(fr[1]).toLocaleDateString()}', 
-                    '${fr[2]}', 
-                    '${fr[3]}', 
-                    '${new Date(fr[8]).toLocaleDateString()}', 
-                    '${fr[9]}', 
-                    '${user}', 
-                    '${datetime}', 
-                    '${user}', 
-                    '${datetime}', 
-                    ${isParentTicket}, 
-                    ${parentTicketId},
-                    '${fr[15]}',
-                    '${fr[16]}'
-                )`;
-
-                let isInsertMasterSuccess = await db.excuteQueryAsync(query);
-                if (isInsertMasterSuccess.affectedRows < 0) {
-                    return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
+                let objMarkerPlan = await connection.execute(query);
+                objMarkerPlan = objMarkerPlan[0];
+                // if exist record with the same group name and it is not be canceled so system will not insert the record
+                if (objMarkerPlan.length > 0) {
+                    // continue;
+                    updateMarker(objMarkerPlan[0].id, masterData);
                 }
+                else {
+                    query = `INSERT INTO cutting_fr_marker_data_plan (
+                        plant, 
+                        work_center, 
+                        receive_date, 
+                        receive_time, 
+                        _group, 
+                        cut_date, 
+                        note, 
+                        marker_call_by, 
+                        marker_call_date, 
+                        user_update, 
+                        date_update, 
+                        isParentTicket, 
+                        parentTicketId,
+                        request_reason,
+                        request_user
+                    )
+                    VALUES (
+                        '${fr[12]}', 
+                        '${fr[13]}', 
+                        '${new Date(fr[1]).toLocaleDateString()}', 
+                        '${fr[2]}', 
+                        '${fr[3]}', 
+                        '${new Date(fr[8]).toLocaleDateString()}', 
+                        '${fr[9]}', 
+                        '${user}', 
+                        '${datetime}', 
+                        '${user}', 
+                        '${datetime}', 
+                        ${isParentTicket}, 
+                        ${parentTicketId},
+                        '${fr[15]}',
+                        '${fr[16]}'
+                    )`;
 
-                // insert to child table: contain item color => insert each item color to child table
-                let idMaster = isInsertMasterSuccess.insertId;
-                let detailData = [];
-                let html = '';
-                for (let i = 0; i < masterData.length; i++) {
-                    let rowData = masterData[i];
-                    let detailObj = [];
+                    let isInsertMasterSuccess = await connection.execute(query);
+                    isInsertMasterSuccess = isInsertMasterSuccess[0];
+                    if (isInsertMasterSuccess.affectedRows < 0) {
+                        return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
+                    }
 
-                    if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
+                    // insert to child table: contain item color => insert each item color to child table
+                    let idMaster = isInsertMasterSuccess.insertId;
+                    let detailData = [];
+                    let html = '';
+                    for (let i = 0; i < masterData.length; i++) {
+                        let rowData = masterData[i];
+                        let detailObj = [];
 
-                        if (rowData[7] && parseFloat(rowData[7]) > 0) {
-                            detailObj.push(idMaster);
-                            detailObj.push(rowData[4]);
-                            detailObj.push(rowData[5]);
-                            detailObj.push(rowData[6]);
-                            detailObj.push(rowData[7] ? rowData[7] : 0);
-                            detailObj.push(rowData[10]);
-                            detailObj.push(rowData[11] ? rowData[11] : 0);
-                            detailObj.push(new Date(fr[8]).toLocaleDateString());
+                        if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
 
-                            detailData.push(detailObj);
+                            if (rowData[7] && parseFloat(rowData[7]) > 0) {
+                                detailObj.push(idMaster);
+                                detailObj.push(rowData[4]);
+                                detailObj.push(rowData[5]);
+                                detailObj.push(rowData[6]);
+                                detailObj.push(rowData[7] ? rowData[7] : 0);
+                                detailObj.push(rowData[10]);
+                                detailObj.push(rowData[11] ? rowData[11] : 0);
+                                detailObj.push(new Date(fr[8]).toLocaleDateString());
 
-                            // section for send mail
-                            html += `<tr>
-                            <td>${datetimeDDMMYY}</td>
-                            <td>${rowData[5]}</td>
-                            <td>${fr[3].substring(fr[3].length - 2)}</td>
-                            <td>${rowData[6]}</td>
-                            <td>${rowData[7]}</td>
-                            <td>${fr[15]}</td>
-                            <td>${fr[3]}</td>
-                            <td>${fr[16]}</td>
-                        </tr>`
+                                detailData.push(detailObj);
+
+                                // section for send mail
+                                html += `<tr>
+                                    <td>${datetimeDDMMYY}</td>
+                                    <td>${rowData[5]}</td>
+                                    <td>${fr[3].substring(fr[3].length - 2)}</td>
+                                    <td>${rowData[6]}</td>
+                                    <td>${rowData[7]}</td>
+                                    <td>${fr[15]}</td>
+                                    <td>${fr[3]}</td>
+                                    <td>${fr[16]}</td>
+                                </tr>`
+                            }
                         }
                     }
-                }
-                query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen, cut_date) 
+                    query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen, cut_date) 
                     VALUES ?`;
-                let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
+                    let isInsertDetailSuccess = await connection.query(query, [detailData]);
 
-                // send mail
-                if (isParentTicket == 1) { // phiếu yêu cầu thêm mới gửi mail
-                    let body = `
-                    Dear all,
-                    <br><br> Vui lòng cấp vải như yêu cầu bên dưới/ <i>Please supply fabric as table below</i>
-                    <br> Truy cập website: <a href='http://10.113.98.238/cutting/fabric-receive'>Fabric Recieve</a> để xem chi tiết/ <i>Access website to know more <a href='http://10.113.98.238/cutting/fabric-receive'>Fabric Recieve</a></i>
-                    <br> <br>
-                    <table border='1' spacing='0' cellspacing='1' cellpadding='1'>
-                        <tr style='background: #47a447'>
-                            <th>Ngày</th>
-                            <th>WL</th>
-                            <th>Loại hàng</th>
-                            <th>Mã màu</th>
-                            <th>Số yard</th>
-                            <th>Lý do</th>
-                            <th>Nhóm</th>
-                            <th>Người yêu cầu</th>
-                        </tr>
-                        {{table_body}}
-                    </table>
-                `;
-                    body = body.replace('{{table_body}}', html);
-                    // let subject = `Tuyen Test YCT ${fr[3]} - ngày ${datetimeDDMMYY} chạy thử hệ thống, vui lòng bỏ qua - testing system, please ignore`;
-                    let subject = `YCT ${fr[3]} - ngày ${datetimeDDMMYY}`;
-                    helper.sendMail(subject, 'HYS Innovation Innovation_System@hanes.com', config.TestMailList, 'tuyen.nguyen@hanes.com', body);
+                    await connection.commit();
+                    connection.destroy();
+                    
+                    // send mail
+                    if (isParentTicket == 1) { // phiếu yêu cầu thêm mới gửi mail
+                        let body = `
+                            Dear all,
+                            <br><br> Vui lòng cấp vải như yêu cầu bên dưới/ <i>Please supply fabric as table below</i>
+                            <br> Truy cập website: <a href='http://10.113.98.238/cutting/fabric-receive'>Fabric Recieve</a> để xem chi tiết/ <i>Access website to know more <a href='http://10.113.98.238/cutting/fabric-receive'>Fabric Recieve</a></i>
+                            <br> <br>
+                            <table border='1' spacing='0' cellspacing='1' cellpadding='1'>
+                                <tr style='background: #47a447'>
+                                    <th>Ngày</th>
+                                    <th>WL</th>
+                                    <th>Loại hàng</th>
+                                    <th>Mã màu</th>
+                                    <th>Số yard</th>
+                                    <th>Lý do</th>
+                                    <th>Nhóm</th>
+                                    <th>Người yêu cầu</th>
+                                </tr>
+                                {{table_body}}
+                            </table>
+                        `;
+                        body = body.replace('{{table_body}}', html);
+                        // let subject = `Tuyen Test YCT ${fr[3]} - ngày ${datetimeDDMMYY} chạy thử hệ thống, vui lòng bỏ qua - testing system, please ignore`;
+                        let subject = `YCT ${fr[3]} - ngày ${datetimeDDMMYY}`;
+                        helper.sendMail(subject, 'HYS Innovation Innovation_System@hanes.com', config.TestMailList, 'tuyen.nguyen@hanes.com', body);
+                    }
                 }
+            } catch (error) {
+                logHelper.writeLog("fabric_receive.saveUploadData", error);
+                connection.rollback();
             }
         }
 
@@ -344,6 +357,178 @@ module.exports.saveUploadData = async function (req, res) {
         res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
+
+// module.exports.saveUploadData = async function (req, res) {
+//     try {
+//         // parameters
+//         let data = req.body.listData;
+
+//         // upload phiếu yêu cầu thêm vải (phiếu con của phiếu chính)
+//         let isParentTicket = req.body.parentTicketId ? 1 : 0;
+//         let parentTicketId = req.body.parentTicketId ? req.body.parentTicketId : 0;
+
+//         let user = req.user.username;
+//         let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
+//         let datetimeDDMMYY = (new Date(datetime)).formatDateDDMMYYYY();
+
+//         for (let i = 0; i < data.length; i++) {
+//             let eleFile = data[i];
+//             // get data from excel file
+//             let arrExcelData = [];
+//             if (eleFile.file.includes("xlsb")) {
+//                 arrExcelData = helper.getDataFromExcel_Xlsx("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+//             }
+//             else {
+//                 arrExcelData = await helper.getDataFromExcel("templates/cutting/" + eleFile.file, eleFile.sheet, eleFile.header);
+//             }
+
+//             // clean data
+//             let masterData = [];
+//             for (let i = 0; i < arrExcelData.length; i++) {
+//                 let rowData = arrExcelData[i];
+//                 let group = rowData[3];
+//                 let insertRow = [];
+//                 if (group != '' && group.toLowerCase().trim() != 'không có') {
+//                     masterData.push(rowData);
+//                 }
+//             }
+//             // insert to master table: only have group => take group, receive data, time, cut date, marker name, dozen value of first row                 
+//             let fr = masterData[0];
+//             let query = `SELECT id
+//                         FROM cutting_fr_marker_data_plan 
+//                         WHERE _group = '${fr[3]}'
+//                             AND cancel_by IS NULL
+//                             AND parentTicketId = 0`;
+
+//             let objMarkerPlan = await db.excuteQueryAsync(query);
+//             // if exist record with the same group name and it is not be canceled so system will not insert the record
+//             if (objMarkerPlan.length > 0) {
+//                 // continue;
+//                 updateMarker(objMarkerPlan[0].id, masterData);
+//             }
+//             else {
+//                 query = `INSERT INTO cutting_fr_marker_data_plan (
+//                     plant, 
+//                     work_center, 
+//                     receive_date, 
+//                     receive_time, 
+//                     _group, 
+//                     cut_date, 
+//                     note, 
+//                     marker_call_by, 
+//                     marker_call_date, 
+//                     user_update, 
+//                     date_update, 
+//                     isParentTicket, 
+//                     parentTicketId,
+//                     request_reason,
+//                     request_user
+//                 )
+//                 VALUES (
+//                     '${fr[12]}', 
+//                     '${fr[13]}', 
+//                     '${new Date(fr[1]).toLocaleDateString()}', 
+//                     '${fr[2]}', 
+//                     '${fr[3]}', 
+//                     '${new Date(fr[8]).toLocaleDateString()}', 
+//                     '${fr[9]}', 
+//                     '${user}', 
+//                     '${datetime}', 
+//                     '${user}', 
+//                     '${datetime}', 
+//                     ${isParentTicket}, 
+//                     ${parentTicketId},
+//                     '${fr[15]}',
+//                     '${fr[16]}'
+//                 )`;
+
+//                 let isInsertMasterSuccess = await db.excuteQueryAsync(query);
+//                 if (isInsertMasterSuccess.affectedRows < 0) {
+//                     return res.end(JSON.stringify({ rs: false, msg: "Không thành công" }));
+//                 }
+
+//                 // insert to child table: contain item color => insert each item color to child table
+//                 let idMaster = isInsertMasterSuccess.insertId;
+//                 let detailData = [];
+//                 let html = '';
+//                 for (let i = 0; i < masterData.length; i++) {
+//                     let rowData = masterData[i];
+//                     let detailObj = [];
+
+//                     if (rowData[4] != '0' && rowData[4] != 0 && rowData[6] != undefined && rowData[6].length > 5) {
+
+//                         if (rowData[7] && parseFloat(rowData[7]) > 0) {
+//                             detailObj.push(idMaster);
+//                             detailObj.push(rowData[4]);
+//                             detailObj.push(rowData[5]);
+//                             detailObj.push(rowData[6]);
+//                             detailObj.push(rowData[7] ? rowData[7] : 0);
+//                             detailObj.push(rowData[10]);
+//                             detailObj.push(rowData[11] ? rowData[11] : 0);
+//                             detailObj.push(new Date(fr[8]).toLocaleDateString());
+
+//                             detailData.push(detailObj);
+
+//                             // section for send mail
+//                             html += `<tr>
+//                             <td>${datetimeDDMMYY}</td>
+//                             <td>${rowData[5]}</td>
+//                             <td>${fr[3].substring(fr[3].length - 2)}</td>
+//                             <td>${rowData[6]}</td>
+//                             <td>${rowData[7]}</td>
+//                             <td>${fr[15]}</td>
+//                             <td>${fr[3]}</td>
+//                             <td>${fr[16]}</td>
+//                         </tr>`
+//                         }
+//                     }
+//                 }
+//                 query = `INSERT INTO cutting_fr_marker_data_plan_detail (group_id, wo, ass, item_color, yard_demand, marker_name, dozen, cut_date) 
+//                     VALUES ?`;
+//                 let isInsertDetailSuccess = await db.excuteInsertWithParametersAsync(query, detailData);
+
+//                 // send mail
+//                 if (isParentTicket == 1) { // phiếu yêu cầu thêm mới gửi mail
+//                     let body = `
+//                     Dear all,
+//                     <br><br> Vui lòng cấp vải như yêu cầu bên dưới/ <i>Please supply fabric as table below</i>
+//                     <br> Truy cập website: <a href='http://10.113.98.238/cutting/fabric-receive'>Fabric Recieve</a> để xem chi tiết/ <i>Access website to know more <a href='http://10.113.98.238/cutting/fabric-receive'>Fabric Recieve</a></i>
+//                     <br> <br>
+//                     <table border='1' spacing='0' cellspacing='1' cellpadding='1'>
+//                         <tr style='background: #47a447'>
+//                             <th>Ngày</th>
+//                             <th>WL</th>
+//                             <th>Loại hàng</th>
+//                             <th>Mã màu</th>
+//                             <th>Số yard</th>
+//                             <th>Lý do</th>
+//                             <th>Nhóm</th>
+//                             <th>Người yêu cầu</th>
+//                         </tr>
+//                         {{table_body}}
+//                     </table>
+//                 `;
+//                     body = body.replace('{{table_body}}', html);
+//                     // let subject = `Tuyen Test YCT ${fr[3]} - ngày ${datetimeDDMMYY} chạy thử hệ thống, vui lòng bỏ qua - testing system, please ignore`;
+//                     let subject = `YCT ${fr[3]} - ngày ${datetimeDDMMYY}`;
+//                     helper.sendMail(subject, 'HYS Innovation Innovation_System@hanes.com', config.TestMailList, 'tuyen.nguyen@hanes.com', body);
+//                 }
+//             }
+//         }
+
+//         testIo.emit('ccd-fabric-receive-action', {
+//             username: user,
+//             message: {
+//                 actionType: constant.Enum_Action.Call
+//             }
+//         });
+
+//         return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+//     } catch (error) {
+//         logHelper.writeLog("fabric_receive.saveUploadData", error);
+//         res.end(JSON.stringify({ rs: false, msg: error.message }));
+//     }
+// }
 
 module.exports.action = function (req, res) {
     try {
@@ -742,7 +927,7 @@ module.exports.ccdConfirm = async function (req, res) {
 
         let isAllScanned = 0;
         let tempObj = selectedRollList.filter(x => x.scanned_time != "");
-        if (tempObj && tempObj.length > 0) {
+        if (tempObj && tempObj.length > 0 && tempObj.length == selectedRollList.length) {
             isAllScanned = 1;
         }
 
@@ -1053,6 +1238,7 @@ module.exports.downloadRollData = async function (req, res) {
 
             if (markerDetailInfo[0] != undefined && markerDetailInfo[0].length >= 1) {
 
+                markerDetailInfo[0] = helper.sortArrayByKey(markerDetailInfo[0], "cut_date", false);
                 for (let j = 0; j < markerDetailInfo[0].length; j++) {
                     let eleMarkerDetail = markerDetailInfo[0][j];
 
@@ -1065,7 +1251,8 @@ module.exports.downloadRollData = async function (req, res) {
                                     eleMarkerDetail.wo,
                                     eleMarkerDetail.ass,
                                     ele.receive_date,
-                                    ele.cut_date,
+                                    // ele.cut_date,
+                                    eleMarkerDetail.cut_date,
                                     eleMarkerDetail.item_color,
                                     eleMarkerDetail.yard_demand,
                                     x.unipack2,
@@ -1090,7 +1277,8 @@ module.exports.downloadRollData = async function (req, res) {
                                 eleMarkerDetail.wo,
                                 eleMarkerDetail.ass,
                                 ele.receive_date,
-                                ele.cut_date,
+                                // ele.cut_date,
+                                eleMarkerDetail.cut_date,
                                 eleMarkerDetail.item_color,
                                 eleMarkerDetail.yard_demand,
                                 "",
