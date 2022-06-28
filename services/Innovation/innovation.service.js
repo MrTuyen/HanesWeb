@@ -147,7 +147,7 @@ InnovationService.managerReject = async function (objDTO) {
     try {
         let datetime = helper.getDateTimeNow();
         let query = `UPDATE mec_sparepart_request 
-                    SET manager_status = ${constant.Action_Status.Reject}, manager_date = '${datetime}', comment = '${objDTO.comment}'
+                    SET manager_status = ${constant.Action_Status.Reject}, manager_date = '${datetime}', manager_comment = '${objDTO.comment}'
                     WHERE id = ${objDTO.id}`;
         return await db.excuteNonQueryAsync(query);
     } catch (error) {
@@ -171,7 +171,7 @@ InnovationService.sManagerReject = async function (objDTO) {
     try {
         let datetime = helper.getDateTimeNow();
         let query = `UPDATE mec_sparepart_request 
-                    SET s_manager_status = ${constant.Action_Status.Reject}, s_manager_date = '${datetime}', comment = '${objDTO.comment}'
+                    SET s_manager_status = ${constant.Action_Status.Reject}, s_manager_date = '${datetime}', s_manager_comment = '${objDTO.comment}'
                     WHERE id = ${objDTO.id}`;
         return await db.excuteNonQueryAsync(query);
     } catch (error) {
@@ -183,7 +183,7 @@ InnovationService.clerkApprove = async function (objDTO) {
     try {
         let datetime = helper.getDateTimeNow();
         let query = `UPDATE mec_sparepart_request 
-                    SET clerk_status = ${constant.Action_Status.Approve}, clerk_date = '${datetime}'
+                    SET clerk_status = ${constant.Action_Status.Approve}, clerk_date = '${datetime}', comment = '${objDTO.comment}'
                     WHERE id = ${objDTO.id}`;
         return await db.excuteNonQueryAsync(query);
     } catch (error) {
@@ -205,8 +205,8 @@ InnovationService.clerkReject= async function (objDTO) {
 
 InnovationService.addSparepartRequest = async function(objDTO){
     try {
-        let query = `INSERT INTO mec_sparepart_request (tag_machine, reason, request_date, requester, zone, manager, requester_name, request_type, s_manager) 
-                    VALUES('${objDTO.tag}', '${objDTO.reason}', '${objDTO.datetime}', ${objDTO.idMechanic}, ${objDTO.zone}, '${objDTO.manager}', '${objDTO.requesterName}', ${objDTO.requestType}, '${objDTO.sManager}')`;
+        let query = `INSERT INTO mec_sparepart_request (tag_machine, reason, request_date, requester, zone, manager, manager_email, requester_name, request_type, s_manager, s_manager_email) 
+                    VALUES('${objDTO.tag}', '${objDTO.reason}', '${objDTO.datetime}', ${objDTO.idMechanic}, ${objDTO.zone}, '${objDTO.manager}', '${objDTO.managerEmail}', '${objDTO.requesterName}', ${objDTO.requestType}, '${objDTO.sManager}', '${objDTO.sManagerEmail}')`;
 
         return await db.excuteInsertReturnIdAsync(query);
     } catch (error) {

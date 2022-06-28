@@ -52,6 +52,10 @@
     border-radius: 0;
 }
 
+.form-control-sm{
+    height: 30px;
+}
+
 .btn-light {
     background: #ced6dd;
 }
@@ -72,6 +76,20 @@
     left: 0;
     top: 0;
     opacity: 0;
+}
+
+.pagination-area a {
+    border: none;
+    background-color: transparent;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.paging-textbox {
+    width: 90px;
+    height: 30px;
+    display: inline-block;
+    text-align: center;
 }
 
 textarea {

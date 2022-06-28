@@ -71,7 +71,7 @@
                                 </div>
                             </div>
                             <div class="form-group col-md-3" id="RSeniorManagerSection">
-                                <label for="">SuperIntendant</label>
+                                <label for="">SuperIntendent</label>
                                 <div class="">
                                     <select class="form-control" name="" id="txtRPartSeniorManager">
                                         <option value="cnguyen" data-email="tuyen.nguyen@hanes.com">Nguyễn Chiến Thắng</option>
@@ -94,7 +94,7 @@
                     </div>
                     <div class="panel-body p-0" style="height: 360px; overflow-y: auto;">
                         <table class="table table-bordered">
-                            <thead>
+                            <thead class="sticky-thead">
                                 <tr class="text-center">
                                     <th width="10%">Model</th>
                                     <th width="15%">Danh sách theo model</th>
@@ -384,20 +384,12 @@
                             <div class="form-group col-md-3 clerk-section" style="display: none!important;">
                                 <label for="">Warehouse Clerk</label>
                                 <div class="d-flex form-inline">
+                                    <input type="text" class="form-control" id="txtClerkComment" style="width: 100%">
                                     <button class="btn btn-success" onclick="clerkApprove()">&nbsp;Approve</button>
-                                    <div class="btn-group dropup ml-2">
-                                        <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <div class="btn-group dropup ml-2">                           
+                                        <button type="button" class="btn btn-danger" onclick="Reject(Enum_User_Type.Clerk)">
                                             Reject
                                         </button>
-                                        <div class="dropdown-menu" style="width: 420px; left: -323px; height: 90px; top: -100px; background: #f5e5e5">
-                                            <div class="form-group col-sm-12 col-md-12">
-                                                <label for="">Ghi chú:</label>
-                                                <div class="d-flex form-inline">
-                                                    <input type="text" class="form-control" id="txtClerkComment" style="width: 100%" autofocus>
-                                                    <button class="btn btn-success ml-2" onclick="Reject(Enum_User_Type.Clerk)">&nbsp;Submit</button>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -415,7 +407,7 @@
                     </div>
                     <div class="panel-body p-0" style="height: 360px; overflow-y: auto;">
                         <table class="table table-bordered">
-                            <thead>
+                            <thead class="sticky-thead">
                                 <tr class="text-center">
                                     <th width="20%">Tên vật tư</th>
                                     <th width="15%">Mã vật tư</th>
@@ -468,7 +460,7 @@
                         </div>
                     </div>
                     <div class="form-group col-sm-12 col-md-3">
-                        <label for="">Mã vật tư MEC <span class="text-danger">*</span></label>
+                        <label for="">ID MEC <span class="text-danger">*</span></label>
                         <div class="">
                             <input type="text" class="form-control" id="txtAPartCode">
                         </div>
@@ -524,7 +516,7 @@
                         <label for="" class="mr-3">Ảnh</label>
                         <div class="">
                             <label class="d-flex align-items-center justify-content-center" style="cursor: pointer;">
-                                <img id="part-img" src="/Image/upload.png" width="150px" height="150px">
+                                <img id="part-img" src="/Images/upload.png" width="150px" height="150px">
                                 <input type="file" accept=".jpg, .jpeg, .png" id="part-image-upload" onchange="uploadImage(event)" class="d-none">
                             </label>
                         </div>
@@ -568,7 +560,7 @@
                         </div>
                     </div>
                     <div class="form-group col-sm-12 col-md-3">
-                        <label for="">Mã vật tư MEC <span class="text-danger">*</span></label>
+                        <label for="">ID MEC <span class="text-danger">*</span></label>
                         <div class="">
                             <input type="text" class="form-control" id="txtDPartCode">
                         </div>
@@ -625,7 +617,7 @@
                         <div class="">
                             <label class="d-flex align-items-center justify-content-center" style="cursor: pointer;">
                                 <input type="hidden" id="d-old-part-img">
-                                <img id="d-part-img" src="/Image/upload.png" width="150px" height="150px" loading="lazy">
+                                <img id="d-part-img" src="/Images/upload.png" width="150px" height="150px" loading="lazy">
                                 <input type="file" accept=".jpg, .jpeg, .png" id="d-part-image-upload" onchange="uploadImage(event)" class="d-none">
                             </label>
                         </div>

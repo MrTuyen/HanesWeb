@@ -9,7 +9,7 @@ var config = {
     // password: "Hy$2020",
     // database: "cutting_system"
 
-    host: "10.113.99.131",
+    host: "localhost",
     port: 3306,
     user: "root",
     password: "123456",

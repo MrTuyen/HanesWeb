@@ -13,9 +13,10 @@ const xlsx = require('xlsx');
 // const fetch = require('node-fetch');
 const { PythonShell } = require('python-shell');
 const rename = util.promisify(fs.rename);
-var JsBarcode = require('jsbarcode');
-var { createCanvas } = require("canvas");
-var canvas = createCanvas(1, 1);
+// var JsBarcode = require('jsbarcode');
+// var { createCanvas } = require("canvas");
+// var canvas = createCanvas(1, 1);
+const bwipjs = require('bwip-js');
 const NodeCache = require("node-cache");
 const myCache = new NodeCache();
 
@@ -1070,8 +1071,17 @@ module.exports.printTicket = async function (req, res) {
 
                         let barcodeImg = '';
                         if (sameColorList[j] && sameColorList[j].wo != '') {
-                            JsBarcode(canvas, sameColorList[j].wo);
-                            barcodeImg = canvas.toDataURL();
+                            // JsBarcode(canvas, sameColorList[j].wo);
+                            // barcodeImg = canvas.toDataURL();
+                            barcodeImg = await bwipjs.toBuffer({
+								bcid: 'code128',       // Barcode type
+								text: sameColorList[j].wo,    // Text to encode
+								scale: 2,               // 3x scaling factor
+								height: 6,              // Bar height, in millimeters
+								includetext: true,            // Show human-readable text
+								textxalign: 'center',        // Always good to set this
+							});
+                            barcodeImg = barcodeImg.toString('base64');
                         }
 
                         let vendorObj = vendorList.filter(x => x.vendor_code == eleRoll.vendor);
@@ -1091,7 +1101,7 @@ module.exports.printTicket = async function (req, res) {
                                 <td>${eleRoll.rccust == 0 ? '' : eleRoll.rccust.replace('.0', '')}</td>
                                 <td>${eleRoll.po_number}</td>
                                 <td>
-                                    ${barcodeImg != '' ? `<img width="50" height="20" src=${barcodeImg} />` : ''}
+                                    ${barcodeImg != '' ? `<img width="50" height="20" src="data:image/png;base64,${barcodeImg}" />` : ''}
                                 </td>
                                 <td>${ctextColorList.indexOf(eleRoll.rffsty) > 0 ? "Ctex" : ""}</td>
                                 <td>${eleRoll.with_actual}</td>
@@ -1119,7 +1129,7 @@ module.exports.printTicket = async function (req, res) {
                                 <td>${eleRoll.rccust == 0 ? '' : eleRoll.rccust.replace('.0', '')}</td>
                                 <td>${eleRoll.po_number}</td>
                                 <td>
-                                    ${barcodeImg != '' ? `<img width="50" height="20" src=${barcodeImg} />` : ''}
+                                    ${barcodeImg != '' ? `<img width="50" height="20" src="data:image/png;base64,${barcodeImg}" />` : ''}
                                 </td>
                                 <td>${eleRoll.with_actual}</td>
                                 <td>${vendorName}</td>
@@ -1297,7 +1307,7 @@ module.exports.downloadRollData = async function (req, res) {
                     }
                 }
             }
-        }
+        }   
 
         let jsonModel = JSON.parse(JSON.stringify(finalResponse));
 

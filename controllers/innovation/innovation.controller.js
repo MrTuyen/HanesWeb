@@ -38,6 +38,7 @@ module.exports.suggestPart = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.suggestPart", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -59,6 +60,7 @@ module.exports.getPartByModel = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.getPartByModel", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -80,6 +82,7 @@ module.exports.getWarningPart = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.getWarningPart", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -123,6 +126,7 @@ module.exports.downloadWarningPart = function (req, res) {
 
     } catch (error) {
         logHelper.writeLog("innovation.downloadWarningPart", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -144,6 +148,7 @@ module.exports.getAllPart = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.getAllPart", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -187,6 +192,7 @@ module.exports.downloadPart = function (req, res) {
 
     } catch (error) {
         logHelper.writeLog("innovation.downloadPart", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -230,6 +236,7 @@ module.exports.exportPartToLawsonSystem = function (req, res) {
 
     } catch (error) {
         logHelper.writeLog("innovation.downloadPart", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -250,6 +257,7 @@ module.exports.getPartDetail = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.getPartDetail", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -272,6 +280,7 @@ module.exports.upload = function (req, res) {
         });
     } catch (error) {
         logHelper.writeLog("innovation.upload", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -300,11 +309,17 @@ module.exports.addPart = async function (req, res) {
         // check exist
         let partObj = await innovationService.getPartDetail({ code: code.trim() });
         if (partObj.length > 0) {
-            return res.end(JSON.stringify({ rs: false, msg: `Đẫ tồn tại part có mã code ${code}` }));
+            return res.end(JSON.stringify({ rs: false, msg: `Đẫ tồn tại part có mã mec_code ${code}` }));
+        }
+
+        let query =`SELECT * FROM mec_part WHERE vendor_code = '${vendorCode}'`;
+        partObj = await db.excuteQueryAsync(query);
+        if (partObj.length > 0) {
+            return res.end(JSON.stringify({ rs: false, msg: `Đẫ tồn tại part có mã hbi_code ${vendorCode}` }));
         }
 
         // execute
-        let query = `INSERT INTO mec_part (name, code, vendor_code, quantity, min_quantity, price, unit, location, machine_model, description, image, last_update, user_update) 
+        query = `INSERT INTO mec_part (name, code, vendor_code, quantity, min_quantity, price, unit, location, machine_model, description, image, last_update, user_update) 
                     VALUES('${name}', '${code}', '${vendorCode}' ,${qty}, ${min_qty}, ${price}, '${unit}', '${location}', '${model}', '${des}', '${img}', '${datetime}', '${user}')`;
         db.excuteQuery(query, function (result) {
             if (!result.rs) {
@@ -316,7 +331,8 @@ module.exports.addPart = async function (req, res) {
         });
     }
     catch (error) {
-        logHelper.writeLog("innovation.addMachine", error);
+        logHelper.writeLog("innovation.addPart", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -377,6 +393,7 @@ module.exports.updatePart = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.updatePart", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -424,6 +441,7 @@ module.exports.getPartRequest = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.getPartRequest", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -446,6 +464,7 @@ module.exports.getRequestDetail = async function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.getRequestDetail", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -469,6 +488,7 @@ module.exports.getMechanicById = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.getMechanicicanById", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -499,23 +519,40 @@ module.exports.addRequest = async function (req, res) {
             idMechanic: idMechanic,
             zone: zone,
             manager: manager,
+            managerEmail: managerEmail,
             requesterName: requesterName,
             requestType: requestType,
-            sManager: sManager
+            sManager: sManager,
+            sManagerEmail: sManagerEmail
         });
         if (idInserted <= 0)
             return res.end(JSON.stringify({ rs: false, msg: "Thêm request không thành công." }));
 
         // add import request detail
         let arr = [];
+        let html = '';
+        
         for (let i = 0; i < listPart.length; i++) {
             let eleArr = [];
             let ele = listPart[i];
-            for (let j = 0; j < Object.values(ele).length; j++) {
-                eleArr.push(Object.values(ele)[j]);
-            }
+
+            eleArr.push(ele.code);
+            eleArr.push(ele.name);
+            eleArr.push(ele.qty);
+            eleArr.push(ele.location);
+            eleArr.push(ele.export_qty);
+            eleArr.push(ele.part_reason);
             eleArr.push(idInserted);
             arr.push(eleArr);
+
+            // section for send mail
+            html += `<tr>
+                <td>${ele.name}</td>
+                <td>${ele.location}</td>
+                <td>${ele.qty}</td>
+                <td>${ele.remain_qty}</td>
+                <td>${ele.part_reason}</td>
+            </tr>`
         }
 
         let isAddDetailSuccess = await innovationService.addSparepartRequestDetail(arr);
@@ -525,24 +562,37 @@ module.exports.addRequest = async function (req, res) {
         // send mail to supervisor
         let subject = "Yêu cầu cấp sparepart";
         let body = `Dear ${manager}, <br > <br >
-        Vui lòng phê duyệt yêu cầu cấp sparepart từ thợ máy ${idMechanic} - ${requesterName}`;
-        helper.sendMailSystem(subject, "tuyen.nguyen@hanes.com", "", body); 
-        // helper.sendMailSystem(subject, managerEmail, "", body); 
+        Vui lòng phê duyệt yêu cầu cấp sparepart số #${idInserted} từ thợ máy ${idMechanic} - ${requesterName}
+        <br> <br>
+        <table border='1' spacing='0' cellspacing='1' cellpadding='1'>
+            <tr style='background: #47a447'>
+                <th>Tên vật tư</th>
+                <th>Vị trí</th>
+                <th>Số lượng</th>
+                <th>Số lượng trong kho</th>
+                <th>Lý do</th>
+            </tr>
+            {{table_body}}
+        </table>`;
+        body = body.replace('{{table_body}}', html);
+        helper.sendMail(subject, "mec_system@hanes.com", "tuyen.nguyen@hanes.com", "", body); 
+        // helper.sendMail(subject, "mec_system@hanes.com", managerEmail, "", body); 
 
-        // send mail to superintendent if new issue
-        if(requestType == 'false'){
-            body = `Dear ${sManager}, <br > <br > 
-            Vui lòng phê duyệt yêu cầu cấp sparepart từ thợ máy ${idMechanic} - ${requesterName}`;
-            if(sManager != manager){
-                helper.sendMailSystem(subject, "tuyen.nguyen@hanes.com", "", body); 
-                // helper.sendMailSystem(subject, sManagerEmail, "", body); 
-            }
-        }
+        // // send mail to superintendent if new issue
+        // if(requestType == 'false'){
+        //     body = `Dear ${sManager}, <br > <br > 
+        //     Vui lòng phê duyệt yêu cầu cấp sparepart số #${idInserted} từ thợ máy từ thợ máy ${idMechanic} - ${requesterName}`;
+        //     if(sManager != manager){
+        //         helper.sendMail(subject, "tuyen.nguyen@hanes.com", "", body); 
+        //         // helper.sendMailSystem(subject, sManagerEmail, "", body); 
+        //     }
+        // }
       
         return res.end(JSON.stringify({ rs: true, msg: "Thêm yêu cầu thành công." }));
     }
     catch (error) {
         logHelper.writeLog("innovation.addRequest", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -562,6 +612,7 @@ module.exports.updateRequest = async function (req, res, next) {
     }
     catch (error) {
         logHelper.writeLog("innovation.updateRequest", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -571,21 +622,62 @@ module.exports.managerApprove = async function (req, res, next) {
             || req.user.position == constant.Position.SuperIntendant 
             || req.user.position == constant.Position.Admin) {
             // Check exist
-            var objReq = await innovationService.getRequestDetail(req.body);
+            let objReq = await innovationService.getRequestDetail(req.body);
             if (!objReq)
                 return res.end(JSON.stringify({ rs: false, msg: "Không tìm thấy request" }));
 
-            if (objReq[0].manager == req.user.username 
+            objReq = objReq[0];
+            let manager = objReq.manager;
+            if (manager == req.user.username 
                 || req.user.position == constant.Position.SuperIntendant 
                 || req.user.position == constant.Position.Admin) {
                 // Check has processed
-                if (objReq[0].manager_status != constant.Action_Status.None)
+                if (objReq.manager_status != constant.Action_Status.None)
                     return res.end(JSON.stringify({ rs: false, msg: "Request đã được xử lý" }));
 
                 // Excute update
-                var isSuccess = await innovationService.managerApprove(req.body);
+                let isSuccess = await innovationService.managerApprove(req.body);
                 if (isSuccess <= 0)
                     return res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+                
+                // send mail to superintendent if new issue
+                let requestDetail = await innovationService.getSparepartRequestDetailItem(objReq);
+                let html = "";
+                for (let i = 0; i < requestDetail.length; i++) {
+                    let ele = requestDetail[i];
+                    html += `<tr>
+                        <td>${ele.name}</td>
+                        <td>${ele.location}</td>
+                        <td>${ele.qty}</td>
+                        <td>${ele.remain_qty}</td>
+                        <td>${ele.reason}</td>
+                    </tr>`
+                }
+
+                let sManager = objReq.s_manager;
+                let sManagerEmail = objReq.s_manager_email;
+                if(objReq.request_type == 0){
+                    body = `Dear ${sManager}, <br > <br > 
+                    Request đã được supervisor duyệt  <br >
+                    Vui lòng phê duyệt yêu cầu cấp sparepart số #${objReq.id} từ thợ máy từ thợ máy ${objReq.requester} - ${objReq.requester_name}
+                    <br > <br >
+                    <table border='1' spacing='0' cellspacing='1' cellpadding='1'>
+                        <tr style='background: #47a447'>
+                            <th>Tên vật tư</th>
+                            <th>Vị trí</th>
+                            <th>Số lượng</th>
+                            <th>Số lượng trong kho</th>
+                            <th>Lý do</th>
+                        </tr>
+                        {{table_body}}
+                    </table>`;
+                    body = body.replace('{{table_body}}', html);
+                    if(sManager != manager){
+                        let subject = "Yêu cầu cấp sparepart";
+                        helper.sendMail(subject, "mec_system@hanes.com", "tuyen.nguyen@hanes.com", "", body); 
+                        // helper.sendMail(subject, "mec_system@hanes.com", sManagerEmail, "", body); 
+                    }
+                }
                 return res.end(JSON.stringify({ rs: true, msg: "Cập nhật thành công" }));
             }
             return res.end(JSON.stringify({ rs: false, msg: "Bạn không phải quản lý thợ máy của request này" }));
@@ -596,6 +688,7 @@ module.exports.managerApprove = async function (req, res, next) {
     }
     catch (error) {
         logHelper.writeLog("innovation.managerApprove", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -630,6 +723,7 @@ module.exports.managerReject = async function (req, res, next) {
     }
     catch (error) {
         logHelper.writeLog("innovation.managerReject", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -660,6 +754,7 @@ module.exports.sManagerApprove = async function (req, res, next) {
     }
     catch (error) {
         logHelper.writeLog("innovation.sManagerApprove", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -691,6 +786,7 @@ module.exports.sManagerReject = async function (req, res, next) {
     }
     catch (error) {
         logHelper.writeLog("innovation.sManagerReject", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -739,6 +835,7 @@ module.exports.clerkApprove = async function (req, res, next) {
     }
     catch (error) {
         logHelper.writeLog("innovation.clerkApprove", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -770,6 +867,7 @@ module.exports.clerkReject = async function (req, res, next) {
     }
     catch (error) {
         logHelper.writeLog("innovation.clerkReject", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -857,5 +955,6 @@ module.exports.downloadRequest = function (req, res) {
 
     } catch (error) {
         logHelper.writeLog("innovation.downloadRequest", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }

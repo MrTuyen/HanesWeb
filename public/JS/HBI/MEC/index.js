@@ -6,6 +6,8 @@
 // #region System variable
 const baseUrl = "/innovation/";
 
+const filterLocalStorage = "mec_sparepart_request_filter";
+
 var errors = [
     { id: 1, value: "01", text: '01. Bỏ mũi', default: "selected" },
     { id: 2, value: "02", text: '02. Đứt chỉ', default: "" },
@@ -37,6 +39,21 @@ var errors = [
 ]
 
 var zones = [];
+
+const requestStatusList = [
+    {
+        index: 0, value : 'Chưa xử lý'
+    },
+    {
+        index: 1, value : 'Đã duyệt'
+    },
+    {
+        index: 2, value : 'Chưa duyệt'
+    },
+    {
+        index: "", value : 'Tất cả'
+    }
+]
 
 // Action enum
 var Enum_Action = {
@@ -93,12 +110,12 @@ $(document).on('select2:open', () => {
     if (!event.target.multiple) { 
         let ele = $('.select2-container--open .select2-search--dropdown .select2-search__field').last()[0];
         if(ele)
-            ele.focus() 
+            ele.focus()
     }
 });
 
 // Load khi tải trang xong
-$(document).ready(function () {
+$(document).ready(async function () {
     // select2
     $("#txtRModel, #txtURModel").select2({
         placeholder: "Select a model",
@@ -138,10 +155,8 @@ $(document).ready(function () {
     $("#txtFilterTime").append(html);
 
     // init list zone
-    getZone();
-    setTimeout(function(){
-        DropDownListZone(zones, $(".list-zone"));
-    }, 1000)
+    let result = await getZone();
+    DropDownListZone(result, $(".list-zone"));
 
     // init list error
     html = "";
@@ -161,7 +176,16 @@ $(document).ready(function () {
     });
 
     // Get user's information
-    
+    if(localStorage.getItem(filterLocalStorage) != null){
+        let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+        $("#txtFilterZone").val(filter ? filter.zone : '');
+        $("#txtStatus").val(filter ? filter.status : '');
+        $("#txtFilterTime").val(filter.filterDate ? filter.filterDate : `${date};${date}`);
+
+        displayFilter();
+    }
+
+    getAllRequest();
 
     // Reload page with current tab
     if(!localStorage.getItem('partActiveTab'))
@@ -179,26 +203,21 @@ $(document).ready(function () {
         currentTab.addClass('is-active');
     }
 
-    getAllModel();
-    setTimeout(() => {
-        DropDownListModel(modelArr, $(`.list-model`));
-    }, 500)
+    result = await getAllModel();
+    DropDownListModel(result, $(`.list-model`));
 })
 
-// get all zones
-function getZone(){
+async function getZone(){
     let action = '/production/zone/get';
     let datasend = {
     };
-    LoadingShow();
-    PostDataAjax(action, datasend, function (response) {
-        LoadingHide();
-        if(response.rs){
-           zones = response.data;
-        }
-        else{
-            toastr.error(response.msg, "Thất bại");
-        }
+    return new Promise((resolve, reject) => {
+        PostDataAjax(action, datasend, function (response) {
+            if (response.rs) {
+                zones = response.data;
+                resolve(zones);
+            }
+        });
     });
 }
 
@@ -214,23 +233,19 @@ function DropDownListZone(list, selector){
 
 // get Model
 function getAllModel() {
-
     let action = baseUrl + 'model/get';
     let datasend = {
         keyword: '',
         machine: ''
     };
-    LoadingShow();
-    PostDataAjax(action, datasend, function (response) {
-        LoadingHide();
-        if (response.rs) {
-            let data = response.data;
-            modelArr = data;
-        }
-        else {
-            toastr.error(response.msg, " ");
-        }
-    });
+    return new Promise((resolve, reject) => {
+        PostDataAjax(action, datasend, function (response) {
+            if (response.rs) {
+                modelArr = response.data;
+                resolve(modelArr);
+            }
+        });
+    })
 }
 
 // Setup change time to 5 option
@@ -293,6 +308,28 @@ function changeRequestType(){
     }
 }
 
+function deleteFilter(obj){
+    let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+    filter[obj.key] = '';
+    localStorage.setItem(filterLocalStorage, JSON.stringify(filter));
+    refresh();
+}
+
+function displayFilter(){
+    if(localStorage.getItem(filterLocalStorage) != null){
+        let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+        
+        let zoneVal = zones.filter(x => x.id == filter.zone)[0]?.name;
+        let filterZone = filter.zone ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'zone'})">${zoneVal}<i class="fa fa-times"></i></span>` : "";
+        
+        let statusVal = requestStatusList.filter(x => x.index == filter.status)[0].value;
+        let filterStatus = filter.status ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'status'})">${statusVal}<i class="fa fa-times"></i></span>` : "";
+        let filterDate = filter.filterDate ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterDate'})">${filter.filterDate}<i class="fa fa-times"></i></span>` : "";
+
+        $("#filter-area").html(filterZone + filterStatus + filterDate);
+    }
+}
+
 function getAllRequest() {
     let status = $("#txtStatus").val();
     let zone = $("#txtFilterZone").val();
@@ -308,6 +345,8 @@ function getAllRequest() {
         filterDate: filterDate
     };
     LoadingShow();
+    localStorage.setItem(filterLocalStorage, JSON.stringify(datasend));
+    displayFilter();
     PostDataAjax(action, datasend, function (response) {
         LoadingHide();
         if (response.rs) {
@@ -329,8 +368,7 @@ function getAllRequest() {
                     + "<td width='10%'><a href='javascript:void(0)' class='btn btn-primary btn-sm' onclick='getRequestDetail(" + ele.id + ")'><i class='fa fa-edit' style='font-size: 14px'></i> Xem</a></td>"
                     + "</tr>";
             }
-            $("#processing-table-body").html('');
-            $("#processing-table-body").html(html);
+            $("#processing-table-body").html('').html(html);
             $("#processing-part-count").text("(" + data.length + ")");
         }
         else {
@@ -479,10 +517,10 @@ function addRequest() {
                 qty: qty,
                 location: partLocation,
                 export_qty: 0,
-                part_reason: partReason
+                part_reason: partReason,
+                remain_qty: remainQty
             });
         }
-        
     }
 
     let action = baseUrl + 'request/add';
@@ -607,6 +645,7 @@ function clerkApprove() {
     let qtyList = $(".URQty");
     let remainQtyList = $(".URRemainQty");
     let exportQtyList = $(".URExportQty");
+    let comment = $("#txtClerkComment").val();
 
     for (let i = 0; i < partArrUpdate.length; i++) {
         let ele = partArrUpdate[i].id;
@@ -647,7 +686,8 @@ function clerkApprove() {
     let action = baseUrl + 'request/clerk-update';
     let datasend = {
         id: id,
-        listPart: listPart
+        listPart: listPart,
+        comment: comment
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
@@ -832,7 +872,7 @@ function changeModel(idx) {
                 for (let i = 0; i < data.length; i++) {
                     let ele = data[i];
                     html += `<div class='d-flex part-result' onclick="selectPart(${ele.id}, ${idx})">`
-                        + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
+                        + "<img class='search-image' src='/Images/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
                         + "<div class=''>"
                         + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                         + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
@@ -882,7 +922,7 @@ function searchPartInModelList() {
                             for (let i = 0; i < data.length; i++) {
                                 let ele = data[i];
                                 html += "<div class='d-flex part-result' onclick='selectPart(" + ele.id + ", "+ dataValue +")'>"
-                                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) +"' width='75px' />"
+                                    + "<img class='search-image' src='/Images/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) +"' width='75px' />"
                                     + "<div class=''>"
                                     + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                                     + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
@@ -939,7 +979,7 @@ function searchPartByName() {
                             for (let i = 0; i < data.length; i++) {
                                 let ele = data[i];
                                 html += "<div class='d-flex part-result' onclick='selectPart(" + ele.id + ", "+ dataValue +")'>"
-                                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) +"' width='75px' />"
+                                    + "<img class='search-image' src='/Images/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) +"' width='75px' />"
                                     + "<div class=''>"
                                     + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                                     + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
@@ -993,7 +1033,7 @@ function searchPartByCode() {
                             for (let i = 0; i < data.length; i++) {
                                 let ele = data[i];
                                 html += "<div class='d-flex part-result' onclick='selectPart(" + ele.id + ", "+ dataValue +")'>"
-                                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) +"' width='75px' />"
+                                    + "<img class='search-image' src='/Images/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) +"' width='75px' />"
                                     + "<div class=''>"
                                     + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                                     + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
@@ -1067,7 +1107,7 @@ function changeURModel() {
                     let ele = data[i];
                     let name = ele.name.replaceAll('"', '');
                     html += `<div class='d-flex part-result' onclick="selectURPart('${name}')">`
-                        + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
+                        + "<img class='search-image' src='/Images/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
                         + "<div class=''>"
                         + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                         + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
@@ -1107,7 +1147,7 @@ function searchUPartInModelList() {
                         let ele = data[i];
                         let name = ele.name.replaceAll('"', '');
                         html += `<div class='d-flex part-result' onclick="selectURPart('${name}')">`
-                            + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
+                            + "<img class='search-image' src='/Images/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
                             + "<div class=''>"
                             + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                             + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
@@ -1128,7 +1168,7 @@ function searchUPartInModelList() {
             for (let i = 0; i < partURArr.length; i++) {
                 let ele = partURArr[i];
                 html += `<div class='d-flex part-result' onclick="selectURPart('${ele.name}')">`
-                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
+                    + "<img class='search-image' src='/Images/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
                     + "<div class=''>"
                     + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                     + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
@@ -1170,7 +1210,7 @@ function searchURPartByName() {
                                 let ele = data[i];
                                 let name = ele.name.replaceAll('"', '');
                                 html += `<div class='d-flex part-result' onclick="selectURPart('${name}')">`
-                                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
+                                    + "<img class='search-image' src='/Images/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
                                     + "<div class=''>"
                                     + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                                     + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
@@ -1223,7 +1263,7 @@ function searchURPartByCode() {
                                 let ele = data[i];
                                 let name = ele.name.replaceAll('"', '');
                                 html += `<div class='d-flex part-result' onclick="selectURPart('${name}')">`
-                                    + "<img class='search-image' src='/Image/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
+                                    + "<img class='search-image' src='/Images/Parts/" + (ele.image == "" ? "no_image.png" : ele.image) + "' width='75px' loading='lazy' />"
                                     + "<div class=''>"
                                     + "<h5>Tên: <strong>" + ele.name + "</strong></h5>"
                                     + "<p class='m-0'>Mã: <strong>" + ele.code + "</strong></p>"
@@ -1377,11 +1417,31 @@ function downloadWarningPart() {
     });
 }
 
-
-
 /*
     All part section
 */
+var allPart = [];
+$('.part-table').on('scroll', function() {
+    let div = $(this).get(0);
+    if(div.scrollTop + div.clientHeight >= div.scrollHeight - 20) {
+        console.log(div.scrollHeight);
+        let nextScreenData = allPart.splice(0, 50); // Sử dụng splice
+        let html = "";
+        for (let i = 0; i < nextScreenData.length; i++) {
+            let ele = nextScreenData[i];
+            html += "<tr>"
+                + "<td width='10%'>" + ele.id + "</td>"
+                + "<td width='20%'>" + ele.code + "</td>"
+                + "<td width='20%'>" + ele.name + "</td>"
+                + "<td width='20%'>" + ele.quantity + "</td>"
+                + "<td width='20%'>" + ele.location + "</td>"
+                + "<td width='10%'><a href='javascript:void(0)' onclick='getPartDetail(" + ele.id + ")'><i class='fa fa-edit'></i></s></td>"
+                + "</tr>";
+        }
+        $("#all-table-body").append(html);
+    }
+});
+
 function getAllPart() {
     let keyword = $("#txtAllPart").val();
     let action = baseUrl + 'parts';
@@ -1393,9 +1453,13 @@ function getAllPart() {
         LoadingHide();
         if (response.rs) {
             let data = response.data;
+            allPart = data;
+            $("#all-part-count").text("(" + data.length + ")");
+
+            let firstScreenData = data.splice(0, 50); // Sử dụng splice
             let html = "";
-            for (let i = 0; i < data.length; i++) {
-                let ele = data[i];
+            for (let i = 0; i < firstScreenData.length; i++) {
+                let ele = firstScreenData[i];
                 html += "<tr>"
                     + "<td width='10%'>" + ele.id + "</td>"
                     + "<td width='20%'>" + ele.code + "</td>"
@@ -1405,9 +1469,25 @@ function getAllPart() {
                     + "<td width='10%'><a href='javascript:void(0)' onclick='getPartDetail(" + ele.id + ")'><i class='fa fa-edit'></i></s></td>"
                     + "</tr>";
             }
-            $("#all-table-body").html('');
-            $("#all-table-body").html(html);
-            $("#all-part-count").text("(" + data.length + ")");
+            $("#all-table-body").html('').html(html);
+
+
+            // let data = response.data;
+            // let html = "";
+            // for (let i = 0; i < data.length; i++) {
+            //     let ele = data[i];
+            //     html += "<tr>"
+            //         + "<td width='10%'>" + ele.id + "</td>"
+            //         + "<td width='20%'>" + ele.code + "</td>"
+            //         + "<td width='20%'>" + ele.name + "</td>"
+            //         + "<td width='20%'>" + ele.quantity + "</td>"
+            //         + "<td width='20%'>" + ele.location + "</td>"
+            //         + "<td width='10%'><a href='javascript:void(0)' onclick='getPartDetail(" + ele.id + ")'><i class='fa fa-edit'></i></s></td>"
+            //         + "</tr>";
+            // }
+            // $("#all-table-body").html('');
+            // $("#all-table-body").html(html);
+            // $("#all-part-count").text("(" + data.length + ")");
         }
         else {
 
@@ -1507,7 +1587,7 @@ function getPartDetail(id) {
             $("#txtDPartUnit").val(data.unit);
             $("#txtDPartLocation").val(data.location);
             $("#txtDPartDes").val(data.description);
-            $("#d-part-img").attr("src", "/Image/Parts/" + (data.image ? data.image : "no_image.png"));
+            $("#d-part-img").attr("src", "/Images/Parts/" + (data.image ? data.image : "no_image.png"));
             $("#d-old-part-img").val(data.image ? data.image : "");
             $("#txtPartModel").select2().val([]).trigger("change");
             $("#txtPartModel").select2().val(data.machine_model.split(",").map(function (ele) { return ele })).trigger("change");

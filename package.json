@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.19.0",
+    "bwip-js": "^3.1.0",
     "canvas": "^2.9.1",
     "compression": "^1.7.4",
     "connect-flash": "^0.1.1",

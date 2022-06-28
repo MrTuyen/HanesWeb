@@ -21,7 +21,11 @@
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
-        
+        .user-table {
+            height: 580px;
+            overflow: auto;
+            border: 1px solid #dddddd;
+        }
     </style>
 
 </head>
@@ -95,9 +99,9 @@
                                                 <button type="button" class="btn btn-light" onclick="downloadUser()"><i class="fa fa-download"></i></button>
                                             </div> -->
                                         </div>
-                                        <div class="">
+                                        <div class="user-table">
                                             <table class="table table-hover table-bordered table-scrollable mb-0">
-                                                <thead>
+                                                <thead class="sticky-thead">
                                                     <tr>
                                                         <th width='10%'>#</th>
                                                         <th width='20%'>Username</th>
@@ -107,14 +111,10 @@
                                                         <th width='10%'></th>
                                                     </tr>
                                                 </thead>
-                                            </table>
-                                            <div class="onscrollbar onscrollbar-user" style="overflow: auto;">
-                                                <table class="table table-hover table-bordered m-0">
-                                                    <tbody id="user-table-body">
+                                                <tbody id="user-table-body">
 
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
