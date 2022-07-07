@@ -92,6 +92,11 @@ module.exports.addImportRequest = async function (req, res) {
         let user = req.user.username;
         let datetime = helper.getDateTimeNow();
 
+        let loggedUserPosition = req.user.position ? req.user.position.toLowerCase() : "";
+        if(loggedUserPosition == "technician" || loggedUserPosition == ""){
+            return res.end(JSON.stringify({ rs: false, msg: "Bạn không có quyền thêm dữ liệu này" }));
+        }
+
         // add import request then return id to insert into import request detail
         let idInserted = await innovationService.addImportRequest({
             po: importInfo.po,
@@ -165,6 +170,11 @@ module.exports.updateImportRequest = async function (req, res) {
 
         let user = req.user.username;
         let datetime = helper.getDateTimeNow();
+
+        let loggedUserPosition = req.user.position ? req.user.position.toLowerCase() : "";
+        if(loggedUserPosition == "technician" || loggedUserPosition == ""){
+            return res.end(JSON.stringify({ rs: false, msg: "Bạn không có quyền cập nhật dữ liệu này" }));
+        }
 
         // update import request
         let isUpdateSuccess = await innovationService.updateImportRequest({

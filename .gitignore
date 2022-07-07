@@ -2,3 +2,4 @@ node_modules
 templates/cutting
 templates/*xlsx
 logs/
+public/Image

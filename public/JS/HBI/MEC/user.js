@@ -6,10 +6,9 @@ var supervisor = [
     { id: 2, value: "cnguyen", text: 'Nguyễn Chiến Thắng', default: "" },
     { id: 3, value: "codinh", text: 'Lê Công Định', default: "" },
     { id: 4, value: "minguye1", text: 'Nguyễn Ngọc Minh', default: "" },
-    { id: 5, value: "ngbay", text: 'Nguyễn Văn Bẩy', default: "" },
-    { id: 6, value: "ngdoanh", text: 'Nguyễn Ngọc Doanh', default: "" },
+    { id: 5, value: "ngbay", text: 'Nguyễn Văn Bẩy, Nguyễn Ngọc Doanh', default: "" },
     { id: 7, value: "ngthinh", text: 'Nguyễn Văn Thịnh', default: "" },
-    { id: 8, value: "xumanh", text: 'Hoàng Xuân Mạnh', default: "" },
+    { id: 8, value: "lephuc", text: 'Lê Văn Phúc', default: "" },
     { id: 9, value: "trlong", text: 'Trần Văn Long', default: "" },
     { id: 10, value: "trluong", text: 'Trần Trọng Lương', default: "" },
     { id: 11, value: "tiluong", text: 'Lương Văn Tìm', default: "" }
@@ -32,13 +31,13 @@ $(document).on('click', '.day', function (e) {
 
 // Load khi tải trang xong
 $(document).ready(function () {
-     // init list supervisor
-     let html = "";
-     for (let i = 0; i < supervisor.length; i++) {
-         let ele = supervisor[i];
-         html += `<option value='${ele.value}'>${ele.text}</option>`
-     }
-     $(".list-sup").append(html);
+    // init list supervisor
+    let html = "";
+    for (let i = 0; i < supervisor.length; i++) {
+        let ele = supervisor[i];
+        html += `<option value='${ele.value}'>${ele.text}</option>`
+    }
+    $(".list-sup").append(html);
 
     // select2
     $("#txtAManager, #txtUManager").select2({
@@ -82,7 +81,10 @@ function getAllUser(){
                         + "<td width='20%'>"+ ele.id_mec +"</td>"
                         + "<td width='40%'>"+ ele.fullname +"</td>"
                         + "<td width='20%'>"+ ele.manager +"</td>"
-                        + "<td width='10%'><a href='javascript:void(0)' onclick='getUserDetail("+ele.id+")'><i class='fa fa-edit' style='font-size: 14px'></i></a></td>"
+                        + "<td width='10%'>"
+                            + "<a href='javascript:void(0)' onclick='getUserDetail("+ele.id+")'><i class='fa fa-edit' style='font-size: 14px'></i></a>"
+                            + "&nbsp;&nbsp;<a href='javascript:void(0)' onclick='deleteUser("+ele.id+")'><i class='fa fa-trash' style='font-size: 14px'></i></a>"
+                        + "</td>"
                         + "</tr>";
             }
             $("#user-table-body").html('');
@@ -94,6 +96,34 @@ function getAllUser(){
         }
     });
 }    
+
+// delete user
+function deleteUser(id) {
+    swal("Bạn có chắc xóa user này không? R U sure delete this user?", {
+        buttons: ["No", "Yes!"],
+    })
+    .then((willDelete) => {
+        if (willDelete) {
+            // Call to server
+            LoadingShow();
+            var action = baseUrl + 'delete';
+            var datasend = {
+                id: id
+            };
+
+            PostDataAjax(action, datasend, function (response) {
+                LoadingHide();
+                if (response.rs) {
+                    toastr.success(response.msg);
+                    getAllUser();
+                }
+                else {
+                    toastr.error(response.msg);
+                }
+            });
+        }
+    });
+}
 
 // download user
 function downloadUser() {

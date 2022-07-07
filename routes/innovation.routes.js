@@ -49,6 +49,8 @@ router.post("/parts/add", partController.addPart)
 router.post("/parts/update", partController.updatePart)
 router.post("/part/upload", partController.upload)
 router.post("/part/download", partController.downloadPart)
+router.post("/upload-file", partController.uploadFile)
+router.post("/part/save-upload-data", partController.saveUploadData)
 
 // Sewing Machine
 router.get("/sewing-machine/:id", machineController.getSewingMachineDetail)
@@ -93,6 +95,7 @@ router.post("/user/get", userController.getUser)
 router.get("/user/:id", authController.authorizeRoleReturnMsg([7,8]), userController.getUserDetail)
 router.post("/user/add", userController.addUser)
 router.post("/user/update", userController.updateUser)
+router.post("/user/delete", userController.deleteUser)
 router.post("/user/download", userController.downloadUser)
 
 // Realtime

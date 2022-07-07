@@ -205,8 +205,8 @@ InnovationService.clerkReject= async function (objDTO) {
 
 InnovationService.addSparepartRequest = async function(objDTO){
     try {
-        let query = `INSERT INTO mec_sparepart_request (tag_machine, reason, request_date, requester, zone, manager, manager_email, requester_name, request_type, s_manager, s_manager_email) 
-                    VALUES('${objDTO.tag}', '${objDTO.reason}', '${objDTO.datetime}', ${objDTO.idMechanic}, ${objDTO.zone}, '${objDTO.manager}', '${objDTO.managerEmail}', '${objDTO.requesterName}', ${objDTO.requestType}, '${objDTO.sManager}', '${objDTO.sManagerEmail}')`;
+        let query = `INSERT INTO mec_sparepart_request (tag_machine, reason, request_date, requester, zone, manager, manager_email, requester_name, request_type, s_manager, s_manager_email, is_urgent) 
+                    VALUES('${objDTO.tag}', '${objDTO.reason}', '${objDTO.datetime}', ${objDTO.idMechanic}, ${objDTO.zone}, '${objDTO.manager}', '${objDTO.managerEmail}', '${objDTO.requesterName}', ${objDTO.requestType}, '${objDTO.sManager}', '${objDTO.sManagerEmail}', ${objDTO.isUrgent})`;
 
         return await db.excuteInsertReturnIdAsync(query);
     } catch (error) {

@@ -1,4 +1,5 @@
 var formidable = require('formidable');
+const util = require('util');
 var fs = require('fs');
 var Database = require("../../database/db.js")
 const db = new Database();
@@ -8,6 +9,7 @@ const config = require('../../config.js');
 const constant = require('../../common/constant');
 const excel = require('exceljs');
 const innovationService = require("../../services/Innovation/innovation.service");
+const rename = util.promisify(fs.rename);
 
 // Part
 module.exports.getIndex = function (req, res) {
@@ -261,6 +263,155 @@ module.exports.getPartDetail = function (req, res) {
     }
 }
 
+module.exports.uploadFile = function (req, res) {
+    try {
+        // parameters
+        let form = new formidable.IncomingForm();
+        let data = [];
+
+        form.parse(req, async function (err, fields, file) {
+            if (err) {
+                logHelper.writeLog("innovation.uploadFile", err);
+                return res.end(JSON.stringify({ rs: false, msg: "Tải file lên không thành công" }));
+            }
+
+            for (var i = 0; i < Object.keys(file).length; i++) {
+                let tempFile = file[Object.keys(file)[i]];
+                let fileName = "templates/mec/" + tempFile.name;
+                await rename(tempFile.path, fileName)
+                let sheets = [];
+                if (tempFile.name.includes("xlsb")) {
+                    sheets = helper.getListSheetFromExcel_Xlsx(fileName);
+                }
+                else {
+                    sheets = await helper.getListSheetFromExcel(fileName);
+                }
+                data.push({ name: tempFile.name, sheets: sheets });
+
+                if (data.length == Object.keys(file).length) {
+                    return res.end(JSON.stringify({ rs: true, msg: "Thành công", data: data }));
+                }
+            }
+        });
+
+    } catch (error) {
+        logHelper.writeLog("innovation.uploadFile", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
+    }
+}
+
+module.exports.saveUploadData = async function (req, res) {
+    try {
+        let loggedUserPosition = req.user.position ? req.user.position.toLowerCase() : "";
+        if(loggedUserPosition != "clerk"){
+            return res.end(JSON.stringify({ rs: false, msg: "Bạn không phải clerk, ban không có quyền cập nhật dữ liệu này" }));
+        }
+
+        // parameters
+        let data = req.body.listData;
+
+        let user = req.user.username;
+        let datetime = helper.getDateTimeNowMMDDYYHHMMSS();
+
+        let fileName = "templates/mec/";
+        for (let i = 0; i < data.length; i++) {
+            let eleFile = data[i];
+            // get data from excel file
+            let arrExcelData = [];
+            if (eleFile.file.includes("xlsb")) {
+                arrExcelData = helper.getDataFromExcel_Xlsx(fileName + eleFile.file, eleFile.sheet, eleFile.header);
+            }
+            else {
+                arrExcelData = await helper.getDataFromExcel(fileName + eleFile.file, eleFile.sheet, eleFile.header);
+            }
+
+            // clean data
+            let masterData = [];
+            for (let i = 0; i < arrExcelData.length; i++) {
+                let rowData = arrExcelData[i];
+                masterData.push(rowData);
+            }
+            
+            for (let i = 0; i < masterData.length; i++) {
+                let ele = masterData[i];
+
+                let name = ele[4];
+                let code = ele[2];
+                let vendor_code = ele[0];
+                let quantity = ele[7];
+                let location = ele[1];
+                let machine_model = ele[6]
+                let isUpdate = false;
+
+                if(name == "" || name.length  <= 0)
+                    continue;
+                
+                let partObj = await innovationService.getPartDetail({ code: code });
+                if (partObj.length > 0) {
+                    isUpdate = true;
+                }
+
+                // let query =`SELECT * FROM mec_part WHERE vendor_code = '${ele[0]}'`;
+                // partObj = await db.excuteQueryAsync(query);
+                // if (partObj.length > 0) {
+                //     isUpdate = true;
+                // }
+
+                if (isUpdate) {
+                    // update existed part
+                    query = `UPDATE mec_part
+                    SET name = '${name}', 
+                    code = '${code}', 
+                    vendor_code = '${vendor_code}', 
+                    quantity = '${quantity}', 
+                    location = '${location}', 
+                    last_update = '${datetime}', 
+                    user_update = '${user}', 
+                    machine_model = '${machine_model}'
+                    WHERE id = ${partObj[0].id}`;
+
+                    let isUpdatePartSuccess = await db.excuteNonQueryAsync(query);
+                    if (isUpdatePartSuccess < 0) {
+                        logHelper.writeLogMessage("innovation.saveUploadData", "Fail");
+                    }
+                }
+                else {
+                    query = `INSERT INTO mec_part (
+                        name,
+                        code,
+                        vendor_code,
+                        quantity,
+                        location,
+                        machine_model,
+                        last_update,
+                        user_update
+                    )
+                    VALUES (
+                        '${name}', 
+                        '${code}', 
+                        '${vendor_code}', 
+                        ${quantity}, 
+                        '${location}', 
+                        '${machine_model}', 
+                        '${datetime}', 
+                        '${user}'
+                    )`;
+
+                    let isInsertPartSuccess = await db.excuteInsertReturnIdAsync(query);
+                    if (isInsertPartSuccess < 0) {
+                        logHelper.writeLogMessage("innovation.saveUploadData", "Fail");
+                    }
+                }
+            }
+        }
+
+        return res.end(JSON.stringify({ rs: true, msg: "Thành công" }));
+    } catch (error) {
+        logHelper.writeLog("innovation.saveUploadData", error);
+        res.end(JSON.stringify({ rs: false, msg: error.message }));
+    }
+}
+
 // upload part image
 module.exports.upload = function (req, res) {
     try {
@@ -305,6 +456,11 @@ module.exports.addPart = async function (req, res) {
         // fs.writeFile(config.imageFilePath + "out.png", base64Data, 'base64', function(err) {
         //     console.log(err);
         // });
+
+        let loggedUserPosition = req.user.position ? req.user.position.toLowerCase() : "";
+        if(loggedUserPosition == "technician" || loggedUserPosition == ""){
+            return res.end(JSON.stringify({ rs: false, msg: "Bạn không có quyền thêm dữ liệu này" }));
+        }
 
         // check exist
         let partObj = await innovationService.getPartDetail({ code: code.trim() });
@@ -357,6 +513,11 @@ module.exports.updatePart = function (req, res) {
         let datetime = helper.getDateTimeNow();
 
         // execute
+        let loggedUserPosition = req.user.position ? req.user.position.toLowerCase() : "";
+        if(loggedUserPosition == "technician" || loggedUserPosition == ""){
+            return res.end(JSON.stringify({ rs: false, msg: "Bạn không có quyền cập nhật dữ liệu này" }));
+        }
+
         let query = `UPDATE mec_part
                     SET name = '${name}', code = '${code}', vendor_code = '${vendorCode}', quantity = '${qty}', location = '${location}', 
                     last_update = '${datetime}', user_update = '${user}', description = '${des}',
@@ -495,6 +656,7 @@ module.exports.getMechanicById = function (req, res) {
 module.exports.addRequest = async function (req, res) {
     try {
         //parameters
+        let isUrgent = req.body.isUrgent;
         let requestType = req.body.requestType;
         let tag = req.body.tag;
         let reason = req.body.reason;
@@ -523,7 +685,8 @@ module.exports.addRequest = async function (req, res) {
             requesterName: requesterName,
             requestType: requestType,
             sManager: sManager,
-            sManagerEmail: sManagerEmail
+            sManagerEmail: sManagerEmail,
+            isUrgent: isUrgent
         });
         if (idInserted <= 0)
             return res.end(JSON.stringify({ rs: false, msg: "Thêm request không thành công." }));
@@ -562,7 +725,7 @@ module.exports.addRequest = async function (req, res) {
         // send mail to supervisor
         let subject = "Yêu cầu cấp sparepart";
         let body = `Dear ${manager}, <br > <br >
-        Vui lòng phê duyệt yêu cầu cấp sparepart số #${idInserted} từ thợ máy ${idMechanic} - ${requesterName}
+        Vui lòng phê duyệt yêu cầu cấp sparepart số <span style="color: green">#${idInserted}</span> từ thợ máy ${idMechanic} - ${requesterName}
         <br> <br>
         <table border='1' spacing='0' cellspacing='1' cellpadding='1'>
             <tr style='background: #47a447'>
@@ -659,7 +822,7 @@ module.exports.managerApprove = async function (req, res, next) {
                 if(objReq.request_type == 0){
                     body = `Dear ${sManager}, <br > <br > 
                     Request đã được supervisor duyệt  <br >
-                    Vui lòng phê duyệt yêu cầu cấp sparepart số #${objReq.id} từ thợ máy từ thợ máy ${objReq.requester} - ${objReq.requester_name}
+                    Vui lòng phê duyệt yêu cầu cấp sparepart số <span style="color: green">#${objReq.id}}</span> từ thợ máy ${objReq.requester} - ${objReq.requester_name}
                     <br > <br >
                     <table border='1' spacing='0' cellspacing='1' cellpadding='1'>
                         <tr style='background: #47a447'>

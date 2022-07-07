@@ -180,7 +180,11 @@ $(document).ready(async function () {
         let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
         $("#txtFilterZone").val(filter ? filter.zone : '');
         $("#txtStatus").val(filter ? filter.status : '');
-        $("#txtFilterTime").val(filter.filterDate ? filter.filterDate : `${date};${date}`);
+        if(filter.filterDate && filter.filterDate != null){
+            let dateArr = filter.filterDate.split(";");
+            filter.filterDate = dateArr[0] == dateArr[1] ? `${date};${date}` : filter.filterDate;
+        }
+        $("#txtFilterTime").val(filter.filterDate != "" ? filter.filterDate : `${date};${date}`);
 
         displayFilter();
     }
@@ -358,8 +362,8 @@ function getAllRequest() {
                 html += "<tr>"
                     + "<td width='10%'>" + ele.id + "</td>"
                     + "<td width='10%'>" + (ele.request_type == 0 ? "Cấp mới" : "Đổi trả") + "</td>"
+                    + "<td width='10%'>" + (ele.is_urgent == 0 ? "" : "<i class='text-success fa fa-check-circle'></i>") + "</td>"
                     + "<td width='10%'>" + zoneEle + "</td>"
-                    + "<td width='10%'>" + ele.tag_machine + "</td>"
                     + "<td width='10%'>" + ele.requester_name + "</td>"
                     + "<td width='10%'>" + ele.request_date + "</td>"
                     + "<td width='10%'>" + (ele.manager_status == Enum_Action.Approve ? "<i class='text-success fa fa-check-circle'></i>" : ele.manager_status == Enum_Action.Reject ? "<i class='text-danger fa fa-times-circle'></i>" : "") + "</td>"
@@ -387,6 +391,7 @@ function getRequestDetail(id) {
         if (response.rs) {
             let requestInfo = response.data.info;
 
+            $("#cbURIsUrgent").prop("checked", requestInfo.is_urgent == 0 ? false : true);
             $("#cbURRequestType").prop("checked", requestInfo.request_type == 0 ? false : true);
             $("#txtURId").val(requestInfo.id);
             // $("#txtDPartDes").val(requestInfo.description);
@@ -456,6 +461,7 @@ function getRequestDetail(id) {
 
 // Thêm yêu cầu vặt tư
 function addRequest() {
+    let isUrgent = $(`#cbRIsUrgent`).is(":checked");
     let requestType = $(`#cbRRequestType`).is(":checked");
     let reason = $("#txtRPartReason");
     let tag = $("#txtRMachineTag");
@@ -525,6 +531,7 @@ function addRequest() {
 
     let action = baseUrl + 'request/add';
     let datasend = {
+        isUrgent: isUrgent,
         requestType: requestType,
         reason: reason.val(),
         tag: tag.val(),
@@ -1316,8 +1323,6 @@ function selectURPart(name) {
     $(".UR-search-model-panel").html('');
 }
 
-
-
 /*
     Warning part section
 */
@@ -1771,6 +1776,125 @@ function uploadImage(event) {
         };
         reader.readAsDataURL(file);
     }
+}
+
+function uploadExcel() {
+    var e = event;
+    var fileName = e.target.files[0].name;
+    $('.fileUploadName').text(fileName);
+
+    if (window.FormData !== undefined) {
+
+        var fileUpload = $("#fileFabricReceiveUpload").get(0);
+        var files = fileUpload.files;
+
+        // Create FormData object
+        var fileData = new FormData();
+
+        // Looping over all files and add it to FormData object
+        for (var i = 0; i < files.length; i++) {
+            fileData.append("file" + i, files[i]);
+        }
+
+        LoadingShow();
+        $.ajax({
+            url: baseUrl + 'upload-file',
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            data: fileData,
+            success: function (result) {
+                LoadingHide();
+                result = JSON.parse(result);
+                if (result.rs) {
+                    var listFiles = result.data
+                    let html = '';
+                    for (var i = 0; i < listFiles.length; i++) {
+                        let ele = listFiles[i];
+
+                        let options = "";
+                        for (var j = 0; j < ele.sheets.length; j++) {
+                            let item = ele.sheets[j];
+                            options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
+                        }
+
+                        html += `<tr id='tr-file-${ele.name}'>
+                            <td class='fileName'>${ele.name}</td>
+                            <td>
+                                <select class='form-control sheetName'>${options}</select>
+                            </td>
+                            <td>
+                                <input type='number' class='form-control headerRow' min='1' value='1' />
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-success" onclick="deleteRow({name: '${ele.name}'})"><i class="fa fa-close"></i></button>
+                            </td>
+                        </tr>`;
+                    }
+
+                    $("#file-table-body").append(html);
+                }
+                else {
+                    toastr.error(result.msg);
+                }
+            },
+            error: function (err) {
+                LoadingHide();
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("FormData is not supported.");
+    }
+}
+
+function deleteRow(file) {
+    $(event.currentTarget).parent().parent().remove();
+}
+
+function saveUploadData() {
+
+    let fileList = $(".fileName");
+    let sheetList = $(".sheetName");
+    let headerList = $(".headerRow");
+    let listData = [];
+
+    for (let i = 0; i < fileList.length; i++) {
+        file = $(fileList[i]).text();
+        sheet = $(sheetList[i]).val();
+        header = $(headerList[i]).val();
+
+        listData.push({
+            file: file,
+            sheet: sheet,
+            header: header,
+        });
+    }
+
+    if (listData.length <= 0) {
+        toastr.warning("Không có tập tin cần upload", "Warning");
+        return false;
+    }
+
+    // send to server
+    let action = baseUrl + 'part/save-upload-data';
+    let datasend = {
+        listData: listData
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if (response.rs) {
+            toastr.success(response.msg, "Thành công")
+            $("#modalUploadData").modal('hide');
+            getAllPart();
+            $("#file-table-body").html('');
+            $("#fileFabricReceiveUpload").val('');
+        }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
 }
 
 // #endregion

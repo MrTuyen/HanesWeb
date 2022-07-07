@@ -73,16 +73,29 @@ function addRequest(){
         qtyPO = $(qtyPOList[i]).val();
         qtyImport = $(qtyImportList[i]).val();
         
-        listPart.push({
-            code: partCode,
-            vendor_code: vendorCode,
-            model: model,
-            name: partName,
-            unit: unit,
-            location: partLocation,
-            qty: qtyPO,
-            qtyImport: qtyImport
-        });
+        if (qtyImport <= 0) {
+            toastr.error("Số lượng nhập kho không nhỏ hơn 0.");
+            $(qtyImportList[i]).focus();
+            return false;
+        }
+
+        if(partName != ""){
+            listPart.push({
+                code: partCode,
+                vendor_code: vendorCode,
+                model: model,
+                name: partName,
+                unit: unit,
+                location: partLocation,
+                qty: qtyPO,
+                qtyImport: qtyImport
+            });
+        }
+    }
+
+    if(listPart.length <= 0){
+        toastr.error("Không có danh sách vật tư");
+        return false;
     }
 
     let action = baseUrl + 'import/add';

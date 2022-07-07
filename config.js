@@ -11,7 +11,7 @@ config.mailSystem = "hbi_system@hanes.com";
 
 // TTS account
 config.TTS_Account = "thle11";
-config.TTS_Password = "Baonam01";
+config.TTS_Password = "Baonam02";
 
 // Fabric Receive
 config.MailList = `HYS_Warehouse_92_Fabric@hanes.com,
