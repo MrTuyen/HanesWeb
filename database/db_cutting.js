@@ -3,7 +3,7 @@ const mysql = require("mysql");
 const util = require('util');
 
 var config = {
-    // host: "10.113.98.238",
+    // host: "10.113.99.41",
     // port: 3306,
     // user: "root",
     // password: "Hy$2020",

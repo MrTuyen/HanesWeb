@@ -559,7 +559,7 @@ module.exports.updatePart = function (req, res) {
 }
 
 // Spare Part request
-module.exports.getPartRequest = function (req, res) {
+module.exports.getPartRequest = async function (req, res) {
     try {
         //parameters
         let status = req.body.status;
