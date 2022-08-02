@@ -1,7 +1,8 @@
 'use strict';
 class CuttingMachineData {
     
-    constructor(machineName, 
+    constructor(machineName,
+        position, 
         totalTime, 
         cutTime, 
         dryHaulTime, 
@@ -14,6 +15,7 @@ class CuttingMachineData {
         cutFilenameList,
         cutSpeed) {
         this.machineName = machineName ? machineName : 0;
+        this.position = position ? position : 0;
         this.totalTime = totalTime ? totalTime : 0;
         this.cutTime = cutTime ? cutTime : 0;
         this.dryHaulTime = dryHaulTime ? dryHaulTime : 0;

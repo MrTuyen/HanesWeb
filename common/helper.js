@@ -287,4 +287,12 @@ helper.sortArrayByKey = function (listData, key, ascending) {
 
 // #endregion
 
+/*
+    Return type of value in string format
+*/
+helper.typeOfValue = function(value){
+    //const typeOf = value => Object.prototype.toString.call(value).slice(8, -1);
+    return Object.prototype.toString.call(value).slice(8, -1);
+}
+
 module.exports = helper;

@@ -77,7 +77,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                     let eleDate = listDate[i];
                     for (let j = 0; j < labels.length; j++) {
                         let objLabel = labels[j];
-                        let machine = new CuttingMachineData(objLabel.code);
+                        let machine = new CuttingMachineData(objLabel.code, objLabel.position);
 
                         let query = `CALL USP_Cutting_Net_Time_92 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
                         let result92 = await db.excuteQueryAsync(query);
@@ -190,7 +190,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                     newListMachines = [];
                     for (let j = 0; j < labels.length; j++) {
                         let objLabel = labels[j];
-                        let machine = new CuttingMachineData(objLabel.code);
+                        let machine = new CuttingMachineData(objLabel.code, objLabel.position);
 
                         let query = `CALL USP_Cutting_Net_Time_92 ('${eleDate}', '${objLabel.code}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
                         let result92 = await db.excuteQueryAsync(query);
@@ -385,7 +385,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                 listMachines = [];
                 for (let i = 0; i < labels.length; i++) {
                     const objLabel = labels[i];
-                    let machine = new CuttingMachineData(objLabel.code);
+                    let machine = new CuttingMachineData(objLabel.code, objLabel.position);
 
                     for (let i = 0; i < result92.length; i++) {
                         let ele = result92[i];

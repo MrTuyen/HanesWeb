@@ -218,7 +218,8 @@ function getStackBarChart92() {
                         listMachinesData = listMachinesData.concat(machine);
                     }
 
-                    listMachinesData = listMachinesData.sort((x, y) => x.machineName - y.machineName);
+                    // listMachinesData = listMachinesData.sort((x, y) => x.machineName - y.machineName);
+                    listMachinesData = listMachinesData.sort((x, y) => x.position - y.position);
 
                     sumTotalCutTime += listMachinesData.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0);
                     sumTotalTotalTime += listMachinesData.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0);
@@ -2276,9 +2277,14 @@ function drawSpeedChartWeek95(labels, datasets) {
 // ----------------- Common function --------------
 function avgIdleInterupt(machineList, labels, wc){
     let html = '';
+    let sumIdleTimeAvg = 0;
+    let sumInterruptTimeAvg = 0;
     machineList.forEach((ele, i) => {
         let idleTimeAverage = ele.cutFilenameList.length > 0 ? ele.idleTime / ele.cutFilenameList.length : 0;
         let interuptTimeAverage = ele.cutFilenameList.length > 0 ? ele.interruptTime / ele.cutFilenameList.length : 0;
+
+        sumIdleTimeAvg += idleTimeAverage;
+        sumInterruptTimeAvg += interuptTimeAverage;
 
         html += `<tr>
                 <td>${labels[i]}</td>
@@ -2287,6 +2293,12 @@ function avgIdleInterupt(machineList, labels, wc){
                 <td>${ele.cutFilenameList.length > 0 ? ele.cutFilenameList.length : 0}</td>
             </tr>`;
     })
+    html += `<tr>
+                <td><strong>Average</strong></td>
+                <td><strong>${(sumIdleTimeAvg / machineList.length).toFixed(1)}</strong></td>
+                <td><strong>${(sumInterruptTimeAvg / machineList.length).toFixed(1)}</strong></td>
+                <td></td>
+            </tr>`;
     $(`#idleTable${wc}`).html('').append(html);
 }
 
@@ -2352,7 +2364,6 @@ function abnormalRecords(abnormalRecords, machineList) {
 function getMachines() {
     let action = '/cutting/get-machines';
     let datasend = {
-
     };
     PostDataAjax(action, datasend, function (response) {
         if (response.rs) {

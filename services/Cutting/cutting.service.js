@@ -8,7 +8,7 @@ var CuttingService = {};
 // 
 CuttingService.getMachines = async function (objDTO) {
     try {
-        let query = `SELECT * FROM cutting_machine WHERE active = 1`;
+        let query = `SELECT * FROM cutting_machine WHERE active = 1 ORDER BY position`;
         return await db.excuteQueryAsync(query);
     } catch (error) {
         logHelper.writeLog("CuttingService.getRequestDetail", error);
