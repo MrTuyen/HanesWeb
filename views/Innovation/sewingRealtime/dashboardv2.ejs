@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="/Contents/fonts/fontawesome-free-5.15.4-web/css/all.css">
+    <link rel="stylesheet" href="/Contents/css/sewingRealtime/reset.css">
+    <link rel="stylesheet" href="/Contents/css/sewingRealtime/dashboardv2.css">
+    <link href="/contents/libs/datepicker/css/datepicker.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <title>dashboard</title>
+</head>
+<body>
+    <%- include('partials/header') -%>
+    <div class="container-fluid">
+            <i class="fas fa-download card-header-button" onclick="download_report()" bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="Tải xuống báo cáo"></i>
+            <div class="fas fa-filter card-header-button" id="dropCard" data-bs-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false" title="Lọc">        
+            </div>
+            <ul class="dropdown-menu " aria-labelledby="dropCard">
+                    <p class="chart_header_title">Zone:</p>
+                    <li><select class="chart_header_select form-select" id="zone" name="zone"
+                            onchange="zoneChanged(this)">
+                        </select>
+                    </li>
+                    <p class="chart_header_title">Line:</p>
+                    <li><select class="chart_header_select form-select" id="line" name="line">
+                            <option class="chart_header_option" value="ALL">ALL</option>
+                            <!-- lấy dữ liệu từ function zoneChanged() -->
+                        </select>
+                    </li>
+                    <div class="row">
+                        <div class="chart_header_date_col1 col col-lg-6">
+                            <p class="chart_header_title">From Date:</p>
+                        </div>
+                        <div class="chart_header_date_col2 col col-lg-6">
+                            <p class="chart_header_title">To Date:</p>
+                        </div>
+                    </div>
+
+                    <li>
+                        <div class="row">
+                            <div class="chart_header_date_col1 col col-lg-6">
+                                <input type="text" id="timeCheckIn"
+                                    class="chart_header_date form-control" />
+                            </div>
+                            <div class="chart_header_date_col2 col col-lg-6">
+                                <input type="text" id="timeCheckOut"
+                                    class="chart_header_date form-control" />
+                            </div>
+                        </div>
+                    </li>
+                    <p class="chart_header_title">Shift:</p>
+                    <li>
+                        <select class="chart_header_select form-select" id="shift" name="shift">
+                            <option class="chart_header_option" value="ALL">ALL</option>
+                            <option class="chart_header_option" value="1">Shift 1</option>
+                            <option class="chart_header_option" value="2">Shift 2</option>
+                        </select>
+                    </li>
+                    <li>
+                        <div class='chart_header_submit'>
+                            <button class='chart_header_submit_bt btn btn-primary' type='submit' onclick="submit()" id="submit">submit</button>
+                        </div>
+                    </li>
+                </ul>
+        <div class="row chart-general">
+            <h5 class="chart-title">Sewing needle real time(h)</h5>
+            <canvas id="chart-general" ></canvas>     
+        </div>
+        <div class="row chart_mini">
+            <div class="col chart-ratio" >
+                <h5 class="chart-title">Sewing needle real ratio(%)</h5>
+                <canvas id="chart-ratio"></canvas>   
+            </div>
+            <div class="col chart-oee" >
+                <h5 class="chart-title">OEE %</h5>
+                <canvas id="chart-oee"></canvas> 
+            </div>
+        </div>
+        <div class="row chart_mini">
+                <div class="col chart-detail-line1" >
+                    <h5 class="chart-title">Sewing needle real time (m)</h5>
+                    <div class="detail-line1">
+                        <span class='style'>Style:</span>
+                        <span class='line_name'></span>
+                    </div>
+                    <canvas id="chart-detail-line1"></canvas> 
+                </div>
+                <div class="col chart-detail-line2" >
+                    <h5 class="chart-title">Sewing needle real time ratio (%)</h5>
+                    <div class="detail-line2">
+                        <span class='style'>Style:</span>
+                        <span class='line_name'></span>
+                    </div>
+                    <canvas id="chart-detail-line2"></canvas> 
+                </div>
+        </div>
+    </div>
+    <%- include('partials/footer') -%>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/contents/libs/chart/chartjs-plugin/jquery.js"></script>
+    <script src="/contents/libs/exceljs/xlsx.full.min.js"></script>
+    <script src='/JS/HBI/MEC/sewingRealtime/chartv2.config.js'></script>
+    <script src='/JS/HBI/MEC/sewingRealtime/chartv2.build.js'></script>
+    <script src='/JS/HBI/MEC/sewingRealtime/dashboardv2.js'></script>
+    <script src="/contents/libs/bootstrap-toastr/toastr.min.js"></script>
+    <script src="/contents/libs/datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script>const tooltipTriggerList = document.querySelectorAll('[bs-toggle="tooltip"]')
+        const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+    </script>
+<body>
+</html>

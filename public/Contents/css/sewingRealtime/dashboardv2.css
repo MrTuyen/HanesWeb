@@ -1,0 +1,111 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+*{
+margin: 0;
+padding: 0;
+box-sizing:border-box;
+text-decoration: none;
+font-family: 'Poppins', sans-serif;
+}
+body{
+background-color:#FBFCFC;
+background-repeat: no-repeat;
+background-size: cover;
+color: #2c3e50;
+font-size: 30px;
+display: flex;
+flex-direction: column;
+}
+.card-header-button{
+ padding-left: 5px;
+}
+.card-header-button:hover{
+    color: #2980b9;
+    cursor: pointer;
+}
+.dropdown-menu{
+    width: 250px !important;
+    padding: 5px;
+    border: 1px solid #1abc9c;
+}
+.chart_header_title{
+   margin: 2px;
+}
+.chart_header_submit_bt{
+    margin-top: 3px;
+}
+.chart-title{
+    margin: 10px 0px;
+    text-align: center;
+}
+.chart-general{
+    height: 82vh;
+    margin: 10px 0px;
+    border-radius: 7px;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+}
+#chart-general{
+    position: absolute;
+    margin-top: 50px;
+}
+.chart_mini{
+    height: 70vh;
+    margin: 10px 0px;
+    margin-top: 20px;
+}
+.chart-ratio{
+    position: ab;
+    margin-right: 5px;
+    border-radius: 7px;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+}
+#chart-ratio{
+    position: absolute;
+    margin-top: 0px 5px;
+    padding-bottom: 6vh;
+}
+.chart-oee{
+    margin-left: 5px;
+    border-radius: 7px;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+}
+#chart-oee{
+    position: absolute;
+    margin-top: 0px 5px;
+    padding-bottom: 6vh;
+}
+.chart-detail-line1{
+    margin-right: 5px;
+    border-radius: 7px;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+}
+#chart-detail-line1{
+    position: absolute;
+    margin-top: 0px 5px;
+    padding-bottom: 10vh;
+}
+.detail-line1{
+    font-weight: bold;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: .5em;
+    color: #e74c3c;
+}
+.chart-detail-line2{
+    margin-left: 5px;
+    border-radius: 7px;
+    box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+}
+#chart-detail-line2{
+    position: absolute;
+    margin-top: 0px 5px;
+    padding-bottom: 12vh;
+}
+.detail-line2{
+    font-weight: bold;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    font-size: .5em;
+    color: #e74c3c;
+}

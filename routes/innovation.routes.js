@@ -14,6 +14,7 @@ const workcenter = require("../controllers/innovation/sewingRealtime/workcenter.
 const realtimeDashboard= require("../controllers/innovation/sewingRealtime/dashboard.controller");
 const machine = require("../controllers/innovation/sewingRealtime/machine.controller");
 const losstime = require("../controllers/innovation/sewingRealtime/losstime.controller");
+const dashboardv2 = require("../controllers/innovation//sewingRealtime/dashboardv2.controller")
 // Dashboard
 router.get("/dashboard", authController.authorize([4,5]), dashboardController.getDashboard)
 router.post("/dashboard/get-count", dashboardController.getStatistic)
@@ -114,6 +115,7 @@ router.post('/realtime/machineData', machine.postMachneData);
 router.post('/realtime/updateMachine', machine.postUpdateMachine);
 // router dashboard 
 router.get('/realtime/dashboard', realtimeDashboard.getDashboard);
+router.get('/realtime/dashboardv2', dashboardv2.getDashboard);
 router.post('/realtime/locations', realtimeDashboard.portLocations);
 router.post('/realtime/dataSubmit', realtimeDashboard.postDataSubmit);
 router.post('/realtime/downloadReport', realtimeDashboard.portDownloadReport);
