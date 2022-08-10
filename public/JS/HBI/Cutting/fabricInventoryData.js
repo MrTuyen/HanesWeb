@@ -15,6 +15,9 @@ function refresh() {
     window.location.href = '/innovation';
 }
 
+// Menu
+$(".fr-navbar li:nth-child(3)").addClass("active");
+
 // Configure some plugin to work properly
 $.fn.modal.Constructor.prototype._enforceFocus = function () { };
 
@@ -78,6 +81,7 @@ function getInventoryData(intPage){
     let itemColor = $("#txtItemColor").val();
     let status = $("#txtFilterStatus").val();
     let note = $("#txtFilterNote").val();
+    let plant = $("#txtFilterPlant").val();
     // send to server
     let action = baseUrl + 'get-inventory-data';
     let datasend = {
@@ -86,7 +90,8 @@ function getInventoryData(intPage){
         unipack: unipack,
         itemColor: itemColor,
         status: status,
-        note: note
+        note: note,
+        plant: plant
     };
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
@@ -99,6 +104,7 @@ function getInventoryData(intPage){
                 html += `<tr>
                     <td>${ele.status == 0 ? "" : "Đã sử dụng"}</td>
                     <td>${ele.note ? ele.note : ''}</td>
+                    <td>${ele.plant}</td>
                     <td>${ele.unipack2}</td>
                     <td>${ele.item_color}</td>
                     <td>${ele.rfinwt}</td>
@@ -126,7 +132,9 @@ function getInventoryData(intPage){
             $(".pagination-current").text(`${(currentPage - 1) * itemPerPage  + 1} - ${currentPage * itemPerPage > totalRow ? totalRow : currentPage * itemPerPage} trong ${totalRow} bản ghi`);
         
             let lastestUpdate = data ? data[0].date_update : "";
+            let userUpdate = data ? data[0].user_update : "";
             $("#lbLastestUpdate").text(lastestUpdate);
+            $("#lbUserUpdate").text(userUpdate);
         }
         else {
             toastr.error(response.msg, "Thất bại");
@@ -187,89 +195,6 @@ function updateRoll(){
         }
     });
 }
-
-// function uploadExcel(){
-//     var e = event;
-//     var fileName = e.target.files[0].name;
-//     $('.fileUploadName').text(fileName);
-
-//     if (window.FormData !== undefined) {
-
-//         var fileUpload = $("#fileFabricReceiveUpload").get(0);
-//         var files = fileUpload.files;
-
-//         // Create FormData object
-//         var fileData = new FormData();
-
-//         // Looping over all files and add it to FormData object
-//         for (var i = 0; i < files.length; i++) {
-//             fileData.append("file", files[i]);
-//         }
-
-//         LoadingShow();
-//         $.ajax({
-//             url: baseUrl + 'upload-fabric-inventory-file',
-//             method: 'POST',
-//             contentType: false,
-//             processData: false,
-//             data: fileData,
-//             success: function (result) {
-//                 LoadingHide();
-//                 result = JSON.parse(result);
-//                 if (result.rs) {
-//                     var listSheet = result.data
-//                     var options = "";
-//                     for (var i = 0; i < listSheet.length; i++) {
-//                         let item = listSheet[i];
-//                         options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
-//                     }
-
-//                     $(".selected-sheet").html("").append(options);
-//                     $(".selected-header").focus();
-//                     console.log(result.msg);
-//                 }
-//                 else {
-//                     LoadingHide();
-//                     toastr.error(result.msg);
-//                 }
-//             },
-//             error: function (err) {
-//                 toastr.error(err.statusText);
-//             }
-//         });
-//     } else {
-//         toastr.error("FormData is not supported.");
-//     }
-// }
-
-// function saveUploadData(){
-//     // form data
-//     let sheet = $("#selected-sheet").val();
-//     let headerRow = $("#selected-header").val();
-//     let fileName = $("#fileUploadName").text();
-
-//     // send to server
-//     let action = baseUrl + 'save-upload-fabric-inventory-data';
-//     let datasend = {
-//         sheet: sheet,
-//         headerRow: headerRow,
-//         fileName: fileName
-//     };
-//     LoadingShow();
-//     PostDataAjax(action, datasend, function (response) {
-//         LoadingHide();
-//         if (response.rs) {
-//             toastr.success(response.msg, "Thành công")
-//             $("#modalUploadInventoryData").modal('hide');
-//             setTimeout(function(){
-//                 getInventoryData(currentPage);
-//             }, 1000);
-//         }
-//         else {
-//             toastr.error(response.msg, "Thất bại");
-//         }
-//     });
-// }
 
 function uploadExcel(){
     var e = event;
@@ -406,13 +331,16 @@ function downloadInventoryData() {
     let itemColor = $("#txtItemColor").val();
     let status = $("#txtFilterStatus").val();
     let note = $("#txtFilterNote").val();
+    let plant = $("#txtFilterPlant").val();
+
     // send to server
     let action = baseUrl + 'download-inventory-data';
     let datasend = {
         unipack: unipack,
         itemColor: itemColor,
         status: status,
-        note: note
+        note: note,
+        plant: plant
     };
 
     fetch(action, {
@@ -426,6 +354,33 @@ function downloadInventoryData() {
     }).then(function (blob) {
         LoadingHide();
         return download(blob, GetTodayDate() + "_inventory.xlsx");
+    });
+}
+
+function getDataFromTTS(){
+    swal("Bạn có chắc chắn lấy dữ liệu từ TTS? R U sure pull data from TTS?", {
+        buttons: ["No", "Yes!"],
+    })
+    .then((willDelete) => {
+        if (willDelete) {
+            let action = baseUrl + 'get-inventory-data-tts';
+            let datasend = {
+            
+            };
+            LoadingShow();
+            PostDataAjax(action, datasend, function (response) {
+                LoadingHide();
+                if(response.rs){
+                    toastr.success(response.msg, "Thành công");
+                    setTimeout(function(){
+                        getInventoryData(currentPage);
+                    }, 1000);
+                }
+                else{
+                    toastr.error(response.msg, "Thất bại");
+                }
+            });
+        }
     });
 }
 

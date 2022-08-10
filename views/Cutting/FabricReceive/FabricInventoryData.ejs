@@ -18,6 +18,7 @@
     <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
     <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script src="/Contents/libs/swal.min.js"></script>
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
@@ -25,20 +26,6 @@
             height: 500px;
             overflow: auto;
             border: 1px solid #dddddd;
-        }
-
-        .pagination-area a {
-            border: none;
-            background-color: transparent;
-            padding: 5px;
-            cursor: pointer;
-        }
-
-        .paging-textbox {
-            width: 90px;
-            height: 30px;
-            display: inline-block;
-            text-align: center;
         }
     </style>
 
@@ -60,38 +47,21 @@
                 <div class="">
                     <div class="row">
                         <div class="col-md-12">
-                            <nav class="navbar navbar-default navbar-static-top mb-0">
-                                <div class="">
-                                    <div class="navbar-header">
-                                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                                            <span class="sr-only">Toggle navigation</span>
-                                            <span class="icon-bar"></span>
-                                            <span class="icon-bar"></span>
-                                            <span class="icon-bar"></span>
-                                        </button>
-                                        <!-- <a class="navbar-brand" href="#">Quét nhận vải</a> -->
-                                    </div>
-                                    <div id="navbar" class="navbar-collapse collapse">
-                                        <ul class="nav navbar-nav">
-                                            <li class=""><a href="/cutting/fabric-receive">Giao nhận vải Kanban</a></li>
-                                            <li class="active"><a href="/cutting/fabric-receive/inventory-data">Dữ liệu vải tồn kho</a></li>
-                                            <!-- <li class=""><a href="#">Lịch sử giao nhận</a></li> -->
-                                        </ul>
-                                        <ul class="nav navbar-nav navbar-right">
-
-                                        </ul>
-                                    </div>
-                                    <!--/.nav-collapse -->
-                                </div>
-                            </nav>
+                            <%- include ("partialMenuBar.ejs"); -%>
                         </div>
                     </div>
                     <div class="bg-white fabric-receive mt-3">
                         <div class="col-md-12 col-sm-12">
                             <div class="d-flex pr-4 mt-1">
                                 <div class="p-0">
-                                    <div class="input-group">
-                                        <button class="btn btn-success mr-2 btn-sm <%= wh_disabled %>" data-target="#modalUploadInventoryData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu tồn kho</button>
+                                    <div class="input-group mr-2">
+                                        <button class="btn btn-success btn-sm <%= wh_disabled %>" onclick="getDataFromTTS()"><i class="fa fa-download"></i> &nbsp; Lấy dữ liệu tồn kho từ TTS</button>
+                                        <button type="button" class="btn btn-success dropdown-toggle btn-sm <%= wh_disabled %>" data-toggle="dropdown">
+                                            <span class="fa fa-angle-down"></span>
+                                        </button>
+                                        <div class="dropdown-menu p-3" style="left: 183px">
+                                            <button class="btn btn-success mr-2 btn-sm <%= wh_disabled %>" data-target="#modalUploadInventoryData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu tồn kho</button>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="p-0 mb-3 mr-2">
@@ -115,6 +85,18 @@
                                                 </div>
                                                 <div class="mt-2 d-flex">
                                                     <div class="w-100">
+                                                        <label for="" class="col-form-label">Plant</label>
+                                                        <div class="input-group w-100">
+                                                            <select class="form-control w-100" name="" id="txtFilterPlant">
+                                                                <option value=""> All </option>
+                                                                <option value="92"> 92 </option>
+                                                                <option value="95"> 95 </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mt-2 d-flex">
+                                                    <div class="w-100">
                                                         <label for="" class="col-form-label">Status</label>
                                                         <div class="input-group w-100">
                                                             <select class="form-control w-100" name="" id="txtFilterStatus">
@@ -128,17 +110,11 @@
                                                 <div class="mt-2 d-flex">
                                                     <div class="w-100">
                                                         <label for="" class="col-form-label">Note</label>
-                                                        <div class="input-group w-100">
-                                                            <select class="form-control w-100" name="" id="txtFilterNote">
-                                                                <option value=""> All </option>
-                                                                <option value="0"> Yes </option>
-                                                                <option value="1"> No </option>
-                                                            </select>
-                                                        </div>
+                                                        <input type="text" class="form-control w-100" id="txtFilterNote">
                                                     </div>
                                                 </div>
                                                 <div class="justify-content-between align-items-center mt-3 text-right">
-                                                    <button type="button" class="btn btn-light btn-sm" onclick="downloadInventoryData()">Download</button>
+                                                    <!-- <button type="button" class="btn btn-light btn-sm" onclick="downloadInventoryData()">Download</button> -->
                                                     <button type="button" class="btn btn-success btn-sm" onclick="getInventoryData(1)">Search</button>
                                                 </div>
                                             </form>
@@ -151,6 +127,9 @@
                                     <strong>Danh sách vải tồn kho</strong> 
                                 </span>
                                 <span class="w-50 text-right">
+                                    <strong>User update:</strong> 
+                                    <span id="lbUserUpdate"></span>
+                                    &nbsp;
                                     <strong>Lastest update:</strong> 
                                     <span id="lbLastestUpdate"></span>
                                 </span>
@@ -160,6 +139,7 @@
                                     <thead class="sticky-thead">
                                         <th>Status</th>
                                         <th>Note</th>
+                                        <th>Plant</th>
                                         <th>Unipack</th>
                                         <th>Item Color</th>
                                         <th>Lbs</th>

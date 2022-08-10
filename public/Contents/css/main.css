@@ -3,6 +3,30 @@
     src: url(/Contents/fonts/OpenSans/OpenSans-Regular.ttf);
 }
 
+/* fallback */
+@font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url(/Contents/fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2) format('woff2');
+}
+  
+.material-icons {
+    font-family: 'Material Icons';
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    --webkit-font-feature-settings: 'liga';
+    --webkit-font-smoothing: antialiased;
+}
+
 .developer{
     position: -webkit-sticky;
     position: sticky;
@@ -28,6 +52,10 @@
     border-radius: 0;
 }
 
+.form-control-sm{
+    height: 30px;
+}
+
 .btn-light {
     background: #ced6dd;
 }
@@ -48,6 +76,20 @@
     left: 0;
     top: 0;
     opacity: 0;
+}
+
+.pagination-area a {
+    border: none;
+    background-color: transparent;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.paging-textbox {
+    width: 90px;
+    height: 30px;
+    display: inline-block;
+    text-align: center;
 }
 
 textarea {
@@ -174,6 +216,14 @@ input[type="checkbox"]{
     cursor: pointer;
     text-align: center;
     color: #676867;
+}
+
+.swal-button--confirm{
+    background-color: #5cb85c;
+}
+
+.swal-button--confirm:not([disabled]):hover {
+    background-color: #5cb85c;
 }
 
 @media (max-width: 575.98px) {

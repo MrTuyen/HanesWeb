@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabric Receive Scan Barcode</title>
+    <link rel="stylesheet" href="/Contents/fonts/font-awesome-4.7.0/css/font-awesome.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.purple-indigo.min.css" />
+
+    <link rel="stylesheet" href="/Contents/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-datepicker/css/datepicker.css">
+    <link rel="stylesheet" href="/Contents/libs/bootstrap-toastr/toastr.min.css" />
+    <link rel="stylesheet" href="/Contents/libs/select2/select2.min.css">
+    <link rel="stylesheet" href="/Contents/libs/toggle-switch/toggle-switch.css">
+    <link rel="stylesheet" href="/Contents/css/main.css">
+
+    <script src="/Contents/libs/jquery-1.10.2.min.js"></script>
+    <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script src="/Contents/libs/swal.min.js"></script>
+    <script defer src="/JS/mdl/material.min.js"></script>
+
+    <style>
+        .scanned-table {
+            height: 540px;
+            overflow: auto;
+            border: 1px solid #dddddd;
+        }
+
+        .table-kanban tr,
+        .table-kanban th,
+        .table-kanban td {
+            text-align: -webkit-center;
+        }
+
+        tr.header {
+            cursor: pointer;
+        }
+
+        .header .sign:after {
+            content: "Open";
+            display: inline-block;
+        }
+
+        .header.expand .sign:after {
+            content: "Close";
+        }
+    </style>
+
+</head>
+<% var ccd_disabled=user.position=="Admin" || user.dept=="Cutting" ? "" : "display-none" ; var wh_disabled=user.position=="Admin" || user.dept=="Warehouse" ? "" : "display-none" ; %>
+
+    <body>
+        <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+            <header class="mdl-layout__header">
+                <div class="mdl-layout__header-row">
+                    <span class="mdl-layout-title">Cutting Fabric Receive</span>
+                    <%- include ("../../headerTemplate.ejs"); -%>
+                </div>
+            </header>
+            <%- include ("../partials/navTemplate.ejs"); -%>
+                <main class="mdl-layout__content">
+                    <div class="page-content">
+                        <div class="">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <%- include ("partialMenuBar.ejs"); -%>
+                                </div>
+                            </div>
+                            <div class="bg-white fabric-receive mt-3">
+                                <div class="col-md-12 col-sm-12">
+                                    <div class="d-flex pr-4 mt-1">
+                                        <div class="p-0 mb-3">
+                                            <div class="btn-group btn-filter">
+                                                <button type="button" class="btn btn-light dropdown-toggle btn-sm" data-toggle="dropdown">
+                                                    <span class="fa fa-search"></span> Filter
+                                                </button>
+                                                <div class="dropdown-menu p-3" style="width: 300px;">
+                                                    <form class="form-inline" id="">
+                                                        <div class="mt-2 d-flex">
+                                                            <div class="w-100">
+                                                                <label for="" class="col-form-label">Group</label>
+                                                                <div class="input-group w-100">
+                                                                    <input type="text" class="form-control" id="txtFilterGroup">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="w-100">
+                                                            <p class="mb-1"><strong>View Type</strong></p>
+                                                            <div class="switch-block">
+                                                                <label class="switch-light switch-candy d-inline">
+                                                                    <input type="checkbox" name="" id="cbViewType" checked onchange="changeViewType()" />
+                                                                    <span>
+                                                                        <span>Week</span>
+                                                                        <span>Day</span>
+                                                                        <a></a>
+                                                                    </span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="w-100" id="weekValue">
+                                                            <p class="mb-1"><strong>Week Value</strong></p>
+                                                            <input type="number" class="form-control w-100" id="txtFilterWeek">
+                                                        </div>
+                                                        <div class="w-100" id="dateValue">
+                                                            <div>
+                                                                <div class="w-100">
+                                                                    <p class="mb-1"><strong>Cut Date</strong></p>
+                                                                    <select class="form-control w-100" name="" id="txtFilterTime" onchange="changeDateFilter()">
+
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                            <div id="filterTime" style="display: none">
+                                                                <div class="d-flex">
+                                                                    <div class="">
+                                                                        <p class="mb-1"><strong>From Date</strong></p>
+                                                                        <input type="text" class="form-control w-100 isDate" id="txtFilterFrom" />
+                                                                    </div>
+                                                                    <div class="ml-2">
+                                                                        <p class="mb-1"><strong>To Date</strong></p>
+                                                                        <input type="text" class="form-control w-100 isDate" id="txtFilterTo" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="justify-content-between align-items-center mt-3 text-right">
+                                                            <button type="button" class="btn btn-success btn-sm" onclick="getData()">Search</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="ml-2 pt-2" id="filter-area">
+
+                                        </div>
+                                    </div>
+                                    <div class="d-flex">
+                                        <!-- <span class="w-50">
+                                        <strong>Danh sách phiếu xuất vải:</strong> 
+                                        <span id="lbSumMarkerData">0</span> phiếu
+                                    </span>
+                                    <span class="w-50 text-right">
+                                        <strong>Lastest update:</strong> 
+                                        <span id="lbLastestUpdate"></span>
+                                    </span> -->
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 pl-0 pr-0 scanned-table">
+                                        <table class="table table-bordered table-scrollable mb-0 table-kanban">
+                                            <thead class="sticky-thead">
+                                                <th>#</th>
+                                                <th>Group</th>
+                                                <th>Item Color</th>
+                                                <th>Marker request</th>
+                                                <th>WH supply</th>
+                                                <th>Request more</th>
+                                                <th>Request more supply</th>
+                                                <th>Total WH supply</th>
+                                                <th>Return</th>
+                                                <th>Difference</th>
+                                                <th></th>
+                                            </thead>
+                                            <tbody id="report-table-body">
+                                                <!-- <div id="accordion" class="myaccordion">
+
+                                                </div> -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        </div>
+        </main>
+        </div>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/Contents/libs/download.min.js"></script>
+        <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+        <script src="/JS/HBI/Common/commonFactory.js"></script>
+        <script src="/JS/HBI/Common/enum.js"></script>
+        <script src="/JS/HBI/Cutting/fabricReportDashboard.js"></script>
+    </body>
+
+</html>

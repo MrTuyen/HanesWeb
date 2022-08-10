@@ -1,3 +1,5 @@
 node_modules
-templates/
+templates/cutting
+templates/*xlsx
 logs/
+public/Image

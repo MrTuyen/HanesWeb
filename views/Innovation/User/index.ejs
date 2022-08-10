@@ -17,10 +17,15 @@
     <script src="/Contents/libs/bootstrap/js/bootstrap.min.js"></script>
     <script src="/Contents/libs/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
     <script src="/Contents/libs/select2/select2.min.js"></script>
+    <script src="/Contents/libs/swal.min.js"></script>
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
-        
+        .user-table{
+            height: 580px;
+            overflow: auto;
+            border: 1px solid #dddddd;
+        }
     </style>
 
 </head>
@@ -92,9 +97,9 @@
                                                 <button type="button" class="btn btn-light" onclick="downloadUser()"><i class="fa fa-download"></i></button>
                                             </div>
                                         </div>
-                                        <div class="">
+                                        <div class="user-table">
                                             <table class="table table-hover table-bordered table-scrollable mb-0">
-                                                <thead>
+                                                <thead class="sticky-thead">
                                                     <tr>
                                                         <th width='10%'>#</th>
                                                         <th width='20%'>Mã nhân viên</th>
@@ -103,14 +108,10 @@
                                                         <th width='10%'></th>
                                                     </tr>
                                                 </thead>
-                                            </table>
-                                            <div class="onscrollbar onscrollbar-user" style="overflow: auto;">
-                                                <table class="table table-hover table-bordered m-0">
-                                                    <tbody id="user-table-body">
+                                                <tbody id="user-table-body">
 
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>

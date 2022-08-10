@@ -31,6 +31,7 @@
 
         .table-kanban tr, .table-kanban th, .table-kanban td {
             text-align: -webkit-center;
+            font-size: 11px;
         }
 
         .rounded-circle {
@@ -82,38 +83,21 @@
                     <div class="">
                         <div class="row">
                             <div class="col-md-12">
-                                <nav class="navbar navbar-default navbar-static-top mb-0">
-                                    <div class="">
-                                        <div class="navbar-header">
-                                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                                                <span class="sr-only">Toggle navigation</span>
-                                                <span class="icon-bar"></span>
-                                                <span class="icon-bar"></span>
-                                                <span class="icon-bar"></span>
-                                            </button>
-                                            <!-- <a class="navbar-brand" href="#">Quét nhận vải</a> -->
-                                        </div>
-                                        <div id="navbar" class="navbar-collapse collapse">
-                                            <ul class="nav navbar-nav">
-                                                <li class="active"><a href="/cutting/fabric-receive">Giao nhận vải Kanban</a></li>
-                                                <li class=""><a href="/cutting/fabric-receive/inventory-data">Dữ liệu vải tồn kho</a></li>
-                                                <!-- <li class=""><a href="#">Lịch sử giao nhận</a></li> -->
-                                            </ul>
-                                            <ul class="nav navbar-nav navbar-right">
-
-                                            </ul>
-                                        </div>
-                                        <!--/.nav-collapse -->
-                                    </div>
-                                </nav>
+                                <%- include ("partialMenuBar.ejs"); -%>
                             </div>
                         </div>
                         <div class="bg-white fabric-receive mt-3">
                             <div class="col-md-12 col-sm-12">
                                 <div class="d-flex pr-4 mt-1">
                                     <div class="p-0">
-                                        <div class="input-group">
-                                            <button class="btn btn-success btn-sm mr-2 <%= ccd_disabled %>" data-target="#modalUploadData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu yêu cầu vải</button>
+                                        <div class="input-group mr-2">
+                                            <button class="btn btn-success btn-sm <%= ccd_disabled %>" data-target="#modalUploadData" data-toggle="modal"><i class="fa fa-plus"></i> &nbsp; Upload dữ liệu yêu cầu vải</button>
+                                            <button type="button" class="btn btn-success dropdown-toggle btn-sm <%= ccd_disabled %>" data-toggle="dropdown">
+                                                <span class="fa fa-angle-down"></span>
+                                            </button>
+                                            <div class="dropdown-menu p-3" style="left: 183px">
+                                                <button class="btn btn-success btn-sm <%= ccd_disabled %>" data-target="#modalUploadReturnData" data-toggle="modal">Upload dữ liệu return vải</button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="p-0 mb-3">
@@ -122,12 +106,37 @@
                                                 <span class="fa fa-search"></span> Filter
                                             </button>
                                             <div class="dropdown-menu p-3" style="width: 300px;">
-                                                <form class="form-inline" id="">                                                   
+                                                <form class="form-inline" id="">     
+                                                    <div class="mt-2 d-flex">
+                                                        <div class="w-100">
+                                                            <label for="" class="col-form-label">Plant</label>
+                                                            <div class="input-group w-100">
+                                                                <select class="form-control w-100" name="" id="txtFilterPlant">
+                                                                    <option value="92"> 92 </option>
+                                                                    <option value="95"> 95 </option>
+                                                                    <option value="" selected> All </option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>                                              
                                                     <div class="mt-2 d-flex">
                                                         <div class="w-100">
                                                             <label for="" class="col-form-label">Group</label>
                                                             <div class="input-group w-100">
                                                                 <input type="text" class="form-control" id="txtFilterGroup">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="">
+                                                        <div class="w-100">
+                                                            <label for="" class="col-form-label">Warehouse Status</label>
+                                                            <div class="input-group w-100">
+                                                                <select class="form-control w-100" name="" id="txtFilterWarehouseStatus">
+                                                                    <option value="0"> Prepared </option>
+                                                                    <option value="1"> Done </option>
+                                                                    <option value="2"> Not yet </option>
+                                                                    <option value="" selected> All </option>
+                                                                </select>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -184,13 +193,16 @@
                                                         </div>
                                                     </div>                                               
                                                     <div class="justify-content-between align-items-center mt-3 text-right">
-                                                        <button type="button" class="btn btn-light btn-sm <%= wh_disabled %>" onclick="downloadRollData()">WH Download</button>
+                                                        <button type="button" class="btn btn-light btn-sm" onclick="downloadRollData()">WH Download</button>
                                                         <button type="button" class="btn btn-light btn-sm <%= ccd_disabled %>" onclick="downloadMarkerData()">Download</button>
                                                         <button type="button" class="btn btn-success btn-sm" onclick="getListMarkerData()">Search</button>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>                                               
+                                    </div>
+                                    <div class="ml-2 pt-2" id="filter-area">
+
                                     </div>
                                 </div>
                                 <div class="d-flex">
@@ -207,17 +219,19 @@
                                     <table class="table table-bordered table-scrollable mb-0 table-kanban">
                                         <thead class="sticky-thead">
                                             <th>#</th>
+											<th>Is Main</th>
                                             <th>Received Date</th>
-                                            <th>Received Time</th>
+                                            <th width='20'>Received Time</th>
                                             <th>Group</th>
                                             <th>Cut Date</th>
-                                            <th>Marker Call Date</th>
+                                            <th>Marker Date</th>
                                             <!-- <th>Call Time</th> -->
-                                            <th>Marker Status</th>
-                                            <th>WH Status</th>
-                                            <th>CCD Status</th>
-                                            <th>ISS Status</th>
-                                            <th>Note</th>
+                                            <th>Marker S</th>
+                                            <th>WH S</th>
+                                            <th>CCD S</th>
+                                            <th>ISS S</th>
+                                            <th width='150'>Note</th>
+											<th width='200'>WH Note</th>
                                             <th></th>
                                         </thead>
                                         <tbody id="fabric-plan-table-body">
@@ -277,6 +291,55 @@
                     <div class="col-sm-12 col-md-12">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-success" onclick="saveUploadData()">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal upload return data -->
+    <div class="modal fade" id="modalUploadReturnData" aria-labelledby="exampleModalLabel" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="exampleModalLabel"><strong>Upload dữ liệu return vải</strong></h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="" style="background-color: #28a745; height: 3px"></div>
+                <div class="modal-body">
+                    <table class="w-100">
+                        <tbody>
+                            <tr>
+                                <label class="drop-file-box">
+                                    <span class="fa fa-cloud-upload" aria-hidden="true"></span>
+                                    <span>Nhấn vào đây để chọn tập tin <br />Maximum File Size: 5 MB  |  File Format: XLS, XLSX, XLSB</span>
+                                    <!-- <input type="file" name="UploadedFile" id="fileFabricReceiveUpload" multiple onchange="uploadExcel()" accept=".xlsx, .xls" style="display: none"> -->
+                                    <input type="file" name="UploadedFile" id="fileFabricReturnUpload" multiple onchange="uploadExcelReturnData()" accept=".xlsx, .xls, .xlsb" style="display: none">
+                                </label>    
+                            </tr>
+                            <tr>
+                                <table class="table table-striped table-bordered">
+                                    <thead>
+                                        <tr class="text-center">
+                                            <td>Name</td>
+                                            <td>Sheets</td>
+                                            <td>Header row</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="return-file-table-body">
+
+                                    </tbody>
+                                </table>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer pr-0">
+                    <div class="col-sm-12 col-md-12">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-success" onclick="saveUploadReturnData()">Submit</button>
                     </div>
                 </div>
             </div>

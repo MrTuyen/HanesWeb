@@ -59,12 +59,17 @@
             cursor: pointer;
         }
 
-        .tooltip{
+        .tooltip {
             width: 130px;
         }
 
-        .vsb-main{
+        .vsb-main {
             width: 100%;
+        }
+
+        th,
+        td {
+            text-align: center;
         }
     </style>
 </head>
@@ -82,7 +87,12 @@
                 <div class="page-content">
                     <div class="bg-white">
                         <div class="d-sm-block">
-                            <div class="panel panel-default p-3 border-0 mb-0 pb-0">
+                            <div class="panel panel-default pt-3 pr-3 pl-3 border-0 mb-0">
+                                <div class="card shadow pl-4 pr-4 pt-2 pb-2">
+                                    <a href="/#">Cutting machine status realtime &nbsp;<i class="fa fa-angle-right"></i></a>
+                                </div>
+                            </div>
+                            <div class="panel panel-default pt-3 pr-3 pl-3 border-0 mb-0 pb-0">
                                 <div class="row">
                                     <div class="col-xl-12 col-lg-12">
                                         <div class="card shadow">
@@ -153,20 +163,21 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="text-danger text-center"><strong>Vui lòng kiểm tra lại phần mềm trên máy cắt đã bật chưa nếu không thấy ghi nhận dữ liệu hoặc ghi nhận thiếu. Xin cảm ơn!</strong></div>
-                            <div class="panel panel-default p-3 border-0 mb-0">
-                                <div class="row">
-                                    <div class="col-md-6" id="cut92">
-                                        <div class="card shadow mb-4 p-2 text-center">
+                            <!-- <div class="text-danger text-center"><strong>Vui lòng kiểm tra lại phần mềm trên máy cắt đã bật chưa nếu không thấy ghi nhận dữ liệu hoặc ghi nhận thiếu. Xin cảm ơn!</strong></div> -->
+                            <div class="panel panel-default pt-3 pr-3 pl-3 border-0 mb-0">
+                                <div class="">
+                                    <div class="col-md-6 col-xs-12 p-0 pr-2" id="cut92">
+                                        <div class="card shadow mb-3 p-2 text-center">
                                             <strong>CUTTING 92</strong>
                                         </div>
-                                        <div class="card shadow mb-4">
+
+                                        <div class="card shadow mb-3">
                                             <!-- Card Header - Dropdown -->
                                             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                                                 <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time %</h5>
                                                 <h5 class="m-0 font-weight-bold text-primary">AVE: <span class="text-danger" id="txtAvg92"></span>%</h5>
                                                 <h5 class="m-0 font-weight-bold text-primary">Date/Week: <span class="  text-danger" id="txtDate92"></span></h5>
-                                                <div class="dropdown no-arrow d-flex">        
+                                                <div class="dropdown no-arrow d-flex">
                                                     <div class="mr-3 zoomInZoomOut" data-toggle="modal" data-target="#modalAbnormalRecord"><i class="fa fa-list-ul fa-sm fa-fw text-default-400" data-toggle="tooltip" data-placement="top" title="Review abnormal records"></i></div>
                                                     <div class="mr-3 zoomInZoomOut" onclick="zoomInZoomOut('cut92')" data-toggle="tooltip" data-placement="top" title="Zoom in or zoom out">&#x26f6;</div>
                                                     <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -236,7 +247,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="card shadow mb-4">
+                                        <div class="card shadow mb-3">
                                             <!-- Card Header - Dropdown -->
                                             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                                                 <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time minutes</h5>
@@ -256,14 +267,59 @@
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div class="card shadow mb-3">
+                                            <!-- Card Header - Dropdown -->
+                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                <h5 class="m-0 font-weight-bold text-primary">Cutting Machine Speed (Inch/ Min)</h5>
+                                            </div>
+                                            <!-- Card Body -->
+                                            <div class="card-body">
+                                                <div class="chart-area">
+                                                    <div class="chartjs-size-monitor">
+                                                        <div class="chartjs-size-monitor-expand">
+                                                            <div class=""></div>
+                                                        </div>
+                                                        <div class="chartjs-size-monitor-shrink">
+                                                            <div class=""></div>
+                                                        </div>
+                                                    </div>
+                                                    <canvas id="myChartSpeed92" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="card shadow mb-3">
+                                            <!-- Card Header - Dropdown -->
+                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                <h5 class="m-0 font-weight-bold text-primary">Idle, Interrupt time Average (Minutes/ Qty)</h5>
+                                            </div>
+                                            <!-- Card Body -->
+                                            <div class="card-body">
+                                                <div>
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <th></th>
+                                                            <th>Idle</th>
+                                                            <th>Interrupt</th>
+                                                            <th>Diagram Qty</th>
+                                                        </thead>
+                                                        <tbody id="idleTable92">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
 
-                                    <div class="col-md-6" id="cut95">
-                                        <div class="card shadow mb-4 p-2 text-center">
+                                    <div class="col-md-6 col-xs-12 p-0 pl-2" id="cut95">
+                                        <div class="card shadow mb-3 p-2 text-center">
                                             <strong>CUTTING 95</strong>
                                         </div>
 
-                                        <div class="card shadow mb-4">
+                                        <div class="card shadow mb-3">
                                             <!-- Card Header - Dropdown -->
                                             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                                                 <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time %</h5>
@@ -339,8 +395,8 @@
                                                 </div>
                                             </div>
                                         </div>
-        
-                                        <div class="card shadow mb-4">
+
+                                        <div class="card shadow mb-3">
                                             <!-- Card Header - Dropdown -->
                                             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                                                 <h5 class="m-0 font-weight-bold text-primary">Net Average Cutting Time minutes</h5>
@@ -360,6 +416,51 @@
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div class="card shadow mb-3">
+                                            <!-- Card Header - Dropdown -->
+                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                <h5 class="m-0 font-weight-bold text-primary">Cutting Machine Speed (Inch/ Min)</h5>
+                                            </div>
+                                            <!-- Card Body -->
+                                            <div class="card-body">
+                                                <div class="chart-area">
+                                                    <div class="chartjs-size-monitor">
+                                                        <div class="chartjs-size-monitor-expand">
+                                                            <div class=""></div>
+                                                        </div>
+                                                        <div class="chartjs-size-monitor-shrink">
+                                                            <div class=""></div>
+                                                        </div>
+                                                    </div>
+                                                    <canvas id="myChartSpeed95" style="display: block; width: 505px; height: 260px;" width="505" height="260" class="chartjs-render-monitor"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="card shadow mb-3">
+                                            <!-- Card Header - Dropdown -->
+                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                <h5 class="m-0 font-weight-bold text-primary">Idle, Interrupt time Average (Minutes/ Qty)</h5>
+                                            </div>
+                                            <!-- Card Body -->
+                                            <div class="card-body">
+                                                <div>
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <th></th>
+                                                            <th>Idle</th>
+                                                            <th>Interrupt</th>
+                                                            <th>Diagram Qty</th>
+                                                        </thead>
+                                                        <tbody id="idleTable95">
+
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>

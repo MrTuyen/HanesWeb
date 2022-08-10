@@ -42,14 +42,18 @@
             background-color: #7d7d80;
         }
 
-        .table-scrollable {}
+        .request-table {
+            height: 540px;
+            overflow: auto;
+            border: 1px solid #dddddd;
+        }
 
         #processing-table-body i {
             font-size: 32px;
         }
 
-        .select2-container{
-            width: 100%!important;;
+        .select2-container {
+            width: 100% !important;
         }
     </style>
 
@@ -78,19 +82,19 @@
                             <div class="d-sm-block">
                                 <div class="panel panel-default m-0">
                                     <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
-                                       <div class="mdl-tabs__tab-bar" id="innovation-tab">
+                                        <div class="mdl-tabs__tab-bar" id="innovation-tab">
                                             <a href="#processing-panel" class="mdl-tabs__tab is-active" onclick="getAllRequest()"><strong class="text-warning">Y/C vật tư <span id="processing-part-count"></strong></a>
                                             <a href="#all-panel" class="mdl-tabs__tab" onclick="getAllPart()"><strong>Danh mục vật tư <span id="all-part-count"></span></strong></a>
                                             <a href="#warning-panel" class="mdl-tabs__tab" onclick="getWarningPart()"><strong class="text-danger">Vật tư cảnh báo <span id="warning-part-count"></strong></a>
                                         </div>
 
                                         <div class="mdl-tabs__panel is-active" id="processing-panel">
-                                            <div class="panel-heading" style="background: white">
+                                            <div class="panel-heading pt-2 pb-2" style="background: white">
                                                 <div class="row">
-                                                    <div class="col-sm-12 col-md-8 float-left form-inline">
-                                                        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add </button>
-                                                        <div class="btn-group btn-filter">
-                                                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                    <div class="col-sm-12 col-md-8 float-left d-flex">
+                                                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#modalAddRequest"><i class="fa fa-plus"></i> &nbsp;Add </button>
+                                                        <div class="btn-group btn-filter ml-2">
+                                                            <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">
                                                                 <span class="fa fa-search"></span> Filter
                                                             </button>
                                                             <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
@@ -119,7 +123,7 @@
                                                                         <div class="w-100">
                                                                             <label for="recipient-name" class="col-form-label">Trạng thái:</label>
                                                                             <div class="input-group w-100">
-                                                                                <select class="form-control w-100" name="" id="txtStatus" onchange="getAllRequest()">
+                                                                                <select class="form-control w-100" name="" id="txtStatus">
                                                                                     <option value=""> Tất cả </option>
                                                                                     <option value="0" selected> Chưa xử lý </option>
                                                                                     <option value="1"> Đã duyệt </option>
@@ -131,7 +135,7 @@
                                                                     <div class="mt-2 d-flex">
                                                                         <div class="w-100">
                                                                             <p class="mb-1"><strong>Zone</strong></p>
-                                                                            <select class="form-control w-100 list-zone" name="" id="txtFilterZone" onchange="getAllRequest()">
+                                                                            <select class="form-control w-100 list-zone" name="" id="txtFilterZone">
                                                                                 <option value="">Tất cả</option>
                                                                             </select>
                                                                         </div>
@@ -142,8 +146,8 @@
                                                                 </form>
                                                             </div>
                                                         </div>
-                                                        <div class="btn-group btn-filter">
-                                                            <button type="button" class="btn btn-light dropdown-toggle" data-toggle="dropdown">
+                                                        <div class="btn-group btn-filter ml-2">
+                                                            <button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">
                                                                 <span class="fa fa-download"></span> Report
                                                             </button>
                                                             <div class="dropdown-menu p-3" style="left: -63px; width: 300px;">
@@ -173,7 +177,7 @@
                                                                             <p class="mb-1"><strong>Zone</strong></p>
                                                                             <select class="form-control w-100 list-zone" name="" id="txtDownloadZone">
                                                                                 <option value="">Tất cả</option>
-                                                                            
+
                                                                             </select>
                                                                         </div>
                                                                     </div>
@@ -201,7 +205,10 @@
                                                                 </form>
                                                             </div>
                                                         </div>
-                                                        <button type="button" class="btn btn-light" onclick="refresh()"><i class="fa fa-refresh"></i></button>
+                                                        <!-- <button type="button" class="btn btn-sm btn-light ml-2" onclick="refresh()"><i class="fa fa-refresh"></i></button> -->
+                                                        <div class="ml-2" id="filter-area">
+                                                             
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -227,47 +234,43 @@
                                                     </div>
                                                 </div>
                                             </div> -->
-                                            <div class="">
+                                            <div class="request-table">
                                                 <table class="table table-hover table-bordered table-scrollable mb-0">
-                                                    <thead>
+                                                    <thead class="sticky-thead">
                                                         <tr>
                                                             <th width='10%'>#</th>
                                                             <th width='10%'>Loại phiếu</th>
+                                                            <th width='10%'>Cần gấp</th>
                                                             <th width='10%'>Zone</th>
-                                                            <th width='10%'>Tag máy</th>
                                                             <th width='10%'>Thợ máy</th>
                                                             <th width='10%'>Thời gian</th>
                                                             <th width='10%'>Supervisor</th>
-                                                            <th width='10%'>Superintendant</th>
+                                                            <th width='10%'>Superintendent</th>
                                                             <th width='10%'>Kho</th>
                                                             <th width='10%'></th>
                                                         </tr>
                                                     </thead>
-                                                </table>
-                                                <div class="onscrollbar onscrollbar-request" style="overflow: auto;">
-                                                    <table class="table table-hover table-bordered m-0">
-                                                        <tbody id="processing-table-body">
+                                                    <tbody id="processing-table-body">
 
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
                                         <div class="mdl-tabs__panel" id="all-panel">
                                             <%- include ("Part/partTab.ejs"); -%>
                                         </div>
                                         <div class="mdl-tabs__panel" id="warning-panel">
-                                            <div class="d-flex pl-4 pr-4 mt-3 mb-3">
+                                            <div class="d-flex pl-4 pr-4 pt-2 pb-2">
                                                 <div class="p-0">
                                                     <div class="input-group">
-                                                        <button class="btn btn-light" onclick="downloadWarningPart()"><i class="fa fa-download"></i></button>
+                                                        <button class="btn btn-sm btn-light" onclick="downloadWarningPart()"><i class="fa fa-download"></i></button>
                                                     </div>
                                                 </div>
                                                 <div class="pl-2 input-sm-100">
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control" id="txtWarningPart" placeholder="Tên vật tư">
+                                                        <input type="text" class="form-control form-control-sm" id="txtWarningPart" placeholder="Tên vật tư">
                                                         <span class="input-group-btn">
-                                                            <button class="btn btn-success" type="button" onclick="getWarningPart()"><i class="fa fa-search"></i></button>
+                                                            <button class="btn btn-success btn-sm" type="button" onclick="getWarningPart()"><i class="fa fa-search"></i></button>
                                                         </span>
                                                     </div>
                                                 </div>
@@ -299,17 +302,17 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </main>
+    </div>
+    </main>
     </div>
 
     <%- include ("Modal/modal.ejs"); -%>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/Contents/libs/download.min.js"></script>
-    <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
-    <script src="/JS/HBI/Common/commonFactory.js"></script>
-    <script src="/JS/HBI/MEC/index.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/Contents/libs/download.min.js"></script>
+        <script src="/Contents/libs/bootstrap-toastr/toastr.min.js"></script>
+        <script src="/JS/HBI/Common/commonFactory.js"></script>
+        <script src="/JS/HBI/MEC/index.js"></script>
 </body>
 
 </html>

@@ -193,7 +193,6 @@ iframe {
 
 .login100-form {
   width: 100%;
-  border-radius: 10px;
   background-color: #fff;
 }
 
@@ -360,7 +359,6 @@ iframe {
   padding: 0 20px;
   min-width: 160px;
   height: 42px;
-  border-radius: 5px;
 
   background: #d41872;
   background: -webkit-linear-gradient(left, #a445b2, #d41872, #fa4299);

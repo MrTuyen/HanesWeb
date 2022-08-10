@@ -1,58 +1,75 @@
+require('dotenv').config();
 var mysql = require('mysql');
 var dateFormat = require('dateformat');
 const logHelper = require('./common/log.js');
+
+var host = "localhost";
+var user = "root";
+var password = "123456";
 var con1 = mysql.createPool({
     connectionLimit: 30,
-    host: '10.113.99.3',
-    user: 'root',
-    password: '123456',
+    host: host,
+    user: user,
+    password: password,
     database: 'linebalancing'
 });
 var con2 = mysql.createPool({
     connectionLimit: 60,
-    // host: 'hyspayqsqlv',
-    host: '10.113.99.3',
-    user: 'root',
-    // password: 'Hy$2020',
-    password: '123456',
+	host: host,
+    user: user,
+    password: password,
     database: 'erpsystem'
 });
 var con3 = mysql.createPool({
     connectionLimit: 60,
-    host: "10.113.99.3",
-    user: 'root',
-    password: '123456',
+    host: host,
+    user: user,
+    password: password,
     database: 'erphtml'
 });
 var con4 = mysql.createPool({
-    host: "10.113.99.3",
     connectionLimit: 100,
-    user: 'root',
-    password: '123456',
+    host: host,
+    user: user,
+    password: password,
     database: 'pr2k'
 });
-
-// var con5 = mysql.createPool({ 
-//     connectionLimit: 60,
-//     host: "10.113.99.3",
-//     user: 'root',
-//     password: '123456',
-//     database: 'cutting_system'
-// });
-var con5 = mysql.createPool({ 
+var con5 = mysql.createPool({
     connectionLimit: 60,
-    host: "10.113.98.238",
-    user: 'root',
-    password: 'Hy$2020',
+    host: host,
+    user: user,
+    password: password,
     database: 'cutting_system'
 });
 
 //cau hinh doc ejs
+var compression = require('compression');
 var express = require("express");
 var app = express();
+app.use(compression({
+    threshold : 0, // or whatever you want the lower threshold to be
+    filter    : function(req, res) {
+        var ct = res.get('content-type');
+        // return `true` for content types that you want to compress,
+        // `false` otherwise
+        return true;
+    }
+}));
 //cau hinh dang nhap voi user va password
 var passport = require('passport');
 var session = require('express-session');
+
+var MySQLStore = require('express-mysql-session')(session);
+var options = {
+    port: 3306,
+	host: host,
+	user: user,
+	password: password,
+	database: 'erpsystem'
+};
+
+var sessionStore = new MySQLStore(options);
+
 var flash = require('connect-flash');
 var LocalStrategy = require('passport-local').Strategy;
 //cau hinh python read - write
@@ -61,11 +78,14 @@ var formidable = require('formidable');
 var UserModel = require(__dirname + '/models/user.model.js');
 
 // Realtime scan stamp Production
-var staticResource = '//10.113.98.238/Realtime/Pilot';
-var staticResource2 = '//10.113.98.238/Realtime'
-var staticResource3 = '//10.113.98.238/Realtime/Scan lai/'
-var staticResource4 = '//10.113.98.238/Realtime/not scan/'
+var base_url = "//10.113.99.41/";
+var staticResource = base_url + 'Realtime/Pilot';
+var staticResource2 = base_url + 'Realtime'
+var staticResource3 = base_url + 'Realtime/Scan lai/'
+var staticResource4 = base_url + 'Realtime/not scan/'
 var staticReport = '//pbvfps1/PBShare2/Scan/Report/ReportWebserver/'
+
+app.use('/images', express.static('public/Image'));
 app.use('/image', express.static(staticResource));
 app.use('/image2', express.static(staticResource2));
 app.use('/image3', express.static(staticResource3));
@@ -73,10 +93,10 @@ app.use('/image4', express.static(staticResource4));
 app.use('/report', express.static(staticReport));
 
 // Realtime scan stamp Cutting
-var staticCuttingResource = '//10.113.98.238/Cutting/Pilot';
-var staticCuttingResource2 = '//10.113.98.238/Cutting/'
-var staticCuttingResource3 = '//10.113.98.238/Cutting/Scan lai/'
-var staticCuttingResource4 = '//10.113.98.238/Cutting/not scan/'
+var staticCuttingResource = base_url + 'Cutting/Pilot';
+var staticCuttingResource2 = base_url + 'Cutting/'
+var staticCuttingResource3 = base_url + 'Cutting/Scan lai/'
+var staticCuttingResource4 = base_url + 'Cutting/not scan/'
 app.use('/cutting/image', express.static(staticCuttingResource));
 app.use('/cutting/image2', express.static(staticCuttingResource2));
 app.use('/cutting/image3', express.static(staticCuttingResource3));
@@ -85,10 +105,13 @@ app.use('/cutting/image4', express.static(staticCuttingResource4));
 app.use(express.static("public"));
 
 app.use(session({
+    store: sessionStore,
     secret: "secret",
     saveUninitialized: true,
     resave: true,
-    cookie: {  }
+    cookie : {
+        maxAge: 1000 * 60 * 60 * 24 * 30
+    }
 }));
 
 app.use(passport.initialize());
@@ -103,14 +126,17 @@ app.use(
         parameterLimit:50000
     })
 )
-app.use(express.json())
+app.use(express.json());
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 app.set("socketio", io);    // <== this line
 global.testIo = io;
 
-server.listen(8000, '10.113.99.3', function () {
+// server.listen(8000, '10.113.99.3', function () {
+//     console.log('Server Start Running');
+// });
+server.listen(8000, 'localhost', function () {
     console.log('Server Start Running');
 });
 

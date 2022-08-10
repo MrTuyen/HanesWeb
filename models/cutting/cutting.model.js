@@ -1,8 +1,21 @@
 'use strict';
 class CuttingMachineData {
     
-    constructor(machineName, totalTime, cutTime, dryHaulTime, dryRunTime, processingTime, biteTime, interruptTime, sharpenTime, idleTime) {
+    constructor(machineName,
+        position, 
+        totalTime, 
+        cutTime, 
+        dryHaulTime, 
+        dryRunTime, 
+        processingTime, 
+        biteTime, 
+        interruptTime,
+        sharpenTime, 
+        idleTime,
+        cutFilenameList,
+        cutSpeed) {
         this.machineName = machineName ? machineName : 0;
+        this.position = position ? position : 0;
         this.totalTime = totalTime ? totalTime : 0;
         this.cutTime = cutTime ? cutTime : 0;
         this.dryHaulTime = dryHaulTime ? dryHaulTime : 0;
@@ -21,6 +34,9 @@ class CuttingMachineData {
         this.interruptTimePercent = 0;
         this.sharpenTimePercent = 0;
         this.idleTimePercent = 0;
+
+        this.cutFilenameList = cutFilenameList ? cutFilenameList : [];
+        this.cutSpeed = cutSpeed ? cutSpeed : 0;
     }
 
     calculate() {

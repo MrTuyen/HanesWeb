@@ -8,6 +8,37 @@ const baseUrl = "/cutting/fabric-receive/";
 const userLogin = JSON.parse(localStorage.getItem("user"));
 var wh_display = (userLogin.dept == Enum_Department.Warehouse || userLogin.position == "Admin") ? "" : "display-none";
 var ccd_display = (userLogin.dept == Enum_Department.Cutting || userLogin.position == "Admin") ? "" : "display-none";
+const statusList = [
+    {
+        index: 1, value : 'Active'
+    },
+    {
+        index: 2, value : 'Done'
+    },
+    {
+        index: 3, value : 'Canceled'
+    },
+    {
+        index: 0, value : 'All'
+    }
+]
+
+const warehouseStatusList = [
+    {
+        index: 0, value : 'Prepared'
+    },
+    {
+        index: 1, value : 'Done'
+    },
+    {
+        index: 2, value : 'Not yet'
+    },
+    {
+        index: 3, value : 'All'
+    }
+]
+
+const filterLocalStorage = "cutting_fr_filter";
 
 // #endregion
 
@@ -15,8 +46,11 @@ var ccd_display = (userLogin.dept == Enum_Department.Cutting || userLogin.positi
 
 // Refresh data
 function Refresh() {
-    window.location.href = '/';
+    window.location.href = '/cutting/fabric-receive';
 }
+
+// Menu
+$(".fr-navbar li:nth-child(1)").addClass("active");
 
 // Configure some plugin to work properly
 $.fn.modal.Constructor.prototype._enforceFocus = function () { };
@@ -51,8 +85,10 @@ $(document).ready(function () {
     let html = `<option value='${date};${date}'>Hôm nay</option>`;
     for (let i = 0; i < Timepickers.length; i++) {
         let ele = Timepickers[i];
-        html += `<option value='${ele.value}' ${i == 0 ? 'selected' : ''}>${ele.text}</option>`
+        // html += `<option value='${ele.value}' ${i == 0 ? 'selected' : ''}>${ele.text}</option>`
+        html += `<option value='${ele.value}'>${ele.text}</option>`
     }
+    html += `<option value='' selected>All</option>`
     $("#txtFilterTime").append(html);
 
     // init datepicker for all input date type
@@ -62,11 +98,57 @@ $(document).ready(function () {
     });
 
     // get list marker data
+    if(localStorage.getItem(filterLocalStorage) != null){
+        let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+        $("#txtFilterPlant").val(filter ? filter.filterPlant : '');
+        $("#txtFilterGroup").val(filter ? filter.filterGroup : '');
+        $("#txtFilterStatus").val(filter ? filter.filterStatus : '');
+        $("#txtFilterWarehouseStatus").val(filter ? filter.filterWarehouseStatus : '');
+        
+        if(filter.viewType){
+            $("#cbViewType").attr('checked', true);
+        }else{
+            $("#cbViewType").attr('checked', false);
+            $(`#txtFilterWeek`).val(filter ? filter.filterWeek : new Date().getWeekNumber());
+        }
+
+        displayFilter();
+    }
     changeViewType();
     getListMarkerData();
 })
 
+function deleteFilter(obj){
+    let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+    filter[obj.key] = '';
+    localStorage.setItem(filterLocalStorage, JSON.stringify(filter));
+    Refresh();
+}
+
+function displayFilter(){
+    if(localStorage.getItem(filterLocalStorage) != null){
+        let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+        let statusVal = statusList.filter(x => x.index == filter.filterStatus)[0].value;
+        let warehouseStatusVal = warehouseStatusList.filter(x => x.index == filter.filterWarehouseStatus)[0].value;
+        let filterPlant = filter.filterPlant ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterPlant'})">${filter.filterPlant}<i class="fa fa-times"></i></span>` : "";
+        let filterGroup = filter.filterGroup ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterGroup'})">${filter.filterGroup}<i class="fa fa-times"></i></span>` : "";
+        let filterStatus = filter.filterStatus ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterStatus'})">${statusVal}<i class="fa fa-times"></i></span>` : "";
+        let filterWarehouseStatus = filter.filterWarehouseStatus ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterWarehouseStatus'})">${warehouseStatusVal}<i class="fa fa-times"></i></span>` : "";
+        let weekVal = filter.filterWeek ? `<span class="label label-info mr-2" style="cursor: pointer;" onclick="deleteFilter({key: 'filterWeek'})">WK: ${filter.filterWeek}<i class="fa fa-times"></i></span>` : "";
+
+        $("#filter-area").html(filterPlant + filterGroup + filterStatus + filterWarehouseStatus + weekVal);
+    }
+}
+
 function changeViewType() {
+    let weekVal = new Date().getWeekNumber();
+    if(localStorage.getItem(filterLocalStorage) != null){
+        let filter = JSON.parse(localStorage.getItem(filterLocalStorage));
+        if(!filter.viewType){
+            weekVal = filter.filterWeek != '' ? filter.filterWeek : new Date().getWeekNumber();
+        }
+    }
+    
     $(`#dateValue`).css("display", "none");
     $(`#weekValue`).css("display", "none");
     let viewType = $(`#cbViewType`).is(":checked");
@@ -74,7 +156,7 @@ function changeViewType() {
         $(`#dateValue`).css("display", "none");
         $(`#weekValue`).css("display", "block");
         $(`#txtFilterWeek`).focus();
-        $(`#txtFilterWeek`).val(new Date().getWeekNumber());
+        $(`#txtFilterWeek`).val(weekVal);
     }
     else {
         $(`#dateValue`).css("display", "block");
@@ -92,7 +174,9 @@ function changeDateFilter() {
 }
 
 function getListMarkerData() {
+    let filterPlant = $("#txtFilterPlant").val();
     let filterGroup = $("#txtFilterGroup").val();
+    let filterWarehouseStatus = $("#txtFilterWarehouseStatus").val();
     let filterStatus = $("#txtFilterStatus").val();
     let filterDate = '';
     let filterWeek = '';
@@ -109,11 +193,17 @@ function getListMarkerData() {
 
     let action = baseUrl + 'get-marker-data';
     let datasend = {
+        filterPlant: filterPlant,
         filterGroup: filterGroup,
         filterStatus: filterStatus,
         filterDate: filterDate,
-        filterWeek: filterWeek
+        filterWeek: filterWeek,
+        filterWarehouseStatus: filterWarehouseStatus,
+        viewType: viewType
     };
+
+    localStorage.setItem(filterLocalStorage, JSON.stringify(datasend));
+    displayFilter();
     LoadingShow();
     PostDataAjax(action, datasend, function (response) {
         LoadingHide();
@@ -130,6 +220,7 @@ function getListMarkerData() {
                     // </td>
                 html += `<tr class='tr-${ele.id}' style='${isCanceled}'>
                     <td>${ele.id}</td>
+                    <td>${ele.isParentTicket == 0 ? '' : '<span class="label label-danger mr-2">YCT</span>'}</td>
                     <td>${ele.receive_date}</td>
                     <td>${ele.receive_time}</td>
                     <td>${ele._group}</td>
@@ -152,8 +243,8 @@ function getListMarkerData() {
                     </td>
                     <td>
                         ${ele.cancel_date != undefined ? `<div class='rounded-circle white' id='ccd-circle-${ele.id}'></div>`
-                        : ele.ccd_confirm_by != undefined ? `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
-                            : ele.wh_confirm_by != undefined ? `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
+                        : ele.ccd_confirm_by != undefined && ele.ccd_status == 1 ? `<div class='rounded-circle green' id='ccd-circle-${ele.id}'></div>`
+                            : ele.ccd_confirm_by != undefined && ele.ccd_status == 0 ? `<div class='rounded-circle yellow' id='ccd-circle-${ele.id}'></div>`
                                 : `<div class='rounded-circle red' id='ccd-circle-${ele.id}'></div>`
                     }  
                     </td>
@@ -167,12 +258,19 @@ function getListMarkerData() {
                         ${ele.cancel_reason != undefined ? ele.cancel_reason : ele.note}
                     </td>
                     <td>
-                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='printTicket(${ele.id})'>Print</button>
-                        <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
-                        <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/marker-update?group=${ele.id}">Marker</a>
-                        <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD</a>
-                        <button class='btn btn-sm btn-primary ${wh_display}' data-groupId='${ele.id}' onclick='issue(${ele.id})'>ISSUE</button>
-                        <a class='btn btn-sm btn-primary ${wh_display}' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
+                        ${ele.wh_note ? ele.wh_note : ''}
+                    </td>
+                    <td>
+                        ${ele.cancel_date == undefined || userLogin.position == "Admin"? 
+                            `<div>
+                            <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='printTicket(${ele.id})'>Print</button>
+                            <button class='btn btn-sm btn-primary' data-groupId='${ele.id}' onclick='OpenCancelModal(${ele.id})'>Cancel</button>
+                            <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/marker-update?group=${ele.id}">Marker</a>
+                            <a class='btn btn-sm btn-primary ${ccd_display}' href="/cutting/fabric-receive/scan-marker-data-detail?group=${ele.id}">CCD</a>
+                            <button class='btn btn-sm btn-primary ${wh_display}' data-groupId='${ele.id}' onclick='issue(${ele.id})'>ISSUE</button>
+                            <a class='btn btn-sm btn-primary ${wh_display}' href="/cutting/fabric-receive/marker-data-detail?group=${ele.id}">WH</a>
+                            </div>`  
+                            : ''}
                     </td>
                 </tr>`;
             }
@@ -180,7 +278,7 @@ function getListMarkerData() {
             $("#fabric-plan-table-body").html('').append(html);
 
             $("#lbSumMarkerData").text(data.length);
-            $("#lbLastestUpdate").text(data[0].marker_call_date);
+            $("#lbLastestUpdate").text(data.length > 0 ? data[0].marker_call_date : 0);
 
             // for (let i = 0; i < data.length; i++) {
             //     let ele = data[i];
@@ -222,7 +320,9 @@ function getListMarkerData() {
 }
 
 function downloadMarkerData() {
+    let filterPlant = $("#txtFilterPlant").val();
     let filterGroup = $("#txtFilterGroup").val();
+    let filterWarehouseStatus = $("#txtFilterWarehouseStatus").val();
     let filterStatus = $("#txtFilterStatus").val();
     let filterDate = '';
     let filterWeek = '';
@@ -239,10 +339,12 @@ function downloadMarkerData() {
 
     let action = baseUrl + 'download-marker-data';
     let datasend = {
+        filterPlant: filterPlant,
         filterGroup: filterGroup,
         filterStatus: filterStatus,
         filterDate: filterDate,
-        filterWeek: filterWeek
+        filterWeek: filterWeek,
+        filterWarehouseStatus: filterWarehouseStatus
     };
 
     LoadingShow();
@@ -261,7 +363,9 @@ function downloadMarkerData() {
 }
 
 function downloadRollData() {
+    let filterPlant = $("#txtFilterPlant").val();
     let filterGroup = $("#txtFilterGroup").val();
+    let filterWarehouseStatus = $("#txtFilterWarehouseStatus").val();
     let filterStatus = $("#txtFilterStatus").val();
     let filterDate = '';
     let filterWeek = '';
@@ -278,10 +382,12 @@ function downloadRollData() {
 
     let action = baseUrl + 'download-roll-data';
     let datasend = {
+        filterPlant: filterPlant,
         filterGroup: filterGroup,
         filterStatus: filterStatus,
         filterDate: filterDate,
-        filterWeek: filterWeek
+        filterWeek: filterWeek,
+        filterWarehouseStatus: filterWarehouseStatus
     };
 
     LoadingShow();
@@ -373,13 +479,6 @@ function uploadExcel() {
 }
 
 function deleteRow(file) {
-    // let listFiles = [...$('input:file#fileFabricReceiveUpload')[0].files];
-    // let removeEle = listFiles.filter(x => x.name == file.name);
-    // let index = listFiles.indexOf(removeEle);
-    // listFiles.splice(index, 1)
-
-    // $('input:file#fileFabricReceiveUpload')[0].files = listFiles;
-
     $(event.currentTarget).parent().parent().remove();
 }
 
@@ -421,6 +520,117 @@ function saveUploadData() {
             getListMarkerData();
             $("#file-table-body").html('');
             $("#fileFabricReceiveUpload").val('');
+        }
+        else {
+            toastr.error(response.msg, "Thất bại");
+        }
+    });
+}
+
+function uploadExcelReturnData() {
+    if (window.FormData !== undefined) {
+
+        var fileUpload = $("#fileFabricReturnUpload").get(0);
+        var files = fileUpload.files;
+
+        // Create FormData object
+        var fileData = new FormData();
+
+        // Looping over all files and add it to FormData object
+        for (var i = 0; i < files.length; i++) {
+            fileData.append("file" + i, files[i]);
+        }
+
+        LoadingShow();
+        $.ajax({
+            url: baseUrl + 'upload-fabric-file',
+            method: 'POST',
+            contentType: false,
+            processData: false,
+            data: fileData,
+            success: function (result) {
+                LoadingHide();
+                result = JSON.parse(result);
+                if (result.rs) {
+                    var listFiles = result.data
+                    let html = '';
+                    for (var i = 0; i < listFiles.length; i++) {
+                        let ele = listFiles[i];
+
+                        let options = "";
+                        for (var j = 0; j < ele.sheets.length; j++) {
+                            let item = ele.sheets[j];
+                            if (item.sheetname == 'upload-return')
+                                options += "<option value =" + item.id + " selected>" + item.sheetname + "</option>";
+                            else
+                                options += "<option value=" + item.id + ">" + item.sheetname + "</option>";
+                        }
+
+                        html += `<tr id='tr-file-${ele.name}'>
+                            <td class='fileName'>${ele.name}</td>
+                            <td>
+                                <select class='form-control sheetName'>${options}</select>
+                            </td>
+                            <td>
+                                <input type='number' class='form-control headerRow' min='1' value='1' />
+                            </td>
+                        </tr>`;
+                    }
+
+                    $("#return-file-table-body").append(html);
+                }
+                else {
+                    toastr.error(result.msg);
+                }
+            },
+            error: function (err) {
+                LoadingHide();
+                toastr.error(err.statusText);
+            }
+        });
+    } else {
+        toastr.error("FormData is not supported.");
+    }
+}
+
+function saveUploadReturnData() {
+
+    let fileList = $(".fileName");
+    let sheetList = $(".sheetName");
+    let headerList = $(".headerRow");
+    let listData = [];
+
+    for (let i = 0; i < fileList.length; i++) {
+        file = $(fileList[i]).text();
+        sheet = $(sheetList[i]).val();
+        header = $(headerList[i]).val();
+
+        listData.push({
+            file: file,
+            sheet: sheet,
+            header: header,
+        });
+    }
+
+    if (listData.length <= 0) {
+        toastr.warning("Không có tập tin cần upload", "Warning");
+        return false;
+    }
+
+    // send to server
+    let action = baseUrl + 'save-upload-return-data';
+    let datasend = {
+        listData: listData
+    };
+    LoadingShow();
+    PostDataAjax(action, datasend, function (response) {
+        LoadingHide();
+        if (response.rs) {
+            toastr.success(response.msg, "Thành công")
+            $("#modalUploadReturnData").modal('hide');
+            getListMarkerData();
+            $("#file-table-body").html('');
+            $("#fileFabricReturnUpload").val('');
         }
         else {
             toastr.error(response.msg, "Thất bại");

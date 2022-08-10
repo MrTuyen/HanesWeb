@@ -1,14 +1,14 @@
 const logHelper = require("../common/log.js");
 const mysql = require("mysql");
 const util = require('util');
-var con = mysql.createConnection({
+var con = mysql.createPool({
     // host: "10.113.98.238",
     // port: 3306,
     // user: "root",
     // password: "Hy$2020",
     // database: "mec_system"
 
-    host: "10.113.99.3",
+    host: "localhost",
     port: 3306,
     user: "root",
     password: "123456",
@@ -28,7 +28,7 @@ class Database {
             return result;
         }
         catch (error) {
-            logHelper.writeLog("excuteQueryAsync", error);
+            logHelper.writeLog("excuteQueryAsync"+ "/\n" + queryString, error);
             return null;
         }
       
@@ -40,7 +40,7 @@ class Database {
             return result;
         }
         catch (error) {
-            logHelper.writeLog("excuteSPAsync", error);
+            logHelper.writeLog("excuteSPAsync"+ "/\n" + queryString, error);
             return null;
         }
       
@@ -52,7 +52,7 @@ class Database {
             return result.affectedRows;
         }
         catch (error) {
-            logHelper.writeLog("excuteNonQueryAsync", error);
+            logHelper.writeLog("excuteNonQueryAsync"+ "/\n" + queryString, error);
             return null;
         }
       
@@ -64,7 +64,7 @@ class Database {
             return result.insertId;
         }
         catch (error) {
-            logHelper.writeLog("excuteInsertReturnIdAsync", error);
+            logHelper.writeLog("excuteInsertReturnIdAsync"+ "/\n" + queryString, error);
             return 0;
         }
         
@@ -76,7 +76,7 @@ class Database {
             return result.affectedRows;
         }
         catch (error) {
-            logHelper.writeLog("excuteInsertReturnIdAsync", error);
+            logHelper.writeLog("excuteInsertReturnIdAsync"+ "/\n" + queryString, error);
             return 0;
         }
         
@@ -94,7 +94,7 @@ class Database {
             })
         }
         catch (error) {
-            logHelper.writeLog("excuteQuery", error);
+            logHelper.writeLog("excuteQuery"+ "/\n" + queryString, error);
             return null;
         }
         
@@ -112,7 +112,7 @@ class Database {
             })            
         }
         catch (error) {
-            logHelper.writeLog("excuteSP", error);
+            logHelper.writeLog("excuteSP"+ "/\n" + queryString, error);
             return null;
         }
         

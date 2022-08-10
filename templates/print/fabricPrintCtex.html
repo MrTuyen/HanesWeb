@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../../public/Contents/libs/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="../Contents/libs/bootstrap/css/bootstrap.min.css">
+	<style>
+		body {
+			font-size: 8px;
+		}
+
+		table {
+			border-spacing: 0;
+			font-size: 8px;
+		}
+	</style>
+</head>
+
+<body>
+	<table class="table-bordered w-100 text-center">
+		<tr>
+			<td rowspan="4">
+				<img src="../Image/logo.png" width="32" alt="logo">
+			</td>
+			<td  rowspan="4"><h6 class="text-center">BIÊN BẢN XUẤT VẢI</h6></td>
+			<td >HYC-F-WH-041</td>
+		</tr>
+		<tr>
+			<td>Lần sửa đổi: 00</td>
+		</tr>
+		<tr>
+			<td>Ngày sửa đổi: 31/08/2020</td>
+		</tr>
+		<tr>
+			<td>Trang:</td>
+		</tr>
+	</table>
+	<table class="w-100">
+		{{table1}}
+	</table>
+	<table class="table-bordered w-100" style="text-align: center">
+		<thead>
+			<tr>
+				<td rowspan="2">#</td>
+				<td rowspan="2" width="80">Mã hàng</td>
+				<td rowspan="2">Unipack</td>
+				<td rowspan="2">Location</td>
+				<td colspan="2">Số lượng</td>
+				<td rowspan="2">Grade</td>
+				<td rowspan="2">Shade</td>
+				<td rowspan="2">Fabric Lot</td>
+				<td rowspan="2">Shipment</td>
+				<td rowspan="2">PO</td>
+				<td rowspan="2">BARCODE</td>
+				<td rowspan="2">Ctex</td>
+				<td rowspan="2">Actual Width</td>
+				<td rowspan="2" width="20">Vendor</td>
+				<td rowspan="2">Note</td>	
+				<td colspan="6">Khổ Ctex thực tế</td>	
+			</tr>
+			<tr>
+				<td>Yard</td>
+				<td>Lbs</td>
+				<td>Full khổ 1</td>
+				<td>Chân kim 1</td>
+				<td>Full khổ 2</td>
+				<td>Chân kim 2</td>
+				<td>Full khổ 3</td>
+				<td>Chân kim 3</td>
+			</tr>
+		</thead>
+		<tbody>
+			{{table2}}
+		</tbody>
+	</table>
+
+	<table class="table-bordered w-75 text-center mt-2">
+		<tr>
+			<td>Người lập phiếu</td>
+			<td>Người lấy hàng</td>
+			<td>Người xuất hàng</td>
+			<td>Người nhập hàng</td>
+		</tr>
+		<tr style="height: 40px">
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
+	</table>
+
+	<script>
+		(function(){
+			window.print();		
+		})();
+	</script>
+</body>
+
+</html>

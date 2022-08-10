@@ -21,7 +21,11 @@
     <script defer src="/JS/mdl/material.min.js"></script>
 
     <style>
-        
+        .user-table {
+            height: 580px;
+            overflow: auto;
+            border: 1px solid #dddddd;
+        }
     </style>
 
 </head>
@@ -95,9 +99,9 @@
                                                 <button type="button" class="btn btn-light" onclick="downloadUser()"><i class="fa fa-download"></i></button>
                                             </div> -->
                                         </div>
-                                        <div class="">
+                                        <div class="user-table">
                                             <table class="table table-hover table-bordered table-scrollable mb-0">
-                                                <thead>
+                                                <thead class="sticky-thead">
                                                     <tr>
                                                         <th width='10%'>#</th>
                                                         <th width='20%'>Username</th>
@@ -107,14 +111,10 @@
                                                         <th width='10%'></th>
                                                     </tr>
                                                 </thead>
-                                            </table>
-                                            <div class="onscrollbar onscrollbar-user" style="overflow: auto;">
-                                                <table class="table table-hover table-bordered m-0">
-                                                    <tbody id="user-table-body">
+                                                <tbody id="user-table-body">
 
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -191,7 +191,7 @@
                                     <option value="Supervisor">Supervisor</option>
                                     <option value="Clerk">Clerk</option>
                                     <option value="Engineer">Engineer</option>
-                                    <option value="Techician">Techician</option>
+                                    <option value="Technician">Technician</option>
                                 </select>
                             </div>
                         </div>
@@ -250,6 +250,8 @@
                                     <option value="IE">IE</option>
                                     <option value="PR">Production</option>
                                     <option value="Cutting">Cutting</option>
+                                    <option value="Warehouse">Warehouse</option>
+                                    <option value="QA">QA,QC</option>
                                 </select>
                             </div>
                         </div>
@@ -267,11 +269,11 @@
                                 <select id="txtUPosition" class="form-control">
                                     <option value="" selected="" disabled="">Select item...</option>
                                     <option value="Manager">Manager</option>
-                                    <option value="SuperIntendant">SuperIntendant</option>
+                                    <option value="SuperIntendent">SuperIntendent</option>
                                     <option value="Supervisor">Supervisor</option>
                                     <option value="Clerk">Clerk</option>
                                     <option value="Engineer">Engineer</option>
-                                    <option value="Techician">Techician</option>
+                                    <option value="Technician">Technician</option>
                                 </select>
                             </div>
                         </div>

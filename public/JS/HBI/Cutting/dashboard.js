@@ -63,6 +63,7 @@ $(document).ready(function () {
         month: "2-digit",
         day: "2-digit",
     });
+    // let date = "01/11/2021";
     $('.isDate').val(date);
     $("#txtDate92").text(date);
     $("#txtDate95").text(date);
@@ -164,6 +165,8 @@ function getStackBarChart92() {
             if (viewType) {
                 let sumTotalCutTime = 0;
                 let sumTotalTotalTime = 0;
+                let listDate = response.data.stackBarChartData.listDate;
+                let listMachine = response.data.stackBarChartData.listMachine;
                 let labels = response.data.stackBarChartData.data1;
                 let isMultiWeek = isNaN(parseInt(filterWeekEndValue));
                 if (!isMultiWeek) {
@@ -215,7 +218,8 @@ function getStackBarChart92() {
                         listMachinesData = listMachinesData.concat(machine);
                     }
 
-                    listMachinesData = listMachinesData.sort((x, y) => x.machineName - y.machineName);
+                    // listMachinesData = listMachinesData.sort((x, y) => x.machineName - y.machineName);
+                    listMachinesData = listMachinesData.sort((x, y) => x.position - y.position);
 
                     sumTotalCutTime += listMachinesData.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0);
                     sumTotalTotalTime += listMachinesData.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0);
@@ -232,6 +236,48 @@ function getStackBarChart92() {
 
                     drawStackBarChartWeek92(labels, percentBarStackData);
                     drawMinuteStackBarChartWeek92(labels, minuteBarStackData);
+
+                    // speed area
+                    let cutSpeedList = listMachinesData.map(x => x.cutSpeed);
+                    let cutFileList = listMachinesData.map(x => x.cutFilenameList.length);
+                    let cutSpeed = [];
+                    cutSpeedList.forEach((x, i) => {
+                        if(x > 0){
+                            cutSpeed.push(x / cutFileList[i]);
+                        }
+                        else    
+                            cutSpeed.push(0);
+                    })
+
+                    let datasets = [];
+                    let machineColor = ["#4caf50", "#ffeb3b", "#ff9800", "#f44336", "#007bff"];
+                    listMachine.forEach((ele, i) => {
+
+                        let obj = {
+                            label: ele.name,
+                            data: [cutSpeed[i * 7], cutSpeed[i*7 + 1], cutSpeed[i*7 + 2], cutSpeed[i*7 + 3], cutSpeed[i*7 + 4], cutSpeed[i*7 + 5], cutSpeed[i*7 + 6]],
+                            borderColor: machineColor[i],
+                            backgroundColor: machineColor[i],
+                            hoverBorderWidth: 5,
+                            hoverBorderColor: machineColor[i],
+                        };
+                        datasets.push(obj);
+                    });
+                    drawSpeedChartWeek92(listDate, datasets);
+
+                    // Idle, Interupted time average table
+                    let machineList = [];
+                    listMachine.forEach(ele => {
+                        let temp = listMachinesData.filter(x => x.machineName == ele.code);
+                        let obj = {
+                            idleTime: temp.reduce((a, b) => a + b.idleTime, 0),
+                            interruptTime: temp.reduce((a, b) => a + b.interruptTime, 0),
+                            cutFilenameList: [].concat.apply([], temp.map(x => x.cutFilenameList)) // or temp.map(x => x.cutFilenameList).flat()
+                        }
+
+                        machineList.push(obj);
+                    });
+                    avgIdleInterupt(machineList, listMachine.map(x => x.name), '92');
                 }
                 $("#txtAvg92").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
                 $("#txtDate92").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
@@ -260,6 +306,38 @@ function getStackBarChart92() {
 
                 drawMinuteStackBarChartDate92(labels, minuteBarStackData);
 
+                // speed chart
+                let cutSpeedList = machine.map(x => x.cutSpeed);
+                let cutFileList = machine.map(x => x.cutFilenameList.length);
+                let cutSpeed = [];
+                cutSpeedList.forEach((x, i) => {
+                    if(x > 0){
+                        cutSpeed.push(x / cutFileList[i]);
+                    }
+                    else    
+                        cutSpeed.push(0);
+                })
+                //drawSpeedChartDate92(labels, cutSpeed);
+
+                let datasets = [];
+                let machineColor = ["#4caf50", "#ffeb3b", "#ff9800", "#f44336", "#007bff"];
+                labels.forEach((ele, i) => {
+                    let obj = {
+                        label: ele,
+                        data: [cutSpeed[i]],
+                        borderColor: machineColor[i],
+                        backgroundColor: machineColor[i],
+                        hoverBorderWidth: 5,
+                        hoverBorderColor: machineColor[i],
+                    };
+
+                    datasets.push(obj);
+                });
+                drawSpeedChartWeek92([filterDate], datasets);
+
+                // Idle, Interupted time average table
+                avgIdleInterupt(machine, labels, '92');
+
                 // abnormal record 
                 abnormalRecords(response.data.stackBarChartData.data3, response.data.stackBarChartData.data4);
                 $("#txtAbnormalDate").text(filterDate);
@@ -270,109 +348,6 @@ function getStackBarChart92() {
         }
     });
 }
-
-// function getStackBarChart92() {
-//     let filterDate = $("#txtFilterDate92").val();
-//     let filterMachine = $("#txtFilterMachine92").val();
-//     let filterShift = $("#txtFilterShift92").val();
-
-//     let viewType = $("#cbViewType92").is(":checked"); // Select date or week
-//     if (viewType) {
-//         let filterWeek = $("#txtFilterWeek92").val();
-//         let objDate = getDateOfWeek(filterWeek);
-//         objDate.dateFrom = new Date(objDate.dateFrom);
-//         filterDate = `${objDate.dateFrom.formatDateDDMMYYYY()};${objDate.dateFrom.addDays(1).formatDateDDMMYYYY()};${objDate.dateFrom.addDays(2).formatDateDDMMYYYY()};${objDate.dateFrom.addDays(3).formatDateDDMMYYYY()};${objDate.dateFrom.addDays(4).formatDateDDMMYYYY()};${objDate.dateFrom.addDays(5).formatDateDDMMYYYY()};${objDate.dateFrom.addDays(6).formatDateDDMMYYYY()}`;
-//     }
-
-//     let action = baseUrl + 'get-machine-data';
-//     let datasend = {
-//         filterDate: filterDate,
-//         filterMachine: filterMachine.length <= 0 ? "" : filterMachine,
-//         workCenter: 92,
-//         filterShift: filterShift
-//     };
-//     PostDataAjax(action, datasend, function (response) {
-//         if (response.rs) {
-//             if (viewType) {
-//                 let labels = response.data.stackBarChartData.data1;
-//                 let percentBarStackData = {
-//                     cutTimePercent: [],
-//                     dryHaulTimePercent: [],
-//                     idleTimePercent: [],
-//                     interruptTimePercent: []
-//                 };
-
-//                 let minuteBarStackData = {
-//                     cutTime: [],
-//                     dryHaulTime: [],
-//                     idleTime: [],
-//                     interruptTime: []
-//                 };
-
-//                 let sumCutTime = 0;
-//                 let sumTotalTime = 0;
-
-//                 let listMachinesData = [];
-//                 for (let i = 0; i < response.data.stackBarChartData.data2.length; i++) {
-//                     let machine = response.data.stackBarChartData.data2[i].data2.listMachines;
-//                     listMachinesData = listMachinesData.concat(machine);
-//                 }
-
-//                 listMachinesData = listMachinesData.sort((x, y) => x.machineName - y.machineName);
-
-//                 sumCutTime += listMachinesData.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0);
-//                 sumTotalTime += listMachinesData.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0);
-
-//                 percentBarStackData.cutTimePercent = percentBarStackData.cutTimePercent.concat(listMachinesData.map(a => a.cutTimePercent * 1));
-//                 percentBarStackData.dryHaulTimePercent = percentBarStackData.dryHaulTimePercent.concat(listMachinesData.map(a => a.dryHaulTimePercent * 1));
-//                 percentBarStackData.idleTimePercent = percentBarStackData.idleTimePercent.concat(listMachinesData.map(a => a.idleTimePercent * 1));
-//                 percentBarStackData.interruptTimePercent = percentBarStackData.interruptTimePercent.concat(listMachinesData.map(a => a.interruptTimePercent * 1));
-
-//                 minuteBarStackData.cutTime = minuteBarStackData.cutTime.concat(listMachinesData.map(a => a.cutTime * 1));
-//                 minuteBarStackData.dryHaulTime = minuteBarStackData.dryHaulTime.concat(listMachinesData.map(a => a.dryHaulTime * 1));
-//                 minuteBarStackData.idleTime = minuteBarStackData.idleTime.concat(listMachinesData.map(a => a.idleTime * 1));
-//                 minuteBarStackData.interruptTime = minuteBarStackData.interruptTime.concat(listMachinesData.map(a => a.interruptTime * 1));
-
-//                 drawStackBarChartWeek92(labels, percentBarStackData);
-//                 $("#txtAvg92").text(((sumCutTime / sumTotalTime) * 100).toFixed(2));
-//                 $("#txtDate92").text($("#txtFilterWeek92").val());
-
-//                 drawMinuteStackBarChartWeek92(labels, minuteBarStackData);
-//             }
-//             else {
-//                 let labels = response.data.stackBarChartData.data1.map(a => a.name);
-//                 let machine = response.data.stackBarChartData.data2.listMachines;
-//                 let percentAvg = (machine.map(a => a.cutTime * 1).reduce((a, b) => a + b, 0) / machine.map(a => a.totalTime * 1).reduce((a, b) => a + b, 0)) * 100;
-//                 let percentBarStackData = [
-//                     machine.map(a => a.cutTimePercent * 1),
-//                     machine.map(a => a.dryHaulTimePercent * 1),
-//                     machine.map(a => a.idleTimePercent * 1),
-//                     machine.map(a => a.interruptTimePercent * 1)
-//                 ]
-
-//                 let minuteBarStackData = [
-//                     machine.map(a => a.cutTime * 1),
-//                     machine.map(a => a.dryHaulTime * 1),
-//                     machine.map(a => a.idleTime * 1),
-//                     machine.map(a => a.interruptTime * 1),
-//                 ]
-
-//                 drawStackBarChartDate92(labels, percentBarStackData);
-//                 $("#txtAvg92").text(percentAvg.toFixed(2));
-//                 $("#txtDate92").text(filterDate);
-
-//                 drawMinuteStackBarChartDate92(labels, minuteBarStackData);
-
-//                 // abnormal record 
-//                 abnormalRecords(response.data.stackBarChartData.data3, response.data.stackBarChartData.data4);
-//                 $("#txtAbnormalDate").text(filterDate);
-//             }
-//         }
-//         else {
-//             toastr.error(response.msg, "Thất bại");
-//         }
-//     });
-// }
 
 function drawStackBarChartDate92(labels, data) {
     var config = {
@@ -470,7 +445,8 @@ function drawStackBarChartDate92(labels, data) {
                         var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
                         return datasetLabel + ': ' + number_format(tooltipItem.yLabel);
                     }
-                }
+                },
+                enabled: false
             },
             plugins: {
                 datalabels: {
@@ -488,9 +464,6 @@ function drawStackBarChartDate92(labels, data) {
                     color: "black"
                 }
             },
-            tooltips: {
-                enabled: false
-            }
         }
     };
 
@@ -1031,7 +1004,8 @@ function drawStackBarChartAllWeek92(labels, data) {
                         var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
                         return datasetLabel + ': ' + number_format(tooltipItem.yLabel);
                     }
-                }
+                },
+                enabled: false
             },
             plugins: {
                 datalabels: {
@@ -1049,9 +1023,6 @@ function drawStackBarChartAllWeek92(labels, data) {
                     color: "black"
                 }
             },
-            tooltips: {
-                enabled: false
-            }
         }
     };
 
@@ -1062,6 +1033,198 @@ function drawStackBarChartAllWeek92(labels, data) {
     window.stackBar92 = new Chart(ctx, config);
 }
 
+function drawSpeedChartDate92(labels, data) {
+    var config = {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "Cutting Speed",
+                    data: data,
+                    borderColor: "#4caf50",
+                    backgroundColor: "#4caf50",
+                    hoverBorderWidth: 5,
+                    hoverBorderColor: '#4caf50',
+                }
+            ],
+        },
+        options: {
+            maintainAspectRatio: false,
+            legend: {
+                position: "right",
+                reverse: true
+            },
+            layout: {
+                padding: {
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    barPercentage: 0.4, // width of bar
+                    stacked: true,
+                    time: {
+                        unit: 'date'
+                    },
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 10,
+                    }
+                }],
+                yAxes: [{
+                    stacked: true,
+                    ticks: {
+                        maxTicksLimit: 10,
+                        suggestedMin: 0, //min
+                        suggestedMax: 120, //max 
+                        padding: 20,
+                        callback: function (value, index, values) {
+                            return number_format(value);
+                        }
+                    },
+                }],
+            },
+            tooltips: {
+                backgroundColor: "#282c34",
+                titleMarginBottom: 10,
+                titleFontSize: 14,
+                xPadding: 15,
+                yPadding: 15,
+                intersect: true,
+                mode: 'label',
+                caretPadding: 10,
+                callbacks: {
+                    label: function (tooltipItem, chart) {
+                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                        return datasetLabel + ': ' + number_format(tooltipItem.yLabel);
+                    }
+                },
+                enabled: false
+            },
+            plugins: {
+                datalabels: {
+                    formatter: function (value, ctx) {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => {
+                            sum += data;
+                        });
+                        return value == null || value == 0 ? "" : number_format(value);
+                    },
+                    font: {
+                        weight: "bold"
+                    },
+                    color: "black"
+                }
+            },
+        }
+    };
+
+    if (window.speed92) {
+        window.speed92.destroy();
+    }
+    let ctx = document.getElementById("myChartSpeed92");
+    window.speed92 = new Chart(ctx, config);
+}
+
+function drawSpeedChartWeek92(labels, datasets) {
+    var config = {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: datasets,
+        },
+        options: {
+            maintainAspectRatio: false,
+            legend: {
+                position: "right",
+                reverse: true
+            },
+            layout: {
+                padding: {
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    barPercentage: 0.4, // width of bar
+                    stacked: true,
+                    time: {
+                        unit: 'date'
+                    },
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 10,
+                    }
+                }],
+                yAxes: [{
+                    stacked: true,
+                    ticks: {
+                        maxTicksLimit: 10,
+                        suggestedMin: 0, //min
+                        suggestedMax: 120, //max 
+                        padding: 20,
+                        callback: function (value, index, values) {
+                            return number_format(value);
+                        }
+                    },
+                }],
+            },
+            tooltips: {
+                backgroundColor: "#282c34",
+                titleMarginBottom: 10,
+                titleFontSize: 14, 
+                xPadding: 15,
+                yPadding: 15,
+                intersect: true,
+                mode: 'label',
+                caretPadding: 10,
+                callbacks: {
+                    label: function (tooltipItem, chart) {
+                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                        return datasetLabel + ': ' + number_format(tooltipItem.yLabel);
+                    }
+                },
+                enabled: false
+            },
+            plugins: {
+                datalabels: {
+                    formatter: function (value, ctx) {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => {
+                            sum += data;
+                        });
+                        return value == null || value == 0 ? "" : number_format(value);
+                    },
+                    font: {
+                        weight: "bold"
+                    },
+                    color: "black"
+                }
+            },
+        }
+    };
+
+    if (window.speed92) {
+        window.speed92.destroy();
+    }
+    let ctx = document.getElementById("myChartSpeed92");
+    window.speed92 = new Chart(ctx, config);
+}
 
 // ----------------- CUTTING 95 -------------------
 function getStackBarChart95() {
@@ -1096,6 +1259,8 @@ function getStackBarChart95() {
             if (viewType) {
                 let sumTotalCutTime = 0;
                 let sumTotalTotalTime = 0;
+                let listDate = response.data.stackBarChartData.listDate;
+                let listMachine = response.data.stackBarChartData.listMachine;
                 let labels = response.data.stackBarChartData.data1;
                 let isMultiWeek = isNaN(parseInt(filterWeekEndValue));
                 if (!isMultiWeek) {
@@ -1164,6 +1329,48 @@ function getStackBarChart95() {
 
                     drawStackBarChartWeek95(labels, percentBarStackData);
                     drawMinuteStackBarChartWeek95(labels, minuteBarStackData);
+
+                    // speed area
+                    let cutSpeedList = listMachinesData.map(x => x.cutSpeed);
+                    let cutFileList = listMachinesData.map(x => x.cutFilenameList.length);
+                    let cutSpeed = [];
+                    cutSpeedList.forEach((x, i) => {
+                        if(x > 0){
+                            cutSpeed.push(x / cutFileList[i]);
+                        }
+                        else    
+                            cutSpeed.push(0);
+                    })
+
+                    let datasets = [];
+                    let machineColor = ["#4caf50", "#ffeb3b", "#ff9800", "#f44336", "#007bff"];
+                    listMachine.forEach((ele, i) => {
+
+                        let obj = {
+                            label: ele.name,
+                            data: [cutSpeed[i * 7], cutSpeed[i*7 + 1], cutSpeed[i*7 + 2], cutSpeed[i*7 + 3], cutSpeed[i*7 + 4], cutSpeed[i*7 + 5], cutSpeed[i*7 + 6]],
+                            borderColor: machineColor[i],
+                            backgroundColor: machineColor[i],
+                            hoverBorderWidth: 5,
+                            hoverBorderColor: machineColor[i],
+                        };
+                        datasets.push(obj);
+                    });
+                    drawSpeedChartWeek95(listDate, datasets);
+
+                    // Idle, Interupted time average table
+                    let machineList = [];
+                    listMachine.forEach(ele => {
+                        let temp = listMachinesData.filter(x => x.machineName == ele.code);
+                        let obj = {
+                            idleTime: temp.reduce((a, b) => a + b.idleTime, 0),
+                            interruptTime: temp.reduce((a, b) => a + b.interruptTime, 0),
+                            cutFilenameList: [].concat.apply([], temp.map(x => x.cutFilenameList)) // or temp.map(x => x.cutFilenameList).flat()
+                        }
+
+                        machineList.push(obj);
+                    });
+                    avgIdleInterupt(machineList, listMachine.map(x => x.name), '95');
                 }
                 $("#txtAvg95").text(((sumTotalCutTime / sumTotalTotalTime) * 100).toFixed(2));
                 $("#txtDate95").text(filterWeek + (isMultiWeek ? "" : "-" + filterWeekEndValue));
@@ -1191,6 +1398,38 @@ function getStackBarChart95() {
                 $("#txtDate95").text(filterDate);
 
                 drawMinuteStackBarChartDate95(labels, minuteBarStackData);
+
+                // speed chart
+                let cutSpeedList = machine.map(x => x.cutSpeed);
+                let cutFileList = machine.map(x => x.cutFilenameList.length);
+                let cutSpeed = [];
+                cutSpeedList.forEach((x, i) => {
+                    if(x > 0){
+                        cutSpeed.push(x / cutFileList[i]);
+                    }
+                    else    
+                        cutSpeed.push(0);
+                })
+                //drawSpeedChartDate95(labels, cutSpeed);
+
+                let datasets = [];
+                let machineColor = ["#4caf50", "#ffeb3b", "#ff9800", "#f44336", "#007bff"];
+                labels.forEach((ele, i) => {
+                    let obj = {
+                        label: ele,
+                        data: [cutSpeed[i]],
+                        borderColor: machineColor[i],
+                        backgroundColor: machineColor[i],
+                        hoverBorderWidth: 5,
+                        hoverBorderColor: machineColor[i],
+                    };
+
+                    datasets.push(obj);
+                });
+                drawSpeedChartWeek95([filterDate], datasets);
+
+                // Idle, Interupted time average table
+                avgIdleInterupt(machine, labels, '95');
 
                 // abnormal record 
                 abnormalRecords(response.data.stackBarChartData.data3, response.data.stackBarChartData.data4);
@@ -1813,7 +2052,8 @@ function drawStackBarChartAllWeek95(labels, data) {
                         var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
                         return datasetLabel + ': ' + number_format(tooltipItem.yLabel);
                     }
-                }
+                },
+                enabled: false
             },
             plugins: {
                 datalabels: {
@@ -1831,9 +2071,6 @@ function drawStackBarChartAllWeek95(labels, data) {
                     color: "black"
                 }
             },
-            tooltips: {
-                enabled: false
-            }
         }
     };
 
@@ -1844,7 +2081,227 @@ function drawStackBarChartAllWeek95(labels, data) {
     window.barStack95 = new Chart(ctx, config);
 }
 
+function drawSpeedChartDate95(labels, data) {
+    var config = {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: "Cutting Speed",
+                    data: data,
+                    borderColor: "#4caf50",
+                    backgroundColor: "#4caf50",
+                    hoverBorderWidth: 5,
+                    hoverBorderColor: '#4caf50',
+                }
+            ],
+        },
+        options: {
+            maintainAspectRatio: false,
+            legend: {
+                position: "right",
+                reverse: true
+            },
+            layout: {
+                padding: {
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    barPercentage: 0.4, // width of bar
+                    stacked: true,
+                    time: {
+                        unit: 'date'
+                    },
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 10,
+                    }
+                }],
+                yAxes: [{
+                    stacked: true,
+                    ticks: {
+                        maxTicksLimit: 10,
+                        suggestedMin: 0, //min
+                        suggestedMax: 120, //max 
+                        padding: 20,
+                        callback: function (value, index, values) {
+                            return number_format(value);
+                        }
+                    },
+                }],
+            },
+            tooltips: {
+                backgroundColor: "#282c34",
+                titleMarginBottom: 10,
+                titleFontSize: 14,
+                xPadding: 15,
+                yPadding: 15,
+                intersect: true,
+                mode: 'label',
+                caretPadding: 10,
+                callbacks: {
+                    label: function (tooltipItem, chart) {
+                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                        return datasetLabel + ': ' + number_format(tooltipItem.yLabel);
+                    }
+                },
+                enabled: false
+            },
+            plugins: {
+                datalabels: {
+                    formatter: function (value, ctx) {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => {
+                            sum += data;
+                        });
+                        return value == null || value == 0 ? "" : number_format(value);
+                    },
+                    font: {
+                        weight: "bold"
+                    },
+                    color: "black"
+                }
+            },
+        }
+    };
+
+    if (window.speed95) {
+        window.speed95.destroy();
+    }
+    let ctx = document.getElementById("myChartSpeed95");
+    window.speed95 = new Chart(ctx, config);
+}
+
+function drawSpeedChartWeek95(labels, datasets) {
+    var config = {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: datasets,
+        },
+        options: {
+            maintainAspectRatio: false,
+            legend: {
+                position: "right",
+                reverse: true
+            },
+            layout: {
+                padding: {
+                    left: 0,
+                    right: 0,
+                    top: 0,
+                    bottom: 0
+                }
+            },
+            scales: {
+                xAxes: [{
+                    barPercentage: 0.4, // width of bar
+                    stacked: true,
+                    time: {
+                        unit: 'date'
+                    },
+                    gridLines: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        maxTicksLimit: 10,
+                    }
+                }],
+                yAxes: [{
+                    stacked: true,
+                    ticks: {
+                        maxTicksLimit: 10,
+                        suggestedMin: 0, //min
+                        suggestedMax: 120, //max 
+                        padding: 20,
+                        callback: function (value, index, values) {
+                            return number_format(value);
+                        }
+                    },
+                }],
+            },
+            tooltips: {
+                backgroundColor: "#282c34",
+                titleMarginBottom: 10,
+                titleFontSize: 14, 
+                xPadding: 15,
+                yPadding: 15,
+                intersect: true,
+                mode: 'label',
+                caretPadding: 10,
+                callbacks: {
+                    label: function (tooltipItem, chart) {
+                        var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                        return datasetLabel + ': ' + number_format(tooltipItem.yLabel);
+                    }
+                },
+                enabled: false
+            },
+            plugins: {
+                datalabels: {
+                    formatter: function (value, ctx) {
+                        let sum = 0;
+                        let dataArr = ctx.chart.data.datasets[0].data;
+                        dataArr.map(data => {
+                            sum += data;
+                        });
+                        return value == null || value == 0 ? "" : number_format(value);
+                    },
+                    font: {
+                        weight: "bold"
+                    },
+                    color: "black"
+                }
+            },
+        }
+    };
+
+    if (window.speed95) {
+        window.speed95.destroy();
+    }
+    let ctx = document.getElementById("myChartSpeed95");
+    window.speed95 = new Chart(ctx, config);
+}
+
 // ----------------- Common function --------------
+function avgIdleInterupt(machineList, labels, wc){
+    let html = '';
+    let sumIdleTimeAvg = 0;
+    let sumInterruptTimeAvg = 0;
+    machineList.forEach((ele, i) => {
+        let idleTimeAverage = ele.cutFilenameList.length > 0 ? ele.idleTime / ele.cutFilenameList.length : 0;
+        let interuptTimeAverage = ele.cutFilenameList.length > 0 ? ele.interruptTime / ele.cutFilenameList.length : 0;
+
+        sumIdleTimeAvg += idleTimeAverage;
+        sumInterruptTimeAvg += interuptTimeAverage;
+
+        html += `<tr>
+                <td>${labels[i]}</td>
+                <td>${idleTimeAverage.toFixed(1)}</td>
+                <td>${interuptTimeAverage.toFixed(1)}</td>
+                <td>${ele.cutFilenameList.length > 0 ? ele.cutFilenameList.length : 0}</td>
+            </tr>`;
+    })
+    html += `<tr>
+                <td><strong>Average</strong></td>
+                <td><strong>${(sumIdleTimeAvg / machineList.length).toFixed(1)}</strong></td>
+                <td><strong>${(sumInterruptTimeAvg / machineList.length).toFixed(1)}</strong></td>
+                <td></td>
+            </tr>`;
+    $(`#idleTable${wc}`).html('').append(html);
+}
+
 function downloadMachineDataReport() {
     LoadingShow();
 
@@ -1907,7 +2364,6 @@ function abnormalRecords(abnormalRecords, machineList) {
 function getMachines() {
     let action = '/cutting/get-machines';
     let datasend = {
-
     };
     PostDataAjax(action, datasend, function (response) {
         if (response.rs) {

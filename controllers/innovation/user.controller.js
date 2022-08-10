@@ -31,6 +31,7 @@ module.exports.getUser = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.getUser", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -58,6 +59,7 @@ module.exports.addUser = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.addUser", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -88,6 +90,31 @@ module.exports.updateUser = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.updateUser", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
+    }
+}
+
+module.exports.deleteUser = function (req, res) {
+    try {
+        //parameters
+        let id = req.body.id;
+
+        // execute
+        let query = `DELETE FROM mec_user
+                    WHERE id = ${id}`;
+
+        db.excuteQuery(query, function (result) {
+            if (!result.rs) {
+                res.end(JSON.stringify({ rs: false, msg: result.msg.message }));
+            }
+            else {
+                res.end(JSON.stringify({ rs: true, msg: "Thành công", data: result.data }));
+            }
+        });
+    }
+    catch (error) {
+        logHelper.writeLog("innovation.deleteUser", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -108,6 +135,7 @@ module.exports.getUserDetail = function (req, res) {
     }
     catch (error) {
         logHelper.writeLog("innovation.getModelDetail", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
 
@@ -149,5 +177,6 @@ module.exports.downloadUser = function (req, res) {
 
     } catch (error) {
         logHelper.writeLog("innovation.downloadUser", error);
+        return res.end(JSON.stringify({ rs: false, msg: error.message }));
     }
 }
