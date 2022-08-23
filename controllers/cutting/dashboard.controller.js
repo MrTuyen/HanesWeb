@@ -93,7 +93,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                         // Tính lại idle_time
                         if(result95[0]){
                             for (let j = 1; j < result95[0].length; j++) {
-                                result95[0][j].idle_time = Math.abs(result95[0][j].start_time - result95[0][j - 1].end_time) / (1000 * 60);
+                                result95[0][j].gap_time = Math.abs(result95[0][j].start_time - result95[0][j - 1].end_time) / (1000 * 60);
                             }
                         }
 
@@ -103,12 +103,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                             let ele = labels[i];
                             let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
                             if (tempListMachine.length > 0) {
-                                if(filterShift ==  'b_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
-                                else if(filterShift ==  'c_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
-                                else
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);        
+                                reCalculateIdleTimeFirstRecord(tempListMachine[0], filterShift, false);
                             }
                         }
 
@@ -118,12 +113,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                             let ele = labels[i];
                             let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
                             if (tempListMachine.length > 0) {
-                                if(filterShift ==  'b_shift')
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
-                                else if(filterShift ==  'c_shift')
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
-                                else
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);                  
+                                reCalculateIdleTimeFirstRecord(tempListMachine[0], filterShift, true);                  
                             }
                         }
 
@@ -219,12 +209,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                             let ele = labels[i];
                             let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
                             if (tempListMachine.length > 0) {
-                                if(filterShift ==  'b_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
-                                else if(filterShift ==  'c_shift')
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
-                                else
-                                    tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);  
+                                reCalculateIdleTimeFirstRecord(tempListMachine[0], filterShift, false);
                             }
                         }
 
@@ -234,12 +219,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                             let ele = labels[i];
                             let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
                             if (tempListMachine.length > 0) {
-                                if(filterShift ==  'b_shift')
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
-                                else if(filterShift ==  'c_shift')
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
-                                else
-                                    tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);  
+                                reCalculateIdleTimeFirstRecord(tempListMachine[0], filterShift, true);
                             }
                         }
 
@@ -274,76 +254,48 @@ module.exports.getStackBarMachineData = async function (req, res) {
                 let result92 = [];
                 let result95 = [];
                 let labels = [];
+
                 if (filterMachine == "") {
                     labels = listMachines.filter(function (ele) {
                         return ele.group == filterWorkCenter;
                     })
-                    for (var i = 0; i < labels.length; i++) {
-                        let machine = labels[i];
-
-                        let query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine.code}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
-                        let tempResult = await db.excuteQueryAsync(query);
-                        // result92.push(tempResult ? tempResult[0] : []);
-                        // Tính lại idle_time
-                        if(tempResult){
-                            let tempData = tempResult[0];
-                            for (let j = 1; j < tempData.length; j++) {
-                                tempData[j].idle_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
-                            }
-                            result92.push(tempData);
-                        }
-
-                        query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine.code}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
-                        tempResult = await db.excuteQueryAsync(query);
-                        // result95.push(tempResult[0] === undefined ? [] : tempResult[0]);
-                        // Tính lại idle_time
-                        if(tempResult[0] !== undefined){
-                            let tempData = tempResult[0];
-                            // tempData = helper.sortArrayByKey(tempData, "start_time", false);
-                            for (let j = 1; j < tempData.length; j++) {
-                                // Loại bỏ trường hợp bất thường, thời gian kết thúc các bản ghi giống nhau
-                                if(tempData[j + 1] && tempData[j].end_time.toString() != tempData[j + 1].end_time.toString()){
-                                    tempData[j].gap_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
-                                }
-                            }
-                            result95.push(tempData);
-                        }
-                    }
                 }
                 else {
                     for (var i = 0; i < filterMachine.length; i++) {
                         let machine = filterMachine[i];
-                        let tempMachine = listMachines.filter(function (ele) {
+                        let machineObj = listMachines.filter(function (ele) {
                             return ele.code == machine;
                         })
-                        labels.push(tempMachine);
+                        labels.push(machineObj[0]);
+                    }
+                }
 
-                        let query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
-                        let tempResult = await db.excuteQueryAsync(query);
-                        // result92.push(tempResult ? tempResult[0] : []);
-                        // Tính lại idle_time
-                        if(tempResult){
-                            let tempData = tempResult[0];
-                            for (let j = 1; j < tempData.length; j++) {
-                                tempData[j].idle_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
-                            }
-                            result92.push(tempData);
-                        }
+                for (var i = 0; i < labels.length; i++) {
+                    let machine = labels[i];
 
-                        query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
-                        tempResult = await db.excuteQueryAsync(query);
-                        // result95.push(tempResult[0] === undefined ? [] : tempResult[0]);
-                        // Tính lại idle_time
-                        if(tempResult[0] !== undefined){
-                            let tempData = tempResult[0];
-                            for (let j = 1; j < tempData.length; j++) {
-                                // Loại bỏ trường hợp bất thường, thời gian kết thúc các bản ghi giống nhau
-                                if(tempData[j + 1] && tempData[j].end_time.toString() != tempData[j + 1].end_time.toString()){
-                                    tempData[j].gap_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
-                                }
-                            }
-                            result95.push(tempData);
+                    let query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine.code}', '${constant.WorkCenter.Cutting92}', '${filterShift}')`;
+                    let tempResult = await db.excuteQueryAsync(query);
+                    // Tính lại idle_time
+                    if(tempResult){
+                        let tempData = tempResult[0];
+                        for (let j = 1; j < tempData.length; j++) {
+                            tempData[j].idle_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
                         }
+                        result92.push(tempData);
+                    }
+
+                    query = `CALL USP_Cutting_Net_Time_92 ('${filterDate}', '${machine.code}', '${constant.WorkCenter.Cutting95}', '${filterShift}')`;
+                    tempResult = await db.excuteQueryAsync(query);
+                    // Tính lại idle_time
+                    if(tempResult[0] !== undefined){
+                        let tempData = tempResult[0];
+                        for (let j = 1; j < tempData.length; j++) {
+                            // Loại bỏ trường hợp bất thường, thời gian kết thúc các bản ghi giống nhau
+                            if(tempData[j + 1] && tempData[j].end_time.toString() != tempData[j + 1].end_time.toString()){
+                                tempData[j].gap_time = Math.abs(tempData[j].start_time - tempData[j - 1].end_time) / (1000 * 60);
+                            }
+                        }
+                        result95.push(tempData);
                     }
                 }
 
@@ -358,13 +310,8 @@ module.exports.getStackBarMachineData = async function (req, res) {
                 for (let i = 0; i < labels.length; i++) {
                     let ele = labels[i];
                     let tempListMachine = result92.filter((x) => x.machine_code == ele.code);
-                    if (tempListMachine.length > 0) {
-                        if(filterShift ==  'b_shift')
-                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
-                        else if(filterShift ==  'c_shift')
-                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
-                        else
-                            tempListMachine[0].idle_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60);  
+                    if (tempListMachine.length > 0) {                  
+                        reCalculateIdleTimeFirstRecord(tempListMachine[0], filterShift, false);
                     }
                 }
 
@@ -373,12 +320,7 @@ module.exports.getStackBarMachineData = async function (req, res) {
                     let ele = labels[i];
                     let tempListMachine = result95.filter((x) => x.machine_code == ele.code);
                     if (tempListMachine.length > 0) {
-                        if(filterShift ==  'b_shift')
-                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 14:00:00") - tempListMachine[0].start_time) / (1000 * 60);
-                        else if(filterShift ==  'c_shift')
-                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 22:00:00") - tempListMachine[0].start_time) / (1000 * 60);     
-                        else
-                            tempListMachine[0].gap_time = Math.abs(new Date(tempListMachine[0].start_time.toDateString() + " 06:00:00") - tempListMachine[0].start_time) / (1000 * 60); 
+                        reCalculateIdleTimeFirstRecord(tempListMachine[0], filterShift, true);
                     }
                 }
 
@@ -418,6 +360,37 @@ module.exports.getStackBarMachineData = async function (req, res) {
         logHelper.writeLog("cutting.getStackBarMachineData", error);
         return res.end(JSON.stringify({ rs: false, msg: error.message}));
     }
+}
+
+function reCalculateIdleTimeFirstRecord(inputObj, shift, isParagon){
+    let idleTime = 0;
+    if(shift ==  'b_shift')
+        idleTime = Math.abs(new Date(inputObj.start_time.toDateString() + " 14:00:00") - inputObj.start_time) / (1000 * 60);
+    else if(shift ==  'c_shift')
+        idleTime = Math.abs(new Date(inputObj.start_time.toDateString() + " 22:00:00") - inputObj.start_time) / (1000 * 60);     
+    else if(shift ==  'a_shift')
+        idleTime = Math.abs(new Date(inputObj.start_time.toDateString() + " 06:00:00") - inputObj.start_time) / (1000 * 60); 
+    else
+        idleTime = checkShift(inputObj);
+
+    if(isParagon)
+        inputObj.gap_time = idleTime;
+    else 
+        inputObj.idle_time = idleTime;
+}
+
+function checkShift(inputObj){
+    let time = inputObj.start_time.toTimeString();
+    let idleTime = 0;
+
+    if(time >= "06:00:00" && time < "14:00:00")
+        idleTime = Math.abs(new Date(inputObj.start_time.toDateString() + " 06:00:00") - inputObj.start_time) / (1000 * 60);
+    else if(time >= "14:00:00" && time < "22:00:00")
+        idleTime = Math.abs(new Date(inputObj.start_time.toDateString() + " 14:00:00") - inputObj.start_time) / (1000 * 60);
+    else 
+        idleTime = Math.abs(new Date(inputObj.start_time.toDateString() + " 22:00:00") - inputObj.start_time) / (1000 * 60);
+
+    return idleTime;
 }
 
 module.exports.downloadMachineDataReport = async function (req, res) {
